@@ -127,6 +127,15 @@ body{font-family:'Georgia',serif;background:var(--parch);color:var(--ink);min-he
 .book-page-btn .bpb-text{flex:1;}
 .book-page-btn .bpb-sub{font-size:11px;color:var(--ink3);font-weight:normal;margin-top:1px;}
 .img-loading{font-size:12px;color:var(--ink3);font-family:sans-serif;padding:8px 0;}
+.student-input-bar{display:flex;gap:8px;align-items:flex-end;margin-bottom:13px;}
+.student-input-box{flex:1;border:1.5px solid var(--parch3);border-radius:var(--radius-sm);padding:9px 12px;font-size:14px;font-family:'Georgia',serif;color:var(--ink);background:white;resize:none;min-height:42px;max-height:120px;transition:border-color 0.15s;line-height:1.5;}
+.student-input-box:focus{outline:none;border-color:var(--gold);}
+.student-input-box::placeholder{color:var(--ink3);font-style:italic;}
+.student-send-btn{padding:9px 16px;background:var(--gold);color:white;border:none;border-radius:var(--radius-sm);font-size:13px;cursor:pointer;font-family:sans-serif;transition:all 0.15s;flex-shrink:0;height:42px;}
+.student-send-btn:hover{background:var(--gold2);}
+.student-send-btn:disabled{opacity:0.4;cursor:not-allowed;}
+.student-answer-display{background:var(--parch2);border:1px solid var(--parch3);border-radius:var(--radius-sm);padding:9px 12px;font-size:13px;color:var(--ink);margin-bottom:8px;line-height:1.6;display:none;}
+.student-answer-display strong{color:var(--gold2);font-size:11px;text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:3px;font-family:sans-serif;}
 .mic-bar{background:#F0EBF8;border:1px solid #C8A8E8;border-radius:var(--radius-sm);padding:9px 13px;margin-bottom:13px;display:flex;align-items:center;gap:10px;font-family:sans-serif;font-size:13px;}
 .mic-btn{width:44px;height:44px;border-radius:50%;border:none;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.18s;flex-shrink:0;}
 .mic-btn.idle{background:#9B59B6;color:white;}
@@ -239,6 +248,16 @@ body{font-family:'Georgia',serif;background:var(--parch);color:var(--ink);min-he
         <div class="mic-transcript" id="mic-transcript"></div>
       </div>
       <button class="rbtn" id="mic-clear" onclick="clearTranscript()" style="display:none">✕ Clear</button>
+    </div>
+
+    <!-- Student text input -->
+    <div class="student-input-bar">
+      <textarea class="student-input-box" id="student-input" placeholder="Type your answer here..." rows="1" onkeydown="handleInputKey(event)" oninput="autoGrow(this)"></textarea>
+      <button class="student-send-btn" id="btn-send" onclick="submitTextAnswer()">Send ↑</button>
+    </div>
+    <div class="student-answer-display" id="student-answer-display">
+      <strong>Student answered:</strong>
+      <span id="student-answer-text"></span>
     </div>
 
     <!-- Speed timer (Math only) -->
@@ -529,6 +548,8 @@ function openSubject(subjectId){
   document.getElementById('img-section').style.display = 'none';
   document.getElementById('img-grid').innerHTML = '';
   document.getElementById('book-page-btn-wrap').style.display = 'none';
+  document.getElementById('student-input').value = '';
+  document.getElementById('student-answer-display').style.display = 'none';
   ['btn-correct','btn-partial','btn-wrong','btn-hint','btn-next'].forEach(id=>{
     document.getElementById(id).disabled = true;
   });
@@ -745,6 +766,52 @@ async function nextQuestion(){
     readAloud(text);
   } catch(e){ document.getElementById('ai-response').textContent='Connection error. Please try again.'; }
   btn.disabled=false; btn.innerHTML='Next →';
+}
+
+
+// ══════════════════════════════════════════════
+// STUDENT TEXT INPUT
+// ══════════════════════════════════════════════
+function autoGrow(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function handleInputKey(e) {
+  // Send on Enter (not Shift+Enter)
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    submitTextAnswer();
+  }
+}
+
+function submitTextAnswer() {
+  const input = document.getElementById('student-input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  // Show the answer
+  document.getElementById('student-answer-display').style.display = 'block';
+  document.getElementById('student-answer-text').textContent = text;
+
+  // Also populate mic transcript so teacher sees it in one place
+  document.getElementById('mic-transcript').textContent = text;
+  document.getElementById('mic-clear').style.display = 'block';
+  document.getElementById('mic-status').textContent = '✓ Answer received — evaluate using buttons below';
+
+  // Clear input
+  input.value = '';
+  input.style.height = 'auto';
+}
+
+function clearTranscript() {
+  document.getElementById('mic-transcript').textContent = '';
+  document.getElementById('mic-clear').style.display = 'none';
+  document.getElementById('mic-status').textContent = 'Tap 🎤 to answer by speaking';
+  document.getElementById('student-answer-display').style.display = 'none';
+  document.getElementById('student-answer-text').textContent = '';
+  document.getElementById('student-input').value = '';
+  micRetries = 0;
 }
 
 // ══════════════════════════════════════════════
