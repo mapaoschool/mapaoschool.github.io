@@ -221,6 +221,11 @@ body{font-family:'Georgia',serif;background:var(--parch);color:var(--ink);min-he
       <span id="tracker-text">Loading session...</span>
     </div>
 
+    <!-- BEGIN SESSION — top position for students -->
+    <div style="margin-bottom:13px;">
+      <button class="btn btn-gold" id="btn-begin-top" onclick="beginSession()" style="width:100%;padding:14px;font-size:15px;border-radius:var(--radius);">✦ Begin Today's Lesson</button>
+    </div>
+
     <!-- Book link -->
     <div class="book-link-box" id="book-link-box" style="display:none">
       📖 <span id="book-link-text"></span>
@@ -551,6 +556,7 @@ function openSubject(subjectId){
     document.getElementById(id).disabled = true;
   });
   document.getElementById('btn-begin').disabled = false;
+  document.getElementById('btn-begin-top').disabled = false;
   showScreen('tutor');
 }
 
@@ -561,6 +567,8 @@ async function beginSession(){
   const btn = document.getElementById('btn-begin');
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span>Starting...';
+  document.getElementById('btn-begin-top').disabled = true;
+  document.getElementById('btn-begin-top').innerHTML = '<span class="spinner"></span>Starting...';
   document.getElementById('ai-response').innerHTML = '<span class="spinner"></span>The tutor is preparing today\'s lesson...';
   document.getElementById('ai-cite').textContent = '';
   document.getElementById('fb-area').innerHTML = '';
@@ -616,6 +624,8 @@ Respond in plain, natural tutor voice — no markdown, no bullet symbols.`;
   }
   btn.disabled = false;
   btn.innerHTML = '✦ Begin Session';
+  document.getElementById('btn-begin-top').disabled = false;
+  document.getElementById('btn-begin-top').innerHTML = '✦ Begin Today\'s Lesson';
 }
 
 // ══════════════════════════════════════════════
