@@ -273,16 +273,13 @@ body{font-family:'Georgia',serif;background:var(--parch);color:var(--ink);min-he
       </div>
     </div>
 
-    <!-- Book page button -->
+    <!-- Book page button — teacher reference only -->
     <div id="book-page-btn-wrap" style="display:none">
-      <a class="book-page-btn" id="book-page-btn" href="#" target="_blank">
-        <span class="bpb-icon">📖</span>
-        <span class="bpb-text">
-          <span id="book-page-label">Open this page in your book</span>
-          <div class="bpb-sub" id="book-page-sub">Tap to open the book at the relevant page</div>
-        </span>
-        <span>↗</span>
-      </a>
+      <div style="background:var(--parch2);border:1px solid var(--parch3);border-radius:var(--radius-sm);padding:9px 13px;margin-bottom:13px;font-family:sans-serif;font-size:12px;color:var(--ink3);display:flex;align-items:center;gap:8px;">
+        <span>📖</span>
+        <span style="flex:1"><strong style="color:var(--ink2)">Teacher reference:</strong> <span id="book-page-label"></span></span>
+        <a id="book-page-btn" href="#" target="_blank" style="color:var(--blue);font-size:11px;white-space:nowrap;">Open PDF ↗</a>
+      </div>
     </div>
 
     <!-- Web images -->
@@ -579,16 +576,17 @@ STUDENT: ${studentNames[curStudent]}
 LAST LESSON COMPLETED: ${sess.lastLesson}
 SESSION NUMBER: ${sess.sessionCount + 1}
 
-Based on the above, generate today's complete lesson opening. Include:
-1. A warm greeting using the student's initials
-2. Confirmation of what was covered last time and what today's lesson will be
-3. The read-aloud instruction ("I am going to read now...")
-4. The actual lesson content to read aloud (passage, question, or activity — whichever is appropriate for this subject and session)
-5. 2–3 comprehension or response questions for the student
-6. End with the source citation
+Generate today's complete lesson. Structure it exactly like this:
+1. Warm greeting using the student's initials
+2. Confirm what was covered last time and what today's lesson will be
+3. Say: "I am going to read now. Please listen carefully and follow along quietly."
+4. READ THE ACTUAL BOOK PASSAGE OR LESSON CONTENT ALOUD — write it out in full as if reading directly from the book. This is critical: the student has NO other way to access the book text, so you MUST include the actual passage, story, or lesson content here. Do not summarize — write it out fully.
+5. After the passage, ask 2–3 comprehension or discussion questions
+6. End with encouragement and preview of next session
 
-IMPORTANT: Never give away answers. Guide through questions. Be encouraging. Stay within the content restrictions.
-Respond in plain text — no markdown headers, no bullet symbols. Natural tutor voice.`;
+CRITICAL RULE: Include the full text of the lesson/passage/chapter in your response. The student is listening — they cannot open the book themselves. You are their only source of the text.
+IMPORTANT: Never give away answers. Be encouraging. Stay within content restrictions.
+Respond in plain, natural tutor voice — no markdown, no bullet symbols.`;
 
   try {
     const res = await fetch('https://divine-sunset-f2ee.panicovillegas.workers.dev',{
@@ -625,14 +623,54 @@ Respond in plain text — no markdown headers, no bullet symbols. Natural tutor 
 // ══════════════════════════════════════════════
 function readAloud(text){
   if(!window.speechSynthesis) return;
+  if(!text || text.includes('Tap "Begin Session"')) return;
   stopRead();
+  // Chrome bug: speechSynthesis sometimes stops mid-sentence — resume it
+  const resumeHack = setInterval(()=>{
+    if(window.speechSynthesis.paused) window.speechSynthesis.resume();
+    if(!window.speechSynthesis.speaking) clearInterval(resumeHack);
+  }, 5000);
   const speed = parseFloat(document.getElementById('voice-speed').value);
-  speechUtterance = new SpeechSynthesisUtterance(text);
-  speechUtterance.rate = speed;
-  speechUtterance.lang = curSubject.id.includes('spanish') ? 'es-MX' : 'en-US';
-  speechUtterance.onstart = ()=>{ isReading=true; document.getElementById('btn-read').textContent='⏸ Pause'; document.getElementById('btn-read').classList.add('playing'); };
-  speechUtterance.onend = ()=>{ isReading=false; document.getElementById('btn-read').textContent='▶ Read'; document.getElementById('btn-read').classList.remove('playing'); };
-  window.speechSynthesis.speak(speechUtterance);
+  // Split long text into chunks to avoid Chrome cutting off
+  const chunks = splitIntoChunks(text, 200);
+  let chunkIndex = 0;
+  function speakChunk(){
+    if(chunkIndex >= chunks.length){ 
+      clearInterval(resumeHack);
+      isReading=false; 
+      document.getElementById('btn-read').textContent='▶ Read'; 
+      document.getElementById('btn-read').classList.remove('playing');
+      return; 
+    }
+    speechUtterance = new SpeechSynthesisUtterance(chunks[chunkIndex]);
+    speechUtterance.rate = speed;
+    speechUtterance.lang = curSubject && curSubject.id.includes('spanish') ? 'es-MX' : 'en-US';
+    speechUtterance.onstart = ()=>{ 
+      isReading=true; 
+      document.getElementById('btn-read').textContent='⏸ Pause'; 
+      document.getElementById('btn-read').classList.add('playing'); 
+    };
+    speechUtterance.onend = ()=>{ chunkIndex++; speakChunk(); };
+    speechUtterance.onerror = ()=>{ chunkIndex++; speakChunk(); };
+    window.speechSynthesis.speak(speechUtterance);
+  }
+  speakChunk();
+}
+
+function splitIntoChunks(text, maxWords){
+  const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
+  const chunks = [];
+  let current = '';
+  for(const s of sentences){
+    if((current + s).split(' ').length > maxWords){
+      if(current) chunks.push(current.trim());
+      current = s;
+    } else {
+      current += ' ' + s;
+    }
+  }
+  if(current.trim()) chunks.push(current.trim());
+  return chunks.length ? chunks : [text];
 }
 function toggleRead(){
   const text = document.getElementById('ai-response').textContent;
@@ -824,8 +862,7 @@ function showBookPageBtn() {
   }
   document.getElementById('book-page-btn-wrap').style.display = 'block';
   document.getElementById('book-page-btn').href = curSubject.bookUrl;
-  document.getElementById('book-page-label').textContent = 'Open your book — ' + curSubject.book;
-  document.getElementById('book-page-sub').textContent = 'Tap to open the PDF and follow along with today\'s lesson';
+  document.getElementById('book-page-label').textContent = curSubject.book;
 }
 
 // ══════════════════════════════════════════════
