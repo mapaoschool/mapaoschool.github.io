@@ -628,16 +628,25 @@ IMPORTANT: Never give away answers. Be encouraging. Stay within content restrict
 Respond in plain, natural tutor voice — no markdown, no bullet symbols.`;
 
   try {
+    const isLiterature = curSubject && ['narnia','aesop','bible','history','science'].some(k => curSubject.id.includes(k));
     const res = await fetch('https://divine-sunset-f2ee.panicovillegas.workers.dev',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         model:'claude-sonnet-4-5',
-        max_tokens:1000,
+        max_tokens: isLiterature ? 2000 : 1000,
         messages:[{role:'user',content:prompt}]
       })
     });
     const data = await res.json();
+    // Handle API-level errors (rate limit, auth, overload etc.)
+    if(data.error){
+      document.getElementById('ai-response').textContent = `Error from AI: ${data.error.message || JSON.stringify(data.error)}. Please try again in a moment.`;
+      btn.disabled = false; btn.innerHTML = '✦ Begin Session';
+      document.getElementById('btn-begin-top').disabled = false;
+      document.getElementById('btn-begin-top').innerHTML = '✦ Begin Today\'s Lesson';
+      return;
+    }
     const text = data.content?.find(b=>b.type==='text')?.text || 'Could not load lesson. Please check your connection and try again.';
     document.getElementById('ai-response').textContent = text;
     document.getElementById('ai-cite').textContent = 'Source: ' + curSubject.cite;
