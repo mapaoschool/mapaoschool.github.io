@@ -491,6 +491,7 @@ let speechUtterance = null;
 let timerInterval = null;
 let timerSeconds = 5;
 let isReading = false;
+let lastQuestion = ''; // tracks the most recent question asked by the bot
 
 // ══════════════════════════════════════════════
 // STORAGE (Firebase-free: localStorage keyed by student+subject)
@@ -547,6 +548,7 @@ function openSubject(subjectId){
   curSubject = list.find(s=>s.id===subjectId);
   if(!curSubject) return;
   sessionHints = 0;
+  lastQuestion = '';
   stopRead();
 
   document.getElementById('tutor-title').textContent = curSubject.name;
@@ -653,6 +655,8 @@ Respond in plain, natural tutor voice — no markdown, no bullet symbols.`;
     }
     const text = data.content?.find(b=>b.type==='text')?.text || 'Could not load lesson. Please check your connection and try again.';
     document.getElementById('ai-response').textContent = text;
+    // Extract the last question asked so respondToAnswer has context
+    lastQuestion = extractLastQuestion(text);
     document.getElementById('ai-cite').textContent = 'Source: ' + curSubject.cite;
     ['btn-correct','btn-partial','btn-wrong','btn-hint','btn-next'].forEach(id=>{
       document.getElementById(id).disabled = false;
@@ -1136,16 +1140,22 @@ function submitTextAnswer() {
   respondToAnswer(text);
 }
 
+// Extracts the last question sentence from a block of text
+function extractLastQuestion(text){
+  const sentences = text.match(/[^.!?]*\?/g);
+  return sentences ? sentences[sentences.length - 1].trim() : '';
+}
+
 // ══════════════════════════════════════════════
 // AI RESPOND TO STUDENT ANSWER
 // ══════════════════════════════════════════════
 async function respondToAnswer(studentAnswer){
   const fbArea = document.getElementById('fb-area');
   fbArea.innerHTML = `<div class="feedback" style="background:var(--parch2);color:var(--ink2)"><span class="spinner"></span> Thinking...</div>`;
-  // Disable send button while waiting
   document.getElementById('btn-send').disabled = true;
 
   const lessonText = document.getElementById('ai-response').textContent.substring(0, 600);
+  const questionContext = lastQuestion ? `\n\nThe specific question you asked the student was:\n"${lastQuestion}"` : '';
   const gradeCtx = {
     AL:'Grade 9–12 — mature, analytical, Thomistic vocabulary',
     FA:'Grade 1–4 — simple warm language, short sentences',
@@ -1161,22 +1171,25 @@ async function respondToAnswer(studentAnswer){
         model:'claude-sonnet-4-5', max_tokens:400,
         messages:[{role:'user',content:`You are a tutor for a ${gradeCtx[curStudent]} student. Subject: ${curSubject.name}.
 
-The lesson/question was:
-"${lessonText}"
+The lesson content was:
+"${lessonText}"${questionContext}
 
 The student answered:
 "${studentAnswer}"
 
 Respond in this exact order — no labels, no bullet points, plain tutor voice:
-1. Evaluate the answer warmly (correct, partially correct, or gently incorrect — be specific about what was right or wrong).
+1. Evaluate the answer warmly and specifically (correct, partially correct, or gently incorrect — referring directly to the question you asked).
 2. If incorrect or partial: briefly explain the correct idea in a DIFFERENT way from the original lesson.
 3. Ask the NEXT question or give the next instruction to keep the session going.
 
-Never give away unanswered questions. Stay within Catholic classical content. Do not start with "I".`}]
+Never say the student is jumping ahead. Never say you haven't asked a question yet. The student IS answering your question. Stay within Catholic classical content. Do not start with "I".`}]
       })
     });
     const data = await res.json();
-    const reply = data.content?.find(b=>b.type==='text')?.text || "Good try! Let's keep going — what do you think happened next?";
+    if(data.error) throw new Error(data.error.message);
+    const reply = data.content?.find(b=>b.type==='text')?.text || "Good try! Let's keep going.";
+    // Update lastQuestion from the new reply
+    lastQuestion = extractLastQuestion(reply) || lastQuestion;
     fbArea.innerHTML = `<div class="feedback" style="background:var(--blue-light);color:#042C53;line-height:1.7">${reply}</div>`;
     safeReadAloud(reply);
   } catch(e){
