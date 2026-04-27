@@ -846,8 +846,6 @@ function readAloud(text){
 }
 
 function _doReadAloud(text){
-  // Chrome bug: speechSynthesis sometimes stops mid-sentence — resume it
-  // Edge bug: polling too aggressively stalls the queue — use a gentler interval
   const resumeHack = setInterval(()=>{
     if(!window.speechSynthesis.speaking){ clearInterval(resumeHack); return; }
     if(window.speechSynthesis.paused) window.speechSynthesis.resume();
@@ -866,13 +864,24 @@ function _doReadAloud(text){
     const profile = VOICE_PROFILES[key] || VOICE_PROFILES.aesop;
     chosenVoice = pickVoice(profile);
   }
+  // Linux/Chromium fallback: if no preferred voice found, use the first available
+  // voice matching the language rather than passing null (which silently fails on Linux)
+  if(!chosenVoice && allVoices.length){
+    const lang = isSpanish ? 'es' : 'en';
+    chosenVoice = allVoices.find(v=>v.lang.startsWith(lang)) || allVoices[0];
+  }
+
   const profileKey = getSubjectKey();
   const profile = VOICE_PROFILES[profileKey] || VOICE_PROFILES.aesop;
   let pitch = profile.pitch;
   if(curStudent === 'LJ') pitch = Math.min(pitch + LJ_PITCH_BOOST, 1.2);
 
+  // Chromium on Linux requires cancel() before the first speak() or it queues silently
+  window.speechSynthesis.cancel();
+
   const chunks = splitIntoChunks(text, 200);
   let chunkIndex = 0;
+
   function speakChunk(){
     if(chunkIndex >= chunks.length){
       clearInterval(resumeHack);
@@ -892,15 +901,15 @@ function _doReadAloud(text){
       document.getElementById('btn-read').classList.add('playing');
     };
     utt.onend = ()=>{ chunkIndex++; speakChunk(); };
-    utt.onerror = (e)=>{ 
-      // Edge sometimes fires 'interrupted' on cancel — don't advance chunk for that
+    utt.onerror = (e)=>{
       if(e.error !== 'interrupted') chunkIndex++;
       speakChunk();
     };
     speechUtterance = utt;
     window.speechSynthesis.speak(utt);
   }
-  speakChunk();
+  // Small delay after cancel() so Chromium Linux clears its queue before speaking
+  setTimeout(speakChunk, 100);
 }
 
 function splitIntoChunks(text, maxWords){
