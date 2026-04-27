@@ -880,19 +880,50 @@ function updateTimerDisplay(){
 // ══════════════════════════════════════════════
 function markResponse(type){
   const sess = getSession(curStudent, curSubject.id);
-  const msgs = {
-    correct:{text:'✓ Correct! Well done. Session recorded.',bg:'var(--green-light)',tc:'var(--green)'},
-    partial:{text:'Good try! Let\'s look at it from a different angle. Try again.',bg:'var(--gold-light)',tc:'#412402'},
-    wrong:{text:'Not quite yet — we\'ll approach it differently. No answer given directly.',bg:'var(--red-light)',tc:'var(--red)'}
-  };
-  const m = msgs[type];
-  document.getElementById('fb-area').innerHTML = `<div class="feedback" style="background:${m.bg};color:${m.tc}">${m.text}</div>`;
   if(type==='correct'){
+    const msg = {text:'✓ Correct! Well done. Session recorded.',bg:'var(--green-light)',tc:'var(--green)'};
+    document.getElementById('fb-area').innerHTML = `<div class="feedback" style="background:${msg.bg};color:${msg.tc}">${msg.text}</div>`;
     sess.sessionCount++;
     sess.lastLesson = `Session ${sess.sessionCount} — ${curSubject.name}`;
     saveSession(curStudent, curSubject.id, sess);
     document.getElementById('tracker-text').textContent = `Last session: ${sess.lastLesson} · Sessions: ${sess.sessionCount}`;
+  } else if(type==='partial'){
+    document.getElementById('fb-area').innerHTML = `<div class="feedback" style="background:var(--gold-light);color:#412402">Good try! Let's look at it from a different angle. Try again.</div>`;
+  } else if(type==='wrong'){
+    reteachConcept();
   }
+}
+
+// ══════════════════════════════════════════════
+// RETEACH (AI) — triggered by Reteach button or "I don't know"
+// ══════════════════════════════════════════════
+async function reteachConcept(){
+  const btn = document.getElementById('btn-wrong');
+  btn.disabled=true; btn.textContent='...';
+  const fbArea = document.getElementById('fb-area');
+  fbArea.innerHTML = `<div class="feedback" style="background:var(--red-light);color:var(--red)"><span class="spinner"></span> Preparing a different explanation...</div>`;
+
+  const lessonText = document.getElementById('ai-response').textContent.substring(0, 500);
+  const studentAnswer = document.getElementById('mic-transcript').textContent || document.getElementById('student-answer-text').textContent || 'no answer given';
+  const gradeCtx = {AL:'Grade 9–12 — mature, analytical, use Thomistic vocabulary',FA:'Grade 1–4 — simple language, warm, concrete examples',FC:'Grade 1–4 — simple language, warm, concrete examples',LJ:'Kindergarten with Grade 3 logic — very short sentences, playful, use objects and comparisons'};
+
+  try {
+    const res = await fetch('https://divine-sunset-f2ee.panicovillegas.workers.dev',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-5', max_tokens:300,
+        messages:[{role:'user',content:`A student (${gradeCtx[curStudent]}) said "${studentAnswer}" when asked about this lesson:\n\n"${lessonText}"\n\nRule 15 applies: the student does not know the answer. Do ALL of the following in one response:\n1. Acknowledge kindly (1 sentence, do NOT say "I").\n2. Explain the concept in a COMPLETELY DIFFERENT way — use an analogy, story, or vivid example appropriate for the grade level. Be specific and clear (3–5 sentences).\n3. Ask the EXACT SAME question again.\n\nDo not give away the answer directly. Stay within Catholic classical content. Subject: ${curSubject.name}.`}]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.find(b=>b.type==='text')?.text || "That's okay! Let's think about this differently. Try to remember what we read — what did the character do?";
+    fbArea.innerHTML = `<div class="feedback" style="background:var(--red-light);color:#5A0000;border:1px solid #F0A898"><strong>📖 Let me explain it another way:</strong><br><br>${text}</div>`;
+    readAloud(text);
+  } catch(e){
+    fbArea.innerHTML = `<div class="feedback" style="background:var(--red-light);color:#5A0000">That's okay! Let's think about it differently. Look back at what we just read — what was the main thing that happened?</div>`;
+  }
+  btn.disabled=false; btn.textContent='Reteach';
 }
 
 // ══════════════════════════════════════════════
@@ -989,6 +1020,13 @@ function submitTextAnswer() {
   document.getElementById('mic-transcript').textContent = text;
   document.getElementById('mic-clear').style.display = 'block';
   document.getElementById('mic-status').textContent = '✓ Answer received — evaluate using buttons below';
+
+  // Auto-detect "I don't know" and trigger reteach immediately
+  const idk = /\b(i don'?t know|no s[eé]|no lo s[eé]|not sure|no idea|dunno|idk|i have no idea|i'm not sure)\b/i;
+  if(idk.test(text)){
+    document.getElementById('mic-status').textContent = '📖 Triggering reteach...';
+    reteachConcept();
+  }
 
   // Clear input
   input.value = '';
@@ -1184,6 +1222,12 @@ function initMic() {
       micRetries = 0;
       setMicState('idle');
       document.getElementById('mic-status').textContent = '✓ Got it! Tap 🎤 to speak again or use buttons above.';
+      // Auto-detect "I don't know"
+      const idk = /\b(i don'?t know|no s[eé]|no lo s[eé]|not sure|no idea|dunno|idk|i have no idea|i'm not sure)\b/i;
+      if(idk.test(final)){
+        document.getElementById('mic-status').textContent = '📖 Triggering reteach...';
+        reteachConcept();
+      }
     }
   };
 
