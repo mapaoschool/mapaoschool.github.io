@@ -607,6 +607,11 @@ async function beginSession(){
   const sess = getSession(curStudent, curSubject.id);
   const studentNames = {AL:'A.L. (Grade 9–12)',FA:'F.A. (Grade 1–4)',FC:'F.C. (Grade 1–4)',LJ:'L.J. (Kindergarten, logic Grade 3)'};
 
+  const isNarnia = curSubject && curSubject.id.includes('narnia');
+  const lessonInstruction = isNarnia
+    ? `4. RETELL the chapter in your own words, as a warm storyteller — vivid, engaging, age-appropriate, covering all key events, characters, and details. The student is listening and has no other way to follow the story.`
+    : `4. READ the lesson or chapter content aloud in full — this is a public domain text and the student is listening. Include all key content, do not skip or summarize. The student has no other way to access the text.`;
+
   const prompt = `${UNIVERSAL_RULES}
 
 ${curSubject.prompt}
@@ -618,12 +623,11 @@ SESSION NUMBER: ${sess.sessionCount + 1}
 Generate today's complete lesson. Structure it exactly like this:
 1. Warm greeting using the student's initials
 2. Confirm what was covered last time and what today's lesson will be
-3. Say: "I am going to read now. Please listen carefully and follow along quietly."
-4. READ THE ACTUAL BOOK PASSAGE OR LESSON CONTENT ALOUD — write it out in full as if reading directly from the book. This is critical: the student has NO other way to access the book text, so you MUST include the actual passage, story, or lesson content here. Do not summarize — write it out fully.
-5. After the passage, ask 2–3 comprehension or discussion questions
+3. Say: "I am going to ${isNarnia ? 'tell you the story' : 'read'} now. Please listen carefully."
+${lessonInstruction}
+5. After the ${isNarnia ? 'retelling' : 'reading'}, ask 2–3 comprehension or discussion questions
 6. End with encouragement and preview of next session
 
-CRITICAL RULE: Include the full text of the lesson/passage/chapter in your response. The student is listening — they cannot open the book themselves. You are their only source of the text.
 IMPORTANT: Never give away answers. Be encouraging. Stay within content restrictions.
 Respond in plain, natural tutor voice — no markdown, no bullet symbols.`;
 
