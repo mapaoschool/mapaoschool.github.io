@@ -234,13 +234,16 @@ body{font-family:'Georgia',serif;background:var(--parch);color:var(--ink);min-he
     <!-- Read aloud bar -->
     <div class="read-bar" id="read-bar">
       🔊 <span id="read-bar-label">Read aloud</span>
-      <div class="read-bar-btns">
+      <div class="read-bar-btns" style="flex-wrap:wrap;gap:5px;">
         <button class="rbtn" id="btn-read" onclick="toggleRead()">▶ Read</button>
         <button class="rbtn" onclick="stopRead()">■ Stop</button>
         <select id="voice-speed" onchange="updateSpeed()" style="font-size:11px;border:1px solid var(--gold);border-radius:4px;padding:2px 4px;background:white;font-family:sans-serif;">
           <option value="0.7">Slow</option>
           <option value="0.9" selected>Medium</option>
           <option value="1.1">Fast</option>
+        </select>
+        <select id="voice-picker" onchange="onVoicePickerChange()" style="font-size:11px;border:1px solid var(--gold);border-radius:4px;padding:2px 4px;background:white;font-family:sans-serif;max-width:140px;" title="Choose reading voice">
+          <option value="auto">🎙 Auto voice</option>
         </select>
       </div>
     </div>
@@ -553,6 +556,9 @@ function openSubject(subjectId){
   // Math timer
   document.getElementById('timer-bar').style.display = curSubject.isMath ? 'flex' : 'none';
 
+  // Update voice picker label to show auto-assigned voice
+  updateVoiceLabel();
+
   // Session tracker
   const sess = getSession(curStudent, subjectId);
   document.getElementById('tracker-text').textContent =
@@ -646,36 +652,156 @@ Respond in plain, natural tutor voice — no markdown, no bullet symbols.`;
 }
 
 // ══════════════════════════════════════════════
+// VOICE SYSTEM — picker + per-subject defaults
+// ══════════════════════════════════════════════
+
+// Subject → voice profile map
+// Each entry: { lang, prefer: [...keywords in priority order], pitch, label }
+const VOICE_PROFILES = {
+  // Storytelling / warm narrative
+  aesop:    { lang:'en-US', prefer:['Samantha','Karen','Moira','Fiona','Victoria','Serena','Aria','Jenny','Zira'], pitch:1.0, label:'Storyteller' },
+  narnia:   { lang:'en-US', prefer:['Samantha','Karen','Moira','Fiona','Victoria','Serena','Aria','Jenny','Zira'], pitch:1.0, label:'Storyteller' },
+  bible:    { lang:'en-US', prefer:['Samantha','Karen','Moira','Victoria','Serena','Aria','Jenny'],               pitch:0.95,label:'Warm narrator' },
+  history:  { lang:'en-US', prefer:['Samantha','Karen','Moira','Victoria','Serena','Aria','Jenny'],               pitch:0.95,label:'Warm narrator' },
+  science:  { lang:'en-US', prefer:['Samantha','Karen','Moira','Victoria','Serena','Aria','Jenny'],               pitch:0.95,label:'Warm narrator' },
+  // Warm male / reverent
+  latin:    { lang:'en-US', prefer:['Daniel','Tom','Oliver','Arthur','Aaron','Rishi','Alex','Fred','Thomas'],     pitch:1.0, label:'Warm male' },
+  // Clear / instructional
+  math:       { lang:'en-US', prefer:['Samantha','Karen','Aria','Jenny','Zira','Alice'],                         pitch:1.0, label:'Clear instructor' },
+  arithmetic: { lang:'en-US', prefer:['Samantha','Karen','Aria','Jenny','Zira','Alice'],                         pitch:1.0, label:'Clear instructor' },
+  grammar:    { lang:'en-US', prefer:['Samantha','Karen','Aria','Jenny','Zira','Alice'],                         pitch:1.0, label:'Clear instructor' },
+  art:        { lang:'en-US', prefer:['Samantha','Karen','Moira','Fiona','Aria','Jenny'],                        pitch:1.0, label:'Warm instructor' },
+  // Spanish
+  spanish:  { lang:'es-MX', prefer:['Paulina','Monica','Esperanza','Mónica','Angelica','Marisol','Jorge'],       pitch:1.0, label:'Spanish' },
+};
+
+// Kindergarten (LJ) gets a gentler, slightly higher pitch
+const LJ_PITCH_BOOST = 0.05;
+
+let allVoices = [];
+let manualVoiceOverride = null; // null = auto
+
+function loadVoices(){
+  allVoices = window.speechSynthesis.getVoices();
+  if(allVoices.length) populateVoicePicker();
+}
+if(window.speechSynthesis){
+  window.speechSynthesis.onvoiceschanged = loadVoices;
+  loadVoices();
+}
+
+function populateVoicePicker(){
+  const sel = document.getElementById('voice-picker');
+  if(!sel) return;
+  // Keep the "Auto" option, clear the rest
+  while(sel.options.length > 1) sel.remove(1);
+  // Group: English then Spanish
+  const enVoices = allVoices.filter(v=>v.lang.startsWith('en'));
+  const esVoices = allVoices.filter(v=>v.lang.startsWith('es'));
+  if(enVoices.length){
+    const g = document.createElement('optgroup'); g.label = '🇬🇧 English';
+    enVoices.forEach(v=>{ const o=document.createElement('option'); o.value=v.name; o.textContent=v.name.replace(/\s*\(.*\)/,''); g.appendChild(o); });
+    sel.appendChild(g);
+  }
+  if(esVoices.length){
+    const g = document.createElement('optgroup'); g.label = '🇲🇽 Español';
+    esVoices.forEach(v=>{ const o=document.createElement('option'); o.value=v.name; o.textContent=v.name.replace(/\s*\(.*\)/,''); g.appendChild(o); });
+    sel.appendChild(g);
+  }
+  // Restore saved preference
+  const saved = localStorage.getItem('voiceOverride');
+  if(saved){ manualVoiceOverride=saved; sel.value=saved; }
+}
+
+function onVoicePickerChange(){
+  const sel = document.getElementById('voice-picker');
+  manualVoiceOverride = sel.value === 'auto' ? null : sel.value;
+  localStorage.setItem('voiceOverride', sel.value);
+  // Re-read current text with new voice
+  const text = document.getElementById('ai-response').textContent;
+  if(text && !text.includes('Tap "Begin Session"')){ stopRead(); readAloud(text); }
+}
+
+function updateVoiceLabel(){
+  if(!curSubject) return;
+  const sel = document.getElementById('voice-picker');
+  if(!sel || manualVoiceOverride) return; // don't override manual pick
+  const key = getSubjectKey();
+  const profile = VOICE_PROFILES[key] || VOICE_PROFILES.aesop;
+  const v = pickVoice(profile);
+  const opt = sel.options[0]; // the "Auto" option
+  opt.textContent = v ? `🎙 Auto: ${v.name.replace(/\s*\(.*\)/,'').substring(0,18)}` : '🎙 Auto voice';
+}
+
+function getSubjectKey(){
+  if(!curSubject) return 'aesop';
+  const id = curSubject.id.toLowerCase();
+  for(const key of Object.keys(VOICE_PROFILES)){
+    if(id.includes(key)) return key;
+  }
+  return 'aesop';
+}
+
+function pickVoice(profile){
+  if(!allVoices.length) return null;
+  // Try preferred voices in order
+  for(const name of profile.prefer){
+    const v = allVoices.find(v=>v.name.toLowerCase().includes(name.toLowerCase()) && v.lang.startsWith(profile.lang.split('-')[0]));
+    if(v) return v;
+  }
+  // Fallback: any voice matching lang
+  const fallback = allVoices.find(v=>v.lang===profile.lang) || allVoices.find(v=>v.lang.startsWith(profile.lang.split('-')[0]));
+  return fallback || null;
+}
+
+// ══════════════════════════════════════════════
 // READ ALOUD
 // ══════════════════════════════════════════════
 function readAloud(text){
   if(!window.speechSynthesis) return;
   if(!text || text.includes('Tap "Begin Session"')) return;
   stopRead();
-  // Chrome bug: speechSynthesis sometimes stops mid-sentence — resume it
   const resumeHack = setInterval(()=>{
     if(window.speechSynthesis.paused) window.speechSynthesis.resume();
     if(!window.speechSynthesis.speaking) clearInterval(resumeHack);
   }, 5000);
   const speed = parseFloat(document.getElementById('voice-speed').value);
-  // Split long text into chunks to avoid Chrome cutting off
+  const isSpanish = curSubject && curSubject.id.includes('spanish');
+
+  // Determine voice
+  let chosenVoice = null;
+  if(manualVoiceOverride){
+    chosenVoice = allVoices.find(v=>v.name===manualVoiceOverride) || null;
+  }
+  if(!chosenVoice){
+    const key = getSubjectKey();
+    const profile = VOICE_PROFILES[key] || VOICE_PROFILES.aesop;
+    chosenVoice = pickVoice(profile);
+  }
+  const profileKey = getSubjectKey();
+  const profile = VOICE_PROFILES[profileKey] || VOICE_PROFILES.aesop;
+  let pitch = profile.pitch;
+  if(curStudent === 'LJ') pitch = Math.min(pitch + LJ_PITCH_BOOST, 1.2);
+
   const chunks = splitIntoChunks(text, 200);
   let chunkIndex = 0;
   function speakChunk(){
-    if(chunkIndex >= chunks.length){ 
+    if(chunkIndex >= chunks.length){
       clearInterval(resumeHack);
-      isReading=false; 
-      document.getElementById('btn-read').textContent='▶ Read'; 
+      isReading=false;
+      document.getElementById('btn-read').textContent='▶ Read';
       document.getElementById('btn-read').classList.remove('playing');
-      return; 
+      return;
     }
     speechUtterance = new SpeechSynthesisUtterance(chunks[chunkIndex]);
     speechUtterance.rate = speed;
-    speechUtterance.lang = curSubject && curSubject.id.includes('spanish') ? 'es-MX' : 'en-US';
-    speechUtterance.onstart = ()=>{ 
-      isReading=true; 
-      document.getElementById('btn-read').textContent='⏸ Pause'; 
-      document.getElementById('btn-read').classList.add('playing'); 
+    speechUtterance.pitch = pitch;
+    speechUtterance.lang = isSpanish ? 'es-MX' : 'en-US';
+    if(chosenVoice) speechUtterance.voice = chosenVoice;
+    speechUtterance.onstart = ()=>{
+      isReading=true;
+      document.getElementById('btn-read').textContent='⏸ Pause';
+      document.getElementById('btn-read').classList.add('playing');
     };
     speechUtterance.onend = ()=>{ chunkIndex++; speakChunk(); };
     speechUtterance.onerror = ()=>{ chunkIndex++; speakChunk(); };
