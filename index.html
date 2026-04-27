@@ -474,6 +474,14 @@ UNIVERSAL RULES (apply to every subject):
 `;
 
 // ══════════════════════════════════════════════
+// BROWSER CAPABILITIES
+// ══════════════════════════════════════════════
+const IS_IOS    = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+const IS_MOBILE = IS_IOS || /Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+const NEEDS_GESTURE_FOR_TTS = IS_IOS || IS_MOBILE;
+const HAS_SPEECH_RECOGNITION = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+
+// ══════════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════════
 let curStudent = null;
@@ -640,8 +648,12 @@ Respond in plain, natural tutor voice — no markdown, no bullet symbols.`;
     showBookPageBtn();
     // Auto fetch images
     fetchImagesForLesson(text);
-    // Auto read aloud
-    readAloud(text);
+    // Auto read aloud — mobile browsers block speechSynthesis after async fetch
+    if(!NEEDS_GESTURE_FOR_TTS){
+      readAloud(text);
+    } else {
+      promptTapToListen(text);
+    }
   } catch(e){
     document.getElementById('ai-response').textContent = 'Connection error: ' + e.message + '. Please check your internet and try again.';
   }
@@ -649,6 +661,37 @@ Respond in plain, natural tutor voice — no markdown, no bullet symbols.`;
   btn.innerHTML = '✦ Begin Session';
   document.getElementById('btn-begin-top').disabled = false;
   document.getElementById('btn-begin-top').innerHTML = '✦ Begin Today\'s Lesson';
+}
+
+// ══════════════════════════════════════════════
+// SAFE READ-ALOUD — gesture-aware wrapper
+// ══════════════════════════════════════════════
+let _pendingReadText = null;
+
+function promptTapToListen(text){
+  if(text !== undefined) _pendingReadText = text;
+  const readBtn = document.getElementById('btn-read');
+  readBtn.textContent = '▶ Tap to Listen';
+  readBtn.style.background = 'var(--gold)';
+  readBtn.style.color = 'white';
+  readBtn.style.fontWeight = 'bold';
+  readBtn.addEventListener('click', function onTapListen(){
+    readBtn.style.background = '';
+    readBtn.style.color = '';
+    readBtn.style.fontWeight = '';
+    if(_pendingReadText){ readAloud(_pendingReadText); _pendingReadText = null; }
+    readBtn.removeEventListener('click', onTapListen);
+  }, {once: true});
+}
+
+// Use safeReadAloud everywhere after an async fetch — works on all browsers
+function safeReadAloud(text){
+  if(!text) return;
+  if(NEEDS_GESTURE_FOR_TTS){
+    promptTapToListen(text);
+  } else {
+    readAloud(text);
+  }
 }
 
 // ══════════════════════════════════════════════
@@ -685,9 +728,34 @@ function loadVoices(){
   allVoices = window.speechSynthesis.getVoices();
   if(allVoices.length) populateVoicePicker();
 }
+function ensureVoices(cb){
+  // Edge loads voices async — retry until available, then call cb
+  if(allVoices.length){ cb(); return; }
+  allVoices = window.speechSynthesis.getVoices();
+  if(allVoices.length){ populateVoicePicker(); cb(); return; }
+  // Still empty — wait for onvoiceschanged or poll
+  let attempts = 0;
+  const poll = setInterval(()=>{
+    allVoices = window.speechSynthesis.getVoices();
+    attempts++;
+    if(allVoices.length || attempts > 20){
+      clearInterval(poll);
+      if(allVoices.length) populateVoicePicker();
+      cb();
+    }
+  }, 100);
+}
 if(window.speechSynthesis){
   window.speechSynthesis.onvoiceschanged = loadVoices;
   loadVoices();
+}
+
+// Show mic unsupported message for Firefox / DuckDuckGo (no SpeechRecognition)
+if(!HAS_SPEECH_RECOGNITION){
+  const micBar = document.getElementById('mic-bar');
+  if(micBar){
+    micBar.innerHTML = '<div style="font-size:12px;color:var(--ink3);font-family:sans-serif;padding:4px 0;">🎤 Voice input is not supported in this browser. Please type your answer below.</div>';
+  }
 }
 
 function populateVoicePicker(){
@@ -761,10 +829,17 @@ function readAloud(text){
   if(!window.speechSynthesis) return;
   if(!text || text.includes('Tap "Begin Session"')) return;
   stopRead();
+  ensureVoices(()=>_doReadAloud(text));
+}
+
+function _doReadAloud(text){
+  // Chrome bug: speechSynthesis sometimes stops mid-sentence — resume it
+  // Edge bug: polling too aggressively stalls the queue — use a gentler interval
   const resumeHack = setInterval(()=>{
+    if(!window.speechSynthesis.speaking){ clearInterval(resumeHack); return; }
     if(window.speechSynthesis.paused) window.speechSynthesis.resume();
-    if(!window.speechSynthesis.speaking) clearInterval(resumeHack);
-  }, 5000);
+  }, 2000);
+
   const speed = parseFloat(document.getElementById('voice-speed').value);
   const isSpanish = curSubject && curSubject.id.includes('spanish');
 
@@ -793,19 +868,24 @@ function readAloud(text){
       document.getElementById('btn-read').classList.remove('playing');
       return;
     }
-    speechUtterance = new SpeechSynthesisUtterance(chunks[chunkIndex]);
-    speechUtterance.rate = speed;
-    speechUtterance.pitch = pitch;
-    speechUtterance.lang = isSpanish ? 'es-MX' : 'en-US';
-    if(chosenVoice) speechUtterance.voice = chosenVoice;
-    speechUtterance.onstart = ()=>{
+    const utt = new SpeechSynthesisUtterance(chunks[chunkIndex]);
+    utt.rate = speed;
+    utt.pitch = pitch;
+    utt.lang = isSpanish ? 'es-MX' : 'en-US';
+    if(chosenVoice) utt.voice = chosenVoice;
+    utt.onstart = ()=>{
       isReading=true;
       document.getElementById('btn-read').textContent='⏸ Pause';
       document.getElementById('btn-read').classList.add('playing');
     };
-    speechUtterance.onend = ()=>{ chunkIndex++; speakChunk(); };
-    speechUtterance.onerror = ()=>{ chunkIndex++; speakChunk(); };
-    window.speechSynthesis.speak(speechUtterance);
+    utt.onend = ()=>{ chunkIndex++; speakChunk(); };
+    utt.onerror = (e)=>{ 
+      // Edge sometimes fires 'interrupted' on cancel — don't advance chunk for that
+      if(e.error !== 'interrupted') chunkIndex++;
+      speakChunk();
+    };
+    speechUtterance = utt;
+    window.speechSynthesis.speak(utt);
   }
   speakChunk();
 }
@@ -919,7 +999,7 @@ async function reteachConcept(){
     const data = await res.json();
     const text = data.content?.find(b=>b.type==='text')?.text || "That's okay! Let's think about this differently. Try to remember what we read — what did the character do?";
     fbArea.innerHTML = `<div class="feedback" style="background:var(--red-light);color:#5A0000;border:1px solid #F0A898"><strong>📖 Let me explain it another way:</strong><br><br>${text}</div>`;
-    readAloud(text);
+    safeReadAloud(text);
   } catch(e){
     fbArea.innerHTML = `<div class="feedback" style="background:var(--red-light);color:#5A0000">That's okay! Let's think about it differently. Look back at what we just read — what was the main thing that happened?</div>`;
   }
@@ -954,7 +1034,7 @@ async function giveHint(){
     const data = await res.json();
     const hint = data.content?.find(b=>b.type==='text')?.text||'Think about what you know — take your time!';
     document.getElementById('fb-area').innerHTML = `<div class="feedback" style="background:var(--blue-light);color:#042C53"><strong>Hint ${sessionHints}:</strong> ${hint}</div>`;
-    readAloud(hint);
+    safeReadAloud(hint);
   } catch(e){
     document.getElementById('fb-area').innerHTML = `<div class="feedback" style="background:var(--blue-light);color:#042C53"><strong>Hint:</strong> Think about what you remember from last time — the answer is closer than you think!</div>`;
   }
@@ -1015,22 +1095,72 @@ function submitTextAnswer() {
   // Show the answer
   document.getElementById('student-answer-display').style.display = 'block';
   document.getElementById('student-answer-text').textContent = text;
-
-  // Also populate mic transcript so teacher sees it in one place
   document.getElementById('mic-transcript').textContent = text;
   document.getElementById('mic-clear').style.display = 'block';
-  document.getElementById('mic-status').textContent = '✓ Answer received — evaluate using buttons below';
+  document.getElementById('mic-status').textContent = '✓ Answer received';
 
-  // Auto-detect "I don't know" and trigger reteach immediately
-  const idk = /\b(i don'?t know|no s[eé]|no lo s[eé]|not sure|no idea|dunno|idk|i have no idea|i'm not sure)\b/i;
-  if(idk.test(text)){
-    document.getElementById('mic-status').textContent = '📖 Triggering reteach...';
-    reteachConcept();
-  }
-
-  // Clear input
+  // Clear input immediately
   input.value = '';
   input.style.height = 'auto';
+
+  // Auto-detect "I don't know" → reteach
+  const idk = /\b(i don'?t know|no s[eé]|no lo s[eé]|not sure|no idea|dunno|idk|i have no idea|i'?m not sure)\b/i;
+  if(idk.test(text)){
+    reteachConcept();
+    return;
+  }
+
+  // For all other answers — send to AI to evaluate and continue the session
+  respondToAnswer(text);
+}
+
+// ══════════════════════════════════════════════
+// AI RESPOND TO STUDENT ANSWER
+// ══════════════════════════════════════════════
+async function respondToAnswer(studentAnswer){
+  const fbArea = document.getElementById('fb-area');
+  fbArea.innerHTML = `<div class="feedback" style="background:var(--parch2);color:var(--ink2)"><span class="spinner"></span> Thinking...</div>`;
+  // Disable send button while waiting
+  document.getElementById('btn-send').disabled = true;
+
+  const lessonText = document.getElementById('ai-response').textContent.substring(0, 600);
+  const gradeCtx = {
+    AL:'Grade 9–12 — mature, analytical, Thomistic vocabulary',
+    FA:'Grade 1–4 — simple warm language, short sentences',
+    FC:'Grade 1–4 — simple warm language, short sentences',
+    LJ:'Kindergarten with Grade 3 logic — very short playful sentences'
+  };
+
+  try {
+    const res = await fetch('https://divine-sunset-f2ee.panicovillegas.workers.dev',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-5', max_tokens:400,
+        messages:[{role:'user',content:`You are a tutor for a ${gradeCtx[curStudent]} student. Subject: ${curSubject.name}.
+
+The lesson/question was:
+"${lessonText}"
+
+The student answered:
+"${studentAnswer}"
+
+Respond in this exact order — no labels, no bullet points, plain tutor voice:
+1. Evaluate the answer warmly (correct, partially correct, or gently incorrect — be specific about what was right or wrong).
+2. If incorrect or partial: briefly explain the correct idea in a DIFFERENT way from the original lesson.
+3. Ask the NEXT question or give the next instruction to keep the session going.
+
+Never give away unanswered questions. Stay within Catholic classical content. Do not start with "I".`}]
+      })
+    });
+    const data = await res.json();
+    const reply = data.content?.find(b=>b.type==='text')?.text || "Good try! Let's keep going — what do you think happened next?";
+    fbArea.innerHTML = `<div class="feedback" style="background:var(--blue-light);color:#042C53;line-height:1.7">${reply}</div>`;
+    safeReadAloud(reply);
+  } catch(e){
+    fbArea.innerHTML = `<div class="feedback" style="background:var(--parch2);color:var(--ink2)">Connection error. Please check your internet and try again.</div>`;
+  }
+  document.getElementById('btn-send').disabled = false;
 }
 
 function clearTranscript() {
@@ -1192,15 +1322,17 @@ let micRetries = 0;
 const MAX_RETRIES = 3;
 
 function initMic() {
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) {
-    document.getElementById('mic-status').textContent = 'Microphone not supported on this browser. Use Chrome or Edge.';
+  if(!HAS_SPEECH_RECOGNITION){
+    document.getElementById('mic-status').textContent = 'Voice input not supported in this browser. Please type your answer.';
     document.getElementById('mic-btn').style.display = 'none';
     return false;
   }
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const isIOS = IS_IOS;
   recognition = new SpeechRecognition();
   recognition.continuous = false;
-  recognition.interimResults = true;
+  // iOS doesn't reliably support interimResults — disable to prevent silent failures
+  recognition.interimResults = !isIOS;
 
   recognition.onstart = () => {
     isListening = true;
@@ -1216,17 +1348,19 @@ function initMic() {
       else interim += t;
     }
     const display = final || interim;
-    document.getElementById('mic-transcript').textContent = display;
-    document.getElementById('mic-clear').style.display = display ? 'block' : 'none';
+    if(display){
+      document.getElementById('mic-transcript').textContent = display;
+      document.getElementById('mic-clear').style.display = 'block';
+    }
     if (final) {
       micRetries = 0;
       setMicState('idle');
-      document.getElementById('mic-status').textContent = '✓ Got it! Tap 🎤 to speak again or use buttons above.';
-      // Auto-detect "I don't know"
-      const idk = /\b(i don'?t know|no s[eé]|no lo s[eé]|not sure|no idea|dunno|idk|i have no idea|i'm not sure)\b/i;
+      document.getElementById('mic-status').textContent = '✓ Got it!';
+      const idk = /\b(i don'?t know|no s[eé]|no lo s[eé]|not sure|no idea|dunno|idk|i have no idea|i'?m not sure)\b/i;
       if(idk.test(final)){
-        document.getElementById('mic-status').textContent = '📖 Triggering reteach...';
         reteachConcept();
+      } else {
+        respondToAnswer(final);
       }
     }
   };
@@ -1239,7 +1373,7 @@ function initMic() {
         document.getElementById('mic-status').textContent = `Didn't catch that — try again (${MAX_RETRIES - micRetries} tries left)`;
       } else {
         micRetries = 0;
-        document.getElementById('mic-status').textContent = "That's okay! Try speaking more clearly or use a different answer method.";
+        document.getElementById('mic-status').textContent = "That's okay! Try speaking more clearly or type your answer.";
       }
     } else if (event.error === 'not-allowed') {
       document.getElementById('mic-status').textContent = 'Microphone access denied. Please allow microphone in browser settings.';
@@ -1247,13 +1381,17 @@ function initMic() {
       document.getElementById('mic-status').textContent = 'Microphone error — tap to try again.';
     }
     setMicState('idle');
+    recognition = null; // force recreate next time (required on iOS)
   };
 
   recognition.onend = () => {
     isListening = false;
-    if (document.getElementById('mic-btn').classList.contains('listening')) {
-      setMicState('idle');
+    const transcript = document.getElementById('mic-transcript').textContent;
+    if(!transcript){
+      document.getElementById('mic-status').textContent = "Didn't catch that — tap 🎤 and try again.";
     }
+    setMicState('idle');
+    recognition = null; // iOS requires fresh instance each time
   };
 
   return true;
@@ -1279,12 +1417,11 @@ function setMicState(state) {
 }
 
 function toggleMic() {
+  // iOS requires a fresh recognition instance every time
   if (!recognition) {
     if (!initMic()) return;
   }
-  // Set language based on subject
   const isSpanish = curSubject && curSubject.id && curSubject.id.includes('spanish');
-  const isLJ = curStudent === 'LJ';
   recognition.lang = isSpanish ? 'es-MX' : 'en-US';
 
   if (isListening) {
@@ -1296,8 +1433,11 @@ function toggleMic() {
       recognition.start();
     } catch(e) {
       recognition = null;
-      initMic();
-      try { recognition.start(); } catch(e2) {}
+      if(initMic()){
+        try { recognition.start(); } catch(e2) {
+          document.getElementById('mic-status').textContent = 'Could not start microphone — tap to try again.';
+        }
+      }
     }
   }
 }
