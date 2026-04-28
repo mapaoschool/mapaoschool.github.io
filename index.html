@@ -274,7 +274,10 @@ body{font-family:'Georgia',serif;background:var(--parch);color:var(--ink);min-he
   <!-- TOP BAR -->
   <div class="tutor-topbar">
     <button class="back-btn" onclick="goSubjects()">←</button>
-    <button class="keep-subj-btn" onclick="goSubjects()">Keep Subject</button>
+    <div>
+      <div class="nav-title" id="tutor-title" style="font-size:15px;font-weight:bold;color:var(--ink);">Tutor</div>
+      <div class="nav-sub" id="tutor-sub" style="font-size:11px;color:var(--ink3);font-family:sans-serif;"></div>
+    </div>
     <button class="begin-top-btn" id="btn-begin-top" onclick="beginSession()">✦ Tap to Begin Today's Lesson</button>
     <!-- Timer -->
     <div class="topbar-timer">
@@ -722,8 +725,6 @@ function openSubject(subjectId){
 
   document.getElementById('tutor-title') && (document.getElementById('tutor-title').textContent = curSubject.name);
   document.getElementById('tutor-sub') && (document.getElementById('tutor-sub').textContent = curSubject.tag);
-
-  // Per-subject background color on body
   document.body.style.background = curSubject.bg || 'var(--parch)';
 
   // Reset class timer
