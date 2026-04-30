@@ -66,7 +66,7 @@ body{font-family:'Georgia',serif;background:var(--parch);color:var(--ink);min-he
 .daily-badge{background:var(--gold-light);color:var(--gold2);}
 
 
-.subj-icon{font-size:22px;flex-shrink:0;}
+.subj-icon{font-size:30px;flex-shrink:0;}
 .subj-info{}
 .subj-name{font-size:13px;font-weight:bold;color:var(--ink);line-height:1.3;}
 .subj-tag{font-size:11px;color:var(--ink3);margin-top:2px;font-family:sans-serif;}
@@ -156,27 +156,38 @@ body{font-family:'Georgia',serif;background:var(--parch);color:var(--ink);min-he
 /* Session body — scrollable reading area */
 .session-scroll{flex:1;overflow-y:auto;padding:14px 16px;}
 .session-body{font-size:14px;line-height:1.85;color:var(--ink);white-space:pre-wrap;}
-.session-body .hl-word.reading-word{background:var(--gold-light);border-radius:3px;padding:0 2px;}
+.session-body .hl-word.reading-word{background:#F5B800;border-radius:3px;padding:0 2px;color:#1a1200;font-weight:bold;}
 .session-cite{font-size:11px;color:var(--ink3);font-style:italic;font-family:sans-serif;margin-top:10px;padding-top:8px;border-top:1px solid var(--parch3);}
 
 /* Student input area — bottom of center */
 .student-input-area{border-top:2px solid var(--parch3);padding:10px 12px;background:var(--parch2);flex-shrink:0;}
 .student-input-bar{display:flex;gap:8px;align-items:flex-end;}
-.student-input-box{flex:1;border:1.5px solid var(--parch3);border-radius:var(--radius-sm);padding:8px 11px;font-size:13px;font-family:'Georgia',serif;color:var(--ink);background:white;resize:none;min-height:38px;max-height:100px;transition:border-color 0.15s;line-height:1.5;}
+.student-input-box{flex:1;border:1.5px solid var(--parch3);border-radius:var(--radius-sm);padding:8px 11px;font-size:13px;font-family:'Georgia',serif;color:var(--ink);background:white;resize:none;min-height:72px;max-height:180px;transition:border-color 0.15s;line-height:1.5;}
 .student-input-box:focus{outline:none;border-color:var(--gold);}
 .student-input-box::placeholder{color:var(--ink3);font-style:italic;}
 .student-send-btn{padding:8px 14px;background:var(--gold);color:white;border:none;border-radius:var(--radius-sm);font-size:12px;cursor:pointer;font-family:sans-serif;transition:all 0.15s;flex-shrink:0;height:38px;}
 .student-send-btn:hover{background:var(--gold2);}
 .student-send-btn:disabled{opacity:0.4;cursor:not-allowed;}
 
-/* Action buttons row */
+/* Action buttons row — each button has its own color */
 .action-row{display:flex;gap:6px;flex-wrap:wrap;padding:8px 12px;border-top:1px solid var(--parch3);background:var(--parch2);flex-shrink:0;}
-.btn{padding:6px 12px;border-radius:var(--radius-sm);font-size:11px;cursor:pointer;border:1.5px solid var(--parch3);background:white;color:var(--ink2);transition:all 0.14s;font-family:sans-serif;}
-.btn:hover{border-color:var(--gold);color:var(--ink);background:var(--gold-light);}
-.btn-gold{background:var(--gold);color:white;border-color:var(--gold);}
-.btn-gold:hover{background:var(--gold2);border-color:var(--gold2);}
-.btn:disabled{opacity:0.45;cursor:not-allowed;}
+.btn{padding:6px 12px;border-radius:var(--radius-sm);font-size:11px;cursor:pointer;border:1.5px solid transparent;color:white;transition:all 0.14s;font-family:sans-serif;font-weight:bold;}
+.btn:hover{filter:brightness(1.12);}
+.btn:disabled{opacity:0.38;cursor:not-allowed;filter:none;}
 .btn-row{display:flex;gap:6px;flex-wrap:wrap;}
+/* Begin — gold */
+.btn-gold{background:var(--gold);border-color:var(--gold2);}
+.btn-gold:hover{background:var(--gold2);}
+/* Correct — green */
+#btn-correct{background:#2E7D32;border-color:#1B5E20;}
+/* Partial — amber/orange */
+#btn-partial{background:#E65100;border-color:#BF360C;}
+/* Reteach — red */
+#btn-wrong{background:#B71C1C;border-color:#7F0000;}
+/* Hint — blue */
+#btn-hint{background:#1565C0;border-color:#0D47A1;}
+/* Next — teal */
+#btn-next{background:#00695C;border-color:#004D40;}
 
 /* RIGHT SIDEBAR — questions & responses */
 .tutor-right{border-left:1px solid var(--parch3);display:flex;flex-direction:column;overflow:hidden;background:var(--parch);}
@@ -279,10 +290,6 @@ body{font-family:'Georgia',serif;background:var(--parch);color:var(--ink);min-he
     <div>
       <div class="nav-title" id="subj-title">Choose a Subject</div>
       <div class="nav-sub" id="subj-sub"></div>
-    </div>
-    <div style="margin-left:auto;text-align:right;font-family:sans-serif;flex-shrink:0;">
-      <div id="subj-date" style="font-size:14px;font-weight:bold;color:var(--ink);"></div>
-      <div id="subj-time" style="font-size:13px;color:var(--ink3);margin-top:1px;"></div>
     </div>
   </div>
   <div class="subject-scroll" id="subject-list"></div>
@@ -405,11 +412,11 @@ body{font-family:'Georgia',serif;background:var(--parch);color:var(--ink);min-he
       <!-- Action buttons -->
       <div class="action-row">
         <button class="btn btn-gold" id="btn-begin" onclick="beginSession()">✦ Begin</button>
-        <button class="btn" id="btn-correct" onclick="markResponse('correct')" disabled>✓ Correct</button>
-        <button class="btn" id="btn-partial" onclick="markResponse('partial')" disabled>Partial</button>
-        <button class="btn" id="btn-wrong" onclick="markResponse('wrong')" disabled>Reteach</button>
-        <button class="btn" id="btn-hint" onclick="giveHint()" disabled>Hint</button>
-        <button class="btn" id="btn-next" onclick="nextQuestion()" disabled>Next →</button>
+        <button class="btn" id="btn-correct" onclick="markResponse('correct')" disabled title="Student answered correctly — save progress">✓ Correct</button>
+        <button class="btn" id="btn-partial" onclick="markResponse('partial')" disabled title="Partially correct — student is on the right track but needs to try again">½ Partial</button>
+        <button class="btn" id="btn-wrong" onclick="markResponse('wrong')" disabled title="Student does not know — bot will explain a different way and ask again">↩ Reteach</button>
+        <button class="btn" id="btn-hint" onclick="giveHint()" disabled title="Give the student a gentle nudge without revealing the answer">💡 Hint</button>
+        <button class="btn" id="btn-next" onclick="nextQuestion()" disabled title="Skip to the next question">Next →</button>
       </div>
 
       <!-- Second begin button at bottom -->
@@ -436,7 +443,10 @@ body{font-family:'Georgia',serif;background:var(--parch);color:var(--ink);min-he
 
       <!-- AI questions box -->
       <div class="right-section">
-        <div class="right-label"><span class="live-dot"></span> Questions or anything said by AI tutor</div>
+        <div class="right-label" style="display:flex;align-items:center;justify-content:space-between;">
+          <span><span class="live-dot"></span> Questions / AI Tutor</span>
+          <button class="rbtn" id="btn-read-question" onclick="readQuestionPanel()" style="font-size:10px;padding:3px 8px;margin-left:6px;" title="Read aloud the question shown here">▶ Read</button>
+        </div>
       </div>
       <div class="ai-question-box" id="ai-question-box">
         <span style="color:var(--ink3);font-size:12px;font-family:sans-serif;">Questions and tutor feedback will appear here...</span>
@@ -491,13 +501,23 @@ const SUBJECTS = {
      prompt:`You are a High School Natural Sciences tutor using 'The Story-Book of Science' by Jean-Henri Fabre. Student: A.L., Grade 9–12. Reads independently. Guide deep comprehension and connect to Catholic scientific thought (Aquinas: formal and final causes). Suggest Ottawa seasonal observation activities. READING ORDER: Sequential, one chapter per session. CONTENT RESTRICTIONS: NEVER mention evolution, Darwinism, or ecology as ideology. SOURCE LOCK: Uploaded PDF only.`,
      book:'Story-Book of Science — Fabre',bookUrl:'https://www.dropbox.com/scl/fi/swqcbzzs5qfryoka6cxhy/BOOK-CC-NN-The-Story-Book-Of-Science-by-Jean-Henri-Fabre.pdf?rlkey=lqm9qtkos7nitt2rgt6qmlgr6&dl=0',cite:'The Story-Book of Science, Jean-Henri Fabre'},
     {id:'AL-narnia',   icon:'🦁', name:'English Literature',     tag:'Narnia — High School',   color:'#8C5C04', bg:'#FDF5E8', freq:'daily', day:'Daily',
-     prompt:`You are a High School Literature tutor for C.S. Lewis's Chronicles of Narnia (7-book year-long plan). Student: A.L., Grade 9–12. Reads independently. Guide literary analysis: themes, allegory, Christian symbolism, character development. Connect to Catholic tradition and classical literature. READING ORDER: Sequential, same chapter plan. Ask which chapter they read last time. BOOK: The Lion, the Witch and the Wardrobe first. CONTENT RESTRICTIONS: No gender ideology, no anti-Catholic content.`,
+     prompt:`You are a High School Literature tutor for C.S. Lewis's Chronicles of Narnia (7-book year-long plan). Student: A.L., Grade 9–12. Reads independently. Guide literary analysis: themes, allegory, Christian symbolism, character development. Connect to Catholic tradition and classical literature. READING ORDER: Students have already completed Chapters 1–9. Begin from Chapter 10 and continue sequentially. Ask which chapter they read last time. BOOK: The Lion, the Witch and the Wardrobe first. CONTENT RESTRICTIONS: No gender ideology, no anti-Catholic content.`,
      book:'Narnia — The Lion, the Witch and the Wardrobe',bookUrl:'https://www.dropbox.com/scl/fi/lcy5aw4ckwwiet4omw931/BOOK-Literature-NARNIA-LionWitchWardrobe_CSL.pdf?rlkey=hor768lpfooghsghm7bdtiq4a&dl=0',cite:'The Chronicles of Narnia, C.S. Lewis'},
     {id:'AL-history',  icon:'🌍', name:'World History',          tag:'Hillyer — High School',  color:'#A33020', bg:'#FBF0EE', freq:'weekly', day:'Thursday',
      prompt:`You are a High School History and Geography tutor using 'A Child's History of the World' by V.M. Hillyer. Student: A.L., Grade 9–12. Reads independently. Guide deep historical analysis: cause and effect, civilizations, geography, Providence in history. READING ORDER: Sequential, one chapter per session. Ask which chapter they studied last time. CONTENT RESTRICTIONS: No evolution, no ideological framing of history. SOURCE LOCK: Uploaded PDF only.`,
      book:"A Child's History of the World — Hillyer",bookUrl:'https://www.dropbox.com/scl/fi/1a54r800vr42n3czrn339/BOOK-Historia-del-Mundo-NOBIS-PACEM.pdf?rlkey=7rxu0iae7kmxi5famx1g9lhd9&dl=0',cite:"A Child's History of the World, V.M. Hillyer"},
     {id:'AL-grammar',  icon:'📝', name:'Grammar Review',         tag:"Harvey's — Grade 9 Mastery",color:'#1A5C9A', bg:'#EBF2FB', freq:'daily', day:'Daily',
-     prompt:`You are a Grammar review and mastery tutor for a 9th-grader using Harvey's 'Elementary Grammar and Composition' (1880). Student: A.L. Has studied grammar before but has gaps. Begin with a short diagnostic, then target specific weak sections. Once gaps are filled, proceed through Part II. READING ORDER: After diagnostic, go to specific gap sections. Ask which section they worked on last time. SOURCE LOCK: Uploaded PDF only. CONTENT RESTRICTIONS: Classical Catholic educational tone. No modernist grammatical theories.`,
+     prompt:`You are a Grammar review and mastery tutor for a 9th-grader using Harvey's 'Elementary Grammar and Composition' (1880). Student: A.L. Has studied grammar before but has gaps. Begin with a short diagnostic, then target specific weak sections. Once gaps are filled, proceed through Part II. READING ORDER: After diagnostic, go to specific gap sections. Ask which section they worked on last time. SOURCE LOCK: Uploaded PDF only. CONTENT RESTRICTIONS: Classical Catholic educational tone. No modernist grammatical theories.
+
+COLOR-CODED EXAMPLE RULE (MANDATORY): Every time you introduce or explain a grammar concept, you MUST provide at least 2 concrete example sentences using this exact format:
+[EXAMPLE:label]sentence here[/EXAMPLE]
+where label is one of: NOUN, VERB, ADJECTIVE, ADVERB, SUBJECT, PREDICATE, SENTENCE, PHRASE, CLAUSE, RULE
+Example of correct format:
+[EXAMPLE:NOUN]The dog ran across the field.[/EXAMPLE]
+[EXAMPLE:VERB]She wrote a beautiful letter to her friend.[/EXAMPLE]
+In each example, also mark the key grammar part using [KEY]word[/KEY] tags around the specific word or phrase being highlighted.
+Example: [EXAMPLE:NOUN]The [KEY]dog[/KEY] ran across the field.[/EXAMPLE]
+Always give examples BEFORE asking the student to identify or apply a rule. Use classical, Catholic-appropriate sentences (saints, nature, family, virtue). Never use pop culture references.`,
      book:"Elementary Grammar & Composition — Harvey",bookUrl:'https://www.dropbox.com/scl/fi/o1kly606cr3jvgdj0hry1/BOOK-GRAMMAR-TRV-101-Elementary-Grammar-HARVEY_ENGLISH_GRAMMAR_I.pdf?rlkey=vxhc3pl9z0hohvdeeeh40zqg6&dl=0',cite:"Elementary Grammar and Composition, Harvey (1880)"},
     {id:'AL-art',      icon:'🎨', name:'Art & Drawing',          tag:'Augsburg — Advanced',    color:'#B8790A', bg:'#FDF8EE', freq:'weekly', day:'Friday',
      prompt:`You are a High School Art tutor using Augsburg's Drawing Book I (1901) as foundational skill-builder. Student: A.L., Grade 9–12. All chapters at faster pace. Add advanced challenges for each topic: proportion, perspective, action drawing, watercolor, memory drawing. Connect to classical and Catholic art traditions (Renaissance masters). READING ORDER: All chapters sequentially at accelerated pace. Ask which chapter or topic they worked on last time. SOURCE LOCK: Uploaded PDF only. IMAGE RULE: Do NOT show web images for drawing subjects — students draw from memory and imagination only. EXCEPTION: If a lesson references an object that is obsolete, no longer in common use, or agricultural/historical (for example: a plough, a Roman oil lamp, a medieval cart, an old spinning wheel, a 19th century tool), then add this exact tag at the end of your response: [SHOW_IMAGE: describe the object here] so the app can search for a reference image. This exception exists because students cannot visualize objects they have never seen.`,
@@ -526,7 +546,7 @@ const SUBJECTS = {
      prompt:`You are a bilingual Phonics tutor for F.A. (Grade 1–4) teaching reading and writing in English and Spanish. Students are trilingual (French, English, Spanish) — address sound confusions across all three languages kindly. SPEECH RECOGNITION TOLERANCE: Accept phonetically close answers. Up to 3 retries. "I think I heard [X] — close enough!" READING ORDER: Sequential through phonics exercises. Ask which sound or lesson they covered last time. TONE: Warm, patient, celebratory.`,
      book:'Phonics Workbook',bookUrl:'',cite:'Phonics.com Workbooks'},
     {id:'FA-narnia',   icon:'🦁', name:'English Literature',     tag:'Narnia — Gr. 1–2',       color:'#8C5C04', bg:'#FDF5E8', freq:'daily', day:'Daily',
-     prompt:`You are a 2nd-grade English Literature tutor for C.S. Lewis's Narnia, starting with 'The Lion, the Witch and the Wardrobe.' Student: F.A., Grade 1–4. Read aloud at moderate pace. Guide comprehension: characters, events, Christian symbolism (age-appropriate). READING ORDER: Sequential. Ask which chapter was read last time. TONE: Enthusiastic, warm. Connect to faith gently. CONTENT RESTRICTIONS: No gender ideology, no anti-Catholic content. SOURCE LOCK: Uploaded PDF only.`,
+     prompt:`You are a 2nd-grade English Literature tutor for C.S. Lewis's Narnia, starting with 'The Lion, the Witch and the Wardrobe.' Student: F.A., Grade 1–4. Read aloud at moderate pace. Guide comprehension: characters, events, Christian symbolism (age-appropriate). READING ORDER: Students have already completed Chapters 1–9. Begin from Chapter 10 and continue sequentially. Ask which chapter was read last time. TONE: Enthusiastic, warm. Connect to faith gently. CONTENT RESTRICTIONS: No gender ideology, no anti-Catholic content. SOURCE LOCK: Uploaded PDF only.`,
      book:'Narnia — The Lion, the Witch and the Wardrobe',bookUrl:'https://www.dropbox.com/scl/fi/lcy5aw4ckwwiet4omw931/BOOK-Literature-NARNIA-LionWitchWardrobe_CSL.pdf?rlkey=hor768lpfooghsghm7bdtiq4a&dl=0',cite:'The Chronicles of Narnia, C.S. Lewis'},
     {id:'FA-history',  icon:'🌍', name:'World History',          tag:"Hillyer — Gr. 1–2",      color:'#A33020', bg:'#FBF0EE', freq:'weekly', day:'Thursday',
      prompt:`You are a History and Geography tutor for F.A. (Grade 1–4) using 'A Child's History of the World' by V.M. Hillyer. Read aloud at moderate pace. Guide comprehension: key figures, events, geography. READING ORDER: Sequential, one chapter per session. Ask which chapter was read last time. TONE: Warm, storytelling style. Make history come alive. CONTENT RESTRICTIONS: No evolution, no ideological framing. SOURCE LOCK: Uploaded PDF only.`,
@@ -538,7 +558,14 @@ const SUBJECTS = {
      prompt:`You are an Arithmetic tutor for F.A. (Grade 1–4) using Ray's Primary Arithmetic (1877) by Joseph Ray. Follow the book lesson by lesson in order. TEACHER SUGGESTIONS (from book p.12): 1) Begin with concrete objects. 2) Use the question-and-answer method. 3) Mental arithmetic first, then written. 7) Never move to the next lesson until the current one is mastered. IMAGES: Every lesson in Ray's has visual aids. Always describe the image and say "The app will show you a picture of this." PAPER EXERCISES: "Now take out your paper and pencil. Write [exercise] and show it to your teacher when done." READING ORDER: Sequential from Lesson 1. Ask which lesson they completed last time. PRACTICE LINKS: https://mrnussbaum.com/games | https://www.turtlediary.com/games/math.html. CONTENT RESTRICTIONS: Classical Catholic educational tone.`,
      book:"Ray's Primary Arithmetic (1877)",bookUrl:'https://www.dropbox.com/scl/fi/d07qycd2cibk2a04cmwsv/BOOK-MATH-RAY_PRIMARY_ARITHMETIC.pdf?rlkey=vp9rizedlzvkjbnzsmdpgvnc5&dl=0',cite:"Ray's Primary Arithmetic, Joseph Ray (1877)"},
     {id:'FA-grammar',  icon:'📝', name:'Elementary Grammar',     tag:"Harvey's — First Introduction",color:'#1A5C9A', bg:'#EBF2FB', freq:'daily', day:'Daily',
-     prompt:`You are an Elementary Grammar tutor for F.A. (Grade 1–4) using Harvey's 'Elementary Grammar and Composition' (1880). This is the student's FIRST introduction to grammar. Assume NO prior knowledge. READING ORDER: The Senses → Definition of Object → Definition of Word → Language → The Sentence → Sentence-Making → Quotation Marks → Parts of Speech → The Noun. Ask which section they covered last time. TONE: Very warm, patient, concrete examples always. One concept per session. SOURCE LOCK: Uploaded PDF only.`,
+     prompt:`You are an Elementary Grammar tutor for F.A. (Grade 1–4) using Harvey's 'Elementary Grammar and Composition' (1880). This is the student's FIRST introduction to grammar. Assume NO prior knowledge. READING ORDER: The Senses → Definition of Object → Definition of Word → Language → The Sentence → Sentence-Making → Quotation Marks → Parts of Speech → The Noun. Ask which section they covered last time. TONE: Very warm, patient, concrete examples always. One concept per session. SOURCE LOCK: Uploaded PDF only.
+
+COLOR-CODED EXAMPLE RULE (MANDATORY): Every time you introduce or explain a grammar concept, you MUST provide at least 2 concrete example sentences using this exact format:
+[EXAMPLE:label]sentence here[/EXAMPLE]
+where label is one of: NOUN, VERB, ADJECTIVE, ADVERB, SUBJECT, PREDICATE, SENTENCE, PHRASE, CLAUSE, RULE
+In each example, mark the key grammar part using [KEY]word[/KEY] around the specific word being highlighted.
+Example: [EXAMPLE:NOUN]The [KEY]bird[/KEY] sang in the morning.[/EXAMPLE]
+Always give examples BEFORE asking the student to identify or apply a rule. Use simple, cheerful, Catholic-appropriate sentences (animals, family, saints, nature). Keep sentences short and easy for Grade 1–4.`,
      book:"Elementary Grammar & Composition — Harvey",bookUrl:'https://www.dropbox.com/scl/fi/o1kly606cr3jvgdj0hry1/BOOK-GRAMMAR-TRV-101-Elementary-Grammar-HARVEY_ENGLISH_GRAMMAR_I.pdf?rlkey=vxhc3pl9z0hohvdeeeh40zqg6&dl=0',cite:"Elementary Grammar and Composition, Harvey (1880)"},
     {id:'FA-art',      icon:'🎨', name:'Art & Drawing',          tag:'Augsburg — Gr. 1–2',     color:'#B8790A', bg:'#FDF8EE', freq:'weekly', day:'Friday',
      prompt:`You are an Art and Drawing tutor for F.A. (Grade 1–4) using Augsburg's Drawing Book I (1901). Read aloud each chapter introduction. Guide drawing from memory and imagination — never from copying. One chapter per session. RETEACH MODES: Visual (show/demonstrate), Verbal (describe and discuss), Kinetic (physical activity first). Never give the answer directly. Always cite the book. READING ORDER: Sequential through all chapters. Ask which chapter or drawing topic they worked on last time. IMAGE RULE: Do NOT show web images for drawing subjects — students draw from memory and imagination only. EXCEPTION: If a lesson references an object that is obsolete, no longer in common use, or agricultural/historical (for example: a plough, a Roman oil lamp, a medieval cart, a 19th century tool), then add this exact tag at the end of your response: [SHOW_IMAGE: describe the object here] so the app can find a reference image for the student.`,
@@ -563,13 +590,20 @@ SUBJECTS.LJ = [
    prompt:`You are a Kindergarten Natural Sciences tutor for L.J. (Kindergarten, logic of Grade 3). Very simple language, short sentences. Read Fabre slowly. Connect to things L.J. can see around him (Ottawa seasons, animals, plants). CONTENT RESTRICTIONS: NEVER mention evolution or Darwinism. READING ORDER: Sequential. Ask which chapter they covered last time. IMAGES: Always describe the main insect, plant, or animal in brackets like [IMAGE: butterfly wings] so the app can show a photo.`,
    book:'Story-Book of Science — Fabre',bookUrl:'https://www.dropbox.com/scl/fi/swqcbzzs5qfryoka6cxhy/BOOK-CC-NN-The-Story-Book-Of-Science-by-Jean-Henri-Fabre.pdf?rlkey=lqm9qtkos7nitt2rgt6qmlgr6&dl=0',cite:'The Story-Book of Science, Jean-Henri Fabre'},
   {id:'LJ-narnia',  icon:'🦁', name:'English Literature',    tag:'Narnia — Kindergarten',   color:'#8C5C04', bg:'#FDF5E8', freq:'daily', day:'Daily',
-   prompt:`You are a Kindergarten Literature tutor for L.J. (Kindergarten, logic of Grade 3) reading Narnia. Read very slowly and clearly. Ask simple comprehension questions: "Who did we meet? What happened?" Connect to faith gently and simply. READING ORDER: Sequential. Ask what happened in the last session, then continue from the next part.`,
+   prompt:`You are a Kindergarten Literature tutor for L.J. (Kindergarten, logic of Grade 3) reading Narnia. Read very slowly and clearly. Ask simple comprehension questions: "Who did we meet? What happened?" Connect to faith gently and simply. READING ORDER: Students have already completed Chapters 1–9. Begin from Chapter 10 and continue sequentially. Ask what happened in the last session, then continue from the next part.`,
    book:'Narnia — The Lion, the Witch and the Wardrobe',bookUrl:'https://www.dropbox.com/scl/fi/lcy5aw4ckwwiet4omw931/BOOK-Literature-NARNIA-LionWitchWardrobe_CSL.pdf?rlkey=hor768lpfooghsghm7bdtiq4a&dl=0',cite:'The Chronicles of Narnia, C.S. Lewis'},
   {id:'LJ-history', icon:'🌍', name:'World History',         tag:'Hillyer — Kindergarten',  color:'#A33020', bg:'#FBF0EE', freq:'weekly', day:'Thursday',
    prompt:`You are a Kindergarten History tutor for L.J. (Kindergarten, logic of Grade 3) using Hillyer. Read aloud slowly. Make it a story. Simple questions. READING ORDER: Sequential. Ask which chapter they covered last time. CONTENT RESTRICTIONS: No evolution, no ideology.`,
    book:"A Child's History of the World — Hillyer",bookUrl:'https://www.dropbox.com/scl/fi/1a54r800vr42n3czrn339/BOOK-Historia-del-Mundo-NOBIS-PACEM.pdf?rlkey=7rxu0iae7kmxi5famx1g9lhd9&dl=0',cite:"A Child's History of the World, V.M. Hillyer"},
   {id:'LJ-grammar', icon:'📝', name:'Grammar Introduction',  tag:"Harvey's — Kindergarten", color:'#1A5C9A', bg:'#EBF2FB', freq:'daily', day:'Daily',
-   prompt:`You are a Kindergarten Grammar tutor for L.J. (Kindergarten, logic of Grade 3) using Harvey (1880). ONLY cover: The Senses (naming objects), Definition of Object, Definition of Word. Spend MULTIPLE sessions per concept. Do NOT go beyond The Sentence until very comfortable. Use games, pointing at objects in the room, simple repetition. TONE: Extremely playful and patient.`,
+   prompt:`You are a Kindergarten Grammar tutor for L.J. (Kindergarten, logic of Grade 3) using Harvey (1880). ONLY cover: The Senses (naming objects), Definition of Object, Definition of Word. Spend MULTIPLE sessions per concept. Do NOT go beyond The Sentence until very comfortable. Use games, pointing at objects in the room, simple repetition. TONE: Extremely playful and patient.
+
+COLOR-CODED EXAMPLE RULE (MANDATORY): Every time you introduce or explain a grammar concept, you MUST provide at least 2 concrete example sentences using this exact format:
+[EXAMPLE:label]sentence here[/EXAMPLE]
+where label is one of: NOUN, VERB, ADJECTIVE, ADVERB, SUBJECT, PREDICATE, SENTENCE, PHRASE, CLAUSE, RULE
+In each example, mark the key grammar part using [KEY]word[/KEY] around the specific word being highlighted.
+Example: [EXAMPLE:NOUN]The [KEY]cat[/KEY] is soft.[/EXAMPLE]
+Always give examples BEFORE asking the student to find or name something. Use very simple words, fun and familiar things (cat, ball, apple, sun). Keep sentences to 4–6 words maximum for Kindergarten.`,
    book:"Elementary Grammar & Composition — Harvey",bookUrl:'https://www.dropbox.com/scl/fi/o1kly606cr3jvgdj0hry1/BOOK-GRAMMAR-TRV-101-Elementary-Grammar-HARVEY_ENGLISH_GRAMMAR_I.pdf?rlkey=vxhc3pl9z0hohvdeeeh40zqg6&dl=0',cite:"Elementary Grammar and Composition, Harvey (1880)"},
   {id:'LJ-art',     icon:'🎨', name:'Art & Drawing',         tag:'Augsburg — Kindergarten', color:'#B8790A', bg:'#FDF8EE', freq:'weekly', day:'Friday',
    prompt:`You are a Kindergarten Art tutor for L.J. (Kindergarten, logic of Grade 3) using Augsburg (1901). Start with Mental Image (drawing from memory), then First Years, then Chapter I. Spend many sessions on each. Jump to Color chapter anytime for variety. Use Kindergarten-friendly, playful language (short, fun, encouraging) but explain the concept clearly since L.J. is a strong logical thinker. Ask what they drew last time. RETEACH: Visual → Verbal → Kinetic (physical activity first for this age). IMAGE RULE: Do NOT show web images for drawing subjects — students draw from memory and imagination only. EXCEPTION: If a lesson references an object that is obsolete, no longer in common use, or agricultural/historical (for example: a plough, an old cart, a 19th century tool), add this exact tag at the end of your response: [SHOW_IMAGE: describe the object here] so the app can find a reference image.`,
@@ -639,6 +673,54 @@ let highlightWords = [];
 let currentWordIndex = 0;
 
 // ══════════════════════════════════════════════
+// GRAMMAR COLOR-CODED EXAMPLE RENDERER
+// ══════════════════════════════════════════════
+const GRAMMAR_COLORS = {
+  NOUN:      { bg:'#E3F2FD', border:'#1565C0', label:'#0D47A1', key:'#1565C0' },  // blue
+  VERB:      { bg:'#FCE4EC', border:'#C62828', label:'#B71C1C', key:'#C62828' },  // red
+  ADJECTIVE: { bg:'#F3E5F5', border:'#6A1B9A', label:'#4A148C', key:'#6A1B9A' },  // purple
+  ADVERB:    { bg:'#E8F5E9', border:'#2E7D32', label:'#1B5E20', key:'#2E7D32' },  // green
+  SUBJECT:   { bg:'#E1F5FE', border:'#0277BD', label:'#01579B', key:'#0277BD' },  // light blue
+  PREDICATE: { bg:'#FFF3E0', border:'#E65100', label:'#BF360C', key:'#E65100' },  // orange
+  SENTENCE:  { bg:'#F9FBE7', border:'#827717', label:'#558B2F', key:'#33691E' },  // lime
+  PHRASE:    { bg:'#FFF8E1', border:'#F57F17', label:'#E65100', key:'#F57F17' },  // amber
+  CLAUSE:    { bg:'#E0F7FA', border:'#00695C', label:'#004D40', key:'#00695C' },  // teal
+  RULE:      { bg:'#F5F5F5', border:'#424242', label:'#212121', key:'#616161' },  // grey
+};
+
+function renderGrammarExamples(text) {
+  // Replace [EXAMPLE:LABEL]...[/EXAMPLE] with colored HTML blocks
+  // Replace [KEY]...[/KEY] with highlighted spans inside
+  return text.replace(/\[EXAMPLE:([A-Z]+)\]([\s\S]*?)\[\/EXAMPLE\]/g, (match, label, content) => {
+    const c = GRAMMAR_COLORS[label] || GRAMMAR_COLORS.RULE;
+    const inner = content.replace(/\[KEY\]([\s\S]*?)\[\/KEY\]/g,
+      (m, word) => `<span style="background:${c.key};color:white;padding:1px 5px;border-radius:4px;font-weight:bold;">${word}</span>`
+    );
+    return `<div style="margin:6px 0;padding:8px 12px;background:${c.bg};border-left:4px solid ${c.border};border-radius:0 6px 6px 0;font-size:13px;line-height:1.7;">
+      <span style="font-size:10px;font-weight:bold;color:${c.label};text-transform:uppercase;letter-spacing:0.08em;font-family:sans-serif;display:block;margin-bottom:3px;">${label}</span>
+      ${inner}
+    </div>`;
+  })
+  // Also handle any remaining [KEY]...[/KEY] outside EXAMPLE blocks
+  .replace(/\[KEY\]([\s\S]*?)\[\/KEY\]/g,
+    (m, word) => `<span style="background:#1565C0;color:white;padding:1px 5px;border-radius:4px;font-weight:bold;">${word}</span>`
+  );
+}
+
+function isGrammarSubject() {
+  return curSubject && curSubject.id && curSubject.id.includes('grammar');
+}
+
+function setResponseHTML(text) {
+  const el = document.getElementById('ai-response');
+  if (isGrammarSubject()) {
+    el.innerHTML = renderGrammarExamples(text.replace(/\n/g, '<br>'));
+  } else {
+    el.textContent = text;
+  }
+}
+
+// ══════════════════════════════════════════════
 // STORAGE
 // ══════════════════════════════════════════════
 function storageKey(student, subjectId){ return `mapao_${student}_${subjectId}`; }
@@ -660,7 +742,23 @@ function startClassTimer(){
   updateClassTimerDisplay();
   classTimerInterval = setInterval(()=>{
     classTimerSeconds--;
-    if(classTimerSeconds <= 0){ classTimerSeconds=0; clearInterval(classTimerInterval); classTimerInterval=null; }
+    if(classTimerSeconds <= 0){
+      classTimerSeconds=0;
+      clearInterval(classTimerInterval);
+      classTimerInterval=null;
+      updateClassTimerDisplay();
+      // Show time-up banner
+      const fbArea = document.getElementById('fb-area');
+      fbArea.innerHTML = `<div class="feedback" style="background:#FFF3E0;color:#E65100;border:2px solid #FF6F00;font-size:13px;font-weight:bold;text-align:center;padding:12px;">
+        ⏰ Time is up! Today's session is finished.<br>
+        <span style="font-size:11px;font-weight:normal;">Press ✦ Begin to start the next session, or go back to choose another subject.</span>
+      </div>`;
+      // Disable question buttons — session is over
+      ['btn-correct','btn-partial','btn-wrong','btn-hint','btn-next'].forEach(id=>{
+        document.getElementById(id).disabled = true;
+      });
+      return;
+    }
     updateClassTimerDisplay();
   }, 1000);
 }
@@ -702,27 +800,6 @@ function selectStudent(id){
 }
 function goHome(){ stopRead(); clearInterval(classTimerInterval); classTimerInterval=null; showScreen('home'); }
 function goSubjects(){ stopRead(); showScreen('subjects'); }
-
-// ── LIVE DATE/TIME CLOCK (subjects screen) ──
-function updateSubjClock(){
-  const now = new Date();
-  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  const dayName = days[now.getDay()];
-  const monthName = months[now.getMonth()];
-  const date = now.getDate();
-  const year = now.getFullYear();
-  let hours = now.getHours();
-  const mins = now.getMinutes().toString().padStart(2,'0');
-  const ampm = hours >= 12 ? 'pm' : 'am';
-  hours = hours % 12 || 12;
-  const dateEl = document.getElementById('subj-date');
-  const timeEl = document.getElementById('subj-time');
-  if(dateEl) dateEl.textContent = `${dayName}, ${monthName} ${date}, ${year}`;
-  if(timeEl) timeEl.textContent = `${hours}:${mins}${ampm}`;
-}
-setInterval(updateSubjClock, 1000);
-updateSubjClock();
 
 function getDoneKey(studentId, subjectId){
   const d = new Date();
@@ -950,7 +1027,7 @@ Respond in plain, natural tutor voice — no markdown, no bullet symbols.`;
       return;
     }
     const text = data.content?.find(b=>b.type==='text')?.text || 'Could not load lesson. Please check your connection and try again.';
-    document.getElementById('ai-response').textContent = text;
+    setResponseHTML(text);
     // Extract questions for right panel
     lastQuestion = extractLastQuestion(text);
     const questions = text.match(/[^.!?]*\?[^?]*/g) || [];
@@ -1242,6 +1319,14 @@ function finishRead(){
   if(btn){ btn.textContent='▶ Read'; btn.classList.remove('playing'); }
 }
 
+// FIX 4: Read the question panel aloud
+function readQuestionPanel(){
+  const box = document.getElementById('ai-question-box');
+  const text = box ? (box.innerText || box.textContent) : '';
+  if(!text || text.includes('Questions and tutor')) return;
+  safeReadAloud(text);
+}
+
 function splitIntoChunks(text, maxWords){
   const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
   const chunks = [];
@@ -1259,7 +1344,9 @@ function splitIntoChunks(text, maxWords){
 }
 
 function toggleRead(){
-  const text = document.getElementById('ai-response').textContent;
+  // Get the plain text — not innerHTML which has spans
+  const sessionBody = document.getElementById('ai-response');
+  const text = sessionBody.innerText || sessionBody.textContent;
   if(!text || text.includes('Tap "Begin')) return;
   if(window.speechSynthesis.speaking && !window.speechSynthesis.paused){
     window.speechSynthesis.pause();
@@ -1350,12 +1437,13 @@ async function reteachConcept(){
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         model:'claude-sonnet-4-5', max_tokens:300,
-        messages:[{role:'user',content:`A student (${gradeCtx[curStudent]}) said "${studentAnswer}" when asked about this lesson:\n\n"${lessonText}"\n\nRule 15 applies: the student does not know the answer. Do ALL of the following in one response:\n1. Acknowledge kindly (1 sentence, do NOT say "I").\n2. Explain the concept in a COMPLETELY DIFFERENT way — use an analogy, story, or vivid example appropriate for the grade level. Be specific and clear (3–5 sentences).\n3. Ask the EXACT SAME question again.\n\nDo not give away the answer directly. Stay within Catholic classical content. Subject: ${curSubject.name}.`}]
+        messages:[{role:'user',content:`A student (${gradeCtx[curStudent]}) needs the concept re-explained. They said "${studentAnswer}" when asked about this lesson:\n\n"${lessonText}"\n\nYOUR TASK — do ALL of the following in ONE response:\n1. Acknowledge the student kindly (1 sentence, do NOT say "I"). Do NOT say they are off-topic or introducing a new question.\n2. Re-explain the SAME concept from the lesson in a COMPLETELY DIFFERENT way — use a concrete analogy, a short story, or a vivid example appropriate for this grade level. Be specific and clear (3–5 sentences).\n3. Ask the EXACT SAME question again so the student can try once more.\n\nDo not give away the answer directly. Never tell the student they are going off-topic. Stay within Catholic classical content. Subject: ${curSubject.name}.`}]
       })
     });
     const data = await res.json();
     const text = data.content?.find(b=>b.type==='text')?.text || "That's okay! Let's think about this differently.";
-    fbArea.innerHTML = `<div class="feedback" style="background:var(--red-light);color:#5A0000;border:1px solid #F0A898"><strong>📖 Let me explain it another way:</strong><br><br>${text}</div>`;
+    const textRendered = isGrammarSubject() ? renderGrammarExamples(text.replace(/\n/g,'<br>')) : text;
+    fbArea.innerHTML = `<div class="feedback" style="background:var(--red-light);color:#5A0000;border:1px solid #F0A898"><strong>📖 Let me explain it another way:</strong><br><br>${textRendered}</div>`;
     safeReadAloud(text);
   } catch(e){
     fbArea.innerHTML = `<div class="feedback" style="background:var(--red-light);color:#5A0000">That's okay! Let's think about it differently. Look back at what we just read — what was the main thing that happened?</div>`;
@@ -1420,7 +1508,7 @@ async function nextQuestion(){
     });
     const data = await res.json();
     const text = data.content?.find(b=>b.type==='text')?.text||'Could not generate next question.';
-    document.getElementById('ai-response').textContent=text;
+    setResponseHTML(text);
     lastQuestion = extractLastQuestion(text);
     fetchImagesForLesson(text);
     readAloud(text);
@@ -1502,8 +1590,10 @@ The lesson content was:
 The student answered:
 "${studentAnswer}"
 
+CRITICAL EVALUATION RULE: Accept ANY answer that is conceptually correct, even if the student uses different words, synonyms, paraphrases, or a partial sentence. For example: if the correct answer is "courageous" and the student says "brave" or "not afraid" — that is CORRECT. If the correct answer is "the fox" and the student says "the animal" or "him" — give credit. Only mark wrong if the student's meaning is genuinely incorrect, not just differently worded.
+
 Respond in this exact order — no labels, no bullet points, plain tutor voice:
-1. Evaluate the answer warmly and specifically (correct, partially correct, or gently incorrect — referring directly to the question you asked).
+1. Evaluate warmly and specifically (correct, partially correct, or gently incorrect — referring directly to the question you asked).
 2. If incorrect or partial: briefly explain the correct idea in a DIFFERENT way from the original lesson.
 3. Ask the NEXT question or give the next instruction to keep the session going. Ask a DIFFERENT question — do NOT repeat the same concept.
 
@@ -1515,7 +1605,8 @@ Never say the student is jumping ahead. Stay within Catholic classical content. 
     if(data.error) throw new Error(data.error.message);
     const reply = data.content?.find(b=>b.type==='text')?.text || "Good try! Let's keep going.";
     lastQuestion = extractLastQuestion(reply) || lastQuestion;
-    fbArea.innerHTML = `<div class="feedback" style="background:var(--blue-light);color:#042C53;line-height:1.7">${reply}</div>`;
+    const replyRendered = isGrammarSubject() ? renderGrammarExamples(reply.replace(/\n/g,'<br>')) : reply;
+    fbArea.innerHTML = `<div class="feedback" style="background:var(--blue-light);color:#042C53;line-height:1.7">${replyRendered}</div>`;
     // Also update right panel question box with new question
     const newQs = reply.match(/[^.!?]*\?[^?]*/g) || [];
     if(newQs.length){
