@@ -4,15 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ma Pao's Classical Catholic Homeschool Tutor</title>
-<!-- PWA: Install as app on iPhone, Android, Windows, Linux -->
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#B8790A">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Ma Pao Tutor">
-<link rel="apple-touch-icon" href="icons/icon-152x152.png">
-<link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192x192.png">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -59,7 +50,7 @@ body{font-family:'Georgia',serif;background:var(--parch);color:var(--ink);min-he
 .subj-two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start;}
 .subj-col{display:flex;flex-direction:column;gap:8px;}
 .subj-btn{background:var(--parch2);border:1.5px solid var(--parch3);border-radius:var(--radius);padding:12px 10px;cursor:pointer;text-align:left;transition:all 0.16s;display:flex;align-items:center;gap:8px;position:relative;}
-.subj-btn:hover{border-color:var(--gold);background:var(--gold-light);}
+.subj-btn:hover{border-color:var(--gold);filter:brightness(0.93);}
 /* DONE STATE — dark purple */
 .subj-btn.subj-done{background:#3d2262;border-color:#2a1744;}
 .subj-btn.subj-done .subj-name{color:#e8d8ff;}
@@ -174,8 +165,8 @@ body{font-family:'Georgia',serif;background:var(--parch);color:var(--ink);min-he
 .student-input-box{flex:1;border:1.5px solid var(--parch3);border-radius:var(--radius-sm);padding:8px 11px;font-size:13px;font-family:'Georgia',serif;color:var(--ink);background:white;resize:none;min-height:38px;max-height:100px;transition:border-color 0.15s;line-height:1.5;}
 .student-input-box:focus{outline:none;border-color:var(--gold);}
 .student-input-box::placeholder{color:var(--ink3);font-style:italic;}
-.student-send-btn{padding:8px 14px;background:var(--gold);color:white;border:none;border-radius:var(--radius-sm);font-size:12px;cursor:pointer;font-family:sans-serif;transition:all 0.15s;flex-shrink:0;height:38px;}
-.student-send-btn:hover{background:var(--gold2);}
+.student-send-btn{padding:8px 14px;background:#6A1B9A;color:white;border:none;border-radius:var(--radius-sm);font-size:12px;cursor:pointer;font-family:sans-serif;transition:all 0.15s;flex-shrink:0;height:38px;}
+.student-send-btn:hover{background:#4A148C;}
 .student-send-btn:disabled{opacity:0.4;cursor:not-allowed;}
 
 /* Action buttons row */
@@ -183,6 +174,16 @@ body{font-family:'Georgia',serif;background:var(--parch);color:var(--ink);min-he
 .btn{padding:6px 12px;border-radius:var(--radius-sm);font-size:11px;cursor:pointer;border:1.5px solid var(--parch3);background:white;color:var(--ink2);transition:all 0.14s;font-family:sans-serif;}
 .btn:hover{border-color:var(--gold);color:var(--ink);background:var(--gold-light);}
 .btn-gold{background:var(--gold);color:white;border-color:var(--gold);}
+.btn-green{background:#2E7D32;color:white;border-color:#2E7D32;}
+.btn-green:hover{background:#1B5E20;border-color:#1B5E20;}
+.btn-orange{background:#E65100;color:white;border-color:#E65100;}
+.btn-orange:hover{background:#BF360C;border-color:#BF360C;}
+.btn-red{background:#C62828;color:white;border-color:#C62828;}
+.btn-red:hover{background:#B71C1C;border-color:#B71C1C;}
+.btn-blue{background:#1565C0;color:white;border-color:#1565C0;}
+.btn-blue:hover{background:#0D47A1;border-color:#0D47A1;}
+.btn-teal{background:#00695C;color:white;border-color:#00695C;}
+.btn-teal:hover{background:#004D40;border-color:#004D40;}
 .btn-gold:hover{background:var(--gold2);border-color:var(--gold2);}
 .btn:disabled{opacity:0.45;cursor:not-allowed;}
 .btn-row{display:flex;gap:6px;flex-wrap:wrap;}
@@ -380,8 +381,8 @@ body{font-family:'Georgia',serif;background:var(--parch);color:var(--ink);min-he
       <div class="read-bar" id="read-bar">
         🔊
         <div class="read-bar-btns">
-          <button class="rbtn" id="btn-read" onclick="toggleRead()">▶ Read</button>
-          <button class="rbtn" id="btn-stop" onclick="stopRead()">■ Stop</button>
+          <button class="rbtn" id="btn-read" onclick="toggleRead()" style="border-color:#1565C0;color:#1565C0;">▶ Read</button>
+          <button class="rbtn" id="btn-stop" onclick="stopRead()" style="border-color:#C62828;color:#C62828;">■ Stop</button>
           <select id="voice-speed" onchange="updateSpeed()" style="font-size:11px;border:1px solid var(--gold);border-radius:4px;padding:2px 4px;background:white;font-family:sans-serif;">
             <option value="0.7">Slow</option>
             <option value="0.9" selected>Medium</option>
@@ -410,11 +411,11 @@ body{font-family:'Georgia',serif;background:var(--parch);color:var(--ink);min-he
       <!-- Action buttons -->
       <div class="action-row">
         <button class="btn btn-gold" id="btn-begin" onclick="beginSession()">✦ Begin</button>
-        <button class="btn" id="btn-correct" onclick="markResponse('correct')" disabled>✓ Correct</button>
-        <button class="btn" id="btn-partial" onclick="markResponse('partial')" disabled>Partial</button>
-        <button class="btn" id="btn-wrong" onclick="markResponse('wrong')" disabled>Reteach</button>
-        <button class="btn" id="btn-hint" onclick="giveHint()" disabled>Hint</button>
-        <button class="btn" id="btn-next" onclick="nextQuestion()" disabled>Next →</button>
+        <button class="btn btn-green" id="btn-correct" onclick="markResponse('correct')" disabled>✓ Correct</button>
+        <button class="btn btn-orange" id="btn-partial" onclick="markResponse('partial')" disabled>½ Partial</button>
+        <button class="btn btn-red" id="btn-wrong" onclick="markResponse('wrong')" disabled>↩ Reteach</button>
+        <button class="btn btn-blue" id="btn-hint" onclick="giveHint()" disabled>💡 Hint</button>
+        <button class="btn btn-teal" id="btn-next" onclick="nextQuestion()" disabled>Next →</button>
       </div>
 
       <!-- Second begin button at bottom -->
@@ -734,11 +735,13 @@ function makeSubjCard(s, studentId){
     : (dayLabel === 'Daily' ? `<span class="subj-day-badge daily-badge">Daily</span>` : '');
   const doneClass = done ? ' subj-done' : '';
   const checkIcon = done ? '✓' : '○';
-  return `<div class="subj-btn${doneClass}" onclick="openSubject('${s.id}')">
+  const btnStyle = done ? '' : `background:${s.bg||'var(--parch2)'};border-color:${s.color||'var(--parch3)'};`;
+  const nameStyle = done ? '' : `color:${s.color||'var(--ink)'};`;
+  return `<div class="subj-btn${doneClass}" style="${btnStyle}" onclick="openSubject('${s.id}')">
     <div class="subj-done-toggle" onclick="toggleDone(event,'${studentId}','${s.id}')" title="${done?'Mark as not done':'Mark as done'}">${checkIcon}</div>
     <div class="subj-icon">${s.icon}</div>
     <div class="subj-info">
-      <div class="subj-name">${s.name}</div>
+      <div class="subj-name" style="${nameStyle}">${s.name}</div>
       <div class="subj-tag">${s.tag}</div>
       ${dayBadge}
       <div class="subj-progress"><div class="subj-progress-fill" style="width:${pct}%;background:${done?'#6b4fa0':s.color}"></div></div>
