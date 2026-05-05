@@ -1000,18 +1000,13 @@ let _pendingReadText = null;
 
 function promptTapToListen(text){
   if(text !== undefined) _pendingReadText = text;
+  // Make sure btn-read is visible and styled as a call-to-action
   const readBtn = document.getElementById('btn-read');
-  readBtn.textContent = '▶ Tap to Listen';
-  readBtn.style.background = 'var(--gold)';
-  readBtn.style.color = 'white';
-  readBtn.style.fontWeight = 'bold';
-  readBtn.addEventListener('click', function onTapListen(){
-    readBtn.style.background = '';
-    readBtn.style.color = '';
-    readBtn.style.fontWeight = '';
-    if(_pendingReadText){ readAloud(_pendingReadText); _pendingReadText = null; }
-    readBtn.removeEventListener('click', onTapListen);
-  }, {once: true});
+  const pauseBtn = document.getElementById('btn-pause-read');
+  const resumeBtn = document.getElementById('btn-resume-read');
+  if(readBtn){ readBtn.style.display = ''; readBtn.textContent = '▶ Tap to Listen'; readBtn.style.background = 'var(--gold)'; readBtn.style.color = 'white'; readBtn.style.fontWeight = 'bold'; }
+  if(pauseBtn) pauseBtn.style.display = 'none';
+  if(resumeBtn) resumeBtn.style.display = 'none';
 }
 
 function safeReadAloud(text){
@@ -1139,9 +1134,14 @@ function pickVoice(profile){
 function readAloud(text){
   if(!window.speechSynthesis) return;
   if(!text || text.includes('Tap "Begin')) return;
-  stopRead();
-  readingStopped = false;
-  ensureVoices(()=>_doReadAloud(text));
+  // Cancel any current speech
+  readingStopped = true;
+  window.speechSynthesis.cancel();
+  // Edge/Windows needs a small delay after cancel() before speaking again
+  setTimeout(()=>{
+    readingStopped = false;
+    ensureVoices(()=>_doReadAloud(text));
+  }, 150);
 }
 
 function _doReadAloud(text){
@@ -1165,10 +1165,14 @@ function _doReadAloud(text){
   sessionBody.innerHTML = html;
   currentWordIndex = 0;
 
+  // Windows/Edge fix: speechSynthesis can pause silently mid-utterance
   const resumeHack = setInterval(()=>{
-    if(!window.speechSynthesis.speaking){ clearInterval(resumeHack); return; }
+    if(readingStopped){ clearInterval(resumeHack); return; }
+    if(!window.speechSynthesis.speaking && !window.speechSynthesis.pending){
+      clearInterval(resumeHack); return;
+    }
     if(window.speechSynthesis.paused) window.speechSynthesis.resume();
-  }, 2000);
+  }, 1000);
 
   const speed = parseFloat(document.getElementById('voice-speed').value);
   const isSpanish = curSubject && curSubject.id.includes('spanish');
@@ -1245,7 +1249,7 @@ function _doReadAloud(text){
     window.speechSynthesis.speak(utt);
   }
 
-  setTimeout(speakChunk, 100);
+  setTimeout(speakChunk, 200);
 }
 
 function finishRead(){
@@ -1288,8 +1292,17 @@ function toggleRead(){
   }
 }
 function startReadAloud(){
-  const text = document.getElementById('ai-response').textContent;
-  if(!text || text.includes('Tap "Begin')) return;
+  // Reset any "Tap to Listen" styling on btn-read
+  const readBtn = document.getElementById('btn-read');
+  if(readBtn){ readBtn.style.background = ''; readBtn.style.color = ''; readBtn.style.fontWeight = ''; readBtn.textContent = '▶ Read'; }
+  // Use pending text (set by promptTapToListen) or current response text
+  const text = _pendingReadText || document.getElementById('ai-response').textContent;
+  _pendingReadText = null;
+  if(!text || text.includes('Tap "Begin') || text.includes('Tap \"Begin')) return;
+  // On Windows/Edge: ensure speechSynthesis is not stuck
+  if(window.speechSynthesis && window.speechSynthesis.pending){
+    window.speechSynthesis.cancel();
+  }
   readAloud(text);
 }
 function pauseReadAloud(){
