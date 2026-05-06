@@ -78,21 +78,21 @@ body{font-family:'Georgia',serif;background:var(--parch);color:var(--ink);min-he
 #tutor{background:var(--subj-bg);display:flex;flex-direction:column;height:100vh;overflow:hidden;}
 
 /* TOP BAR */
-.tutor-topbar{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--parch2);border-bottom:2px solid var(--parch3);flex-shrink:0;}
-.tutor-topbar .back-btn{background:none;border:none;font-size:18px;cursor:pointer;color:var(--gold);padding:4px 8px;}
+.tutor-topbar{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#1e5ee4;border-bottom:2px solid #1648b8;flex-shrink:0;}
+.tutor-topbar .back-btn{background:none;border:none;font-size:18px;cursor:pointer;color:#fff;padding:4px 8px;}
 .keep-subj-btn{padding:7px 13px;border-radius:var(--radius-sm);border:none;background:#9B59B6;color:white;font-size:12px;font-weight:bold;cursor:pointer;font-family:sans-serif;white-space:nowrap;}
 .keep-subj-btn:hover{background:#7D3C98;}
-.begin-top-btn{flex:1;padding:10px 16px;border-radius:var(--radius-sm);border:none;background:var(--red);color:white;font-size:14px;font-weight:bold;cursor:pointer;font-family:sans-serif;transition:all 0.15s;}
-.begin-top-btn:hover{background:#7A1E12;}
+.begin-top-btn{flex:1;padding:10px 16px;border-radius:var(--radius-sm);border:none;background:#fc070c;color:white;font-size:14px;font-weight:bold;cursor:pointer;font-family:sans-serif;transition:all 0.15s;}
+.begin-top-btn:hover{background:#c80008;}
 .begin-top-btn:disabled{opacity:0.5;cursor:not-allowed;}
 
 /* TIMER in topbar */
 .topbar-timer{display:flex;align-items:center;gap:7px;font-family:sans-serif;flex-shrink:0;}
 .topbar-timer-icon{font-size:18px;}
-.topbar-timer-display{font-size:16px;font-weight:bold;font-family:monospace;min-width:46px;}
-.topbar-timer-display.ok{color:var(--green);}
-.topbar-timer-display.warn{color:var(--gold);}
-.topbar-timer-display.urgent{color:var(--red);}
+.topbar-timer-display{font-size:16px;font-weight:bold;font-family:monospace;min-width:46px;color:#fff;}
+.topbar-timer-display.ok{color:#90ee90;}
+.topbar-timer-display.warn{color:#ffe066;}
+.topbar-timer-display.urgent{color:#ff8080;}
 .topbar-timer-track{width:60px;height:7px;background:var(--parch3);border-radius:4px;overflow:hidden;}
 .topbar-timer-fill{height:100%;border-radius:4px;transition:width 1s linear,background 0.5s;}
 .topbar-timer-fill.ok{background:var(--green);}
@@ -101,13 +101,12 @@ body{font-family:'Georgia',serif;background:var(--parch);color:var(--ink);min-he
 .topbar-timer-btns{display:flex;gap:4px;}
 .ctbtn{padding:3px 8px;border-radius:10px;border:1px solid var(--parch3);background:white;color:var(--ink2);font-size:10px;cursor:pointer;font-family:sans-serif;}
 .ctbtn:hover{border-color:var(--gold);color:var(--gold2);}
-@keyframes fadeSlideIn{from{opacity:0;transform:translateX(-50%) translateY(-10px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
 
 /* MAIN BODY — three columns */
 .tutor-body{flex:1;display:grid;grid-template-columns:130px 1fr 649px;gap:0;overflow:hidden;min-height:0;}
 
 /* LEFT SIDEBAR */
-.tutor-left{background:var(--parch2);border-right:1px solid var(--parch3);display:flex;flex-direction:column;gap:0;overflow-y:auto;padding:10px 8px;flex-shrink:0;}
+.tutor-left{background:white;border-right:1px solid var(--parch3);display:flex;flex-direction:column;gap:0;overflow-y:auto;padding:10px 8px;flex-shrink:0;}
 .left-section{margin-bottom:10px;}
 .left-label{font-size:9px;font-weight:bold;color:var(--ink3);text-transform:uppercase;letter-spacing:0.08em;font-family:sans-serif;margin-bottom:5px;}
 
@@ -120,8 +119,8 @@ body{font-family:'Georgia',serif;background:var(--parch);color:var(--ink);min-he
 .tracker-left{background:var(--green-light);border:1px solid #A0D090;border-radius:var(--radius-sm);padding:6px 8px;font-size:10px;color:var(--green);font-family:sans-serif;line-height:1.5;}
 
 /* Open book button */
-.open-book-btn{display:block;width:100%;padding:7px 6px;border-radius:var(--radius-sm);border:1.5px solid var(--gold);background:var(--gold-light);color:var(--gold2);font-size:11px;font-weight:bold;font-family:sans-serif;cursor:pointer;text-align:center;text-decoration:none;transition:all 0.14s;margin-bottom:6px;}
-.open-book-btn:hover{background:var(--gold);color:white;}
+.open-book-btn{display:block;width:100%;padding:7px 6px;border-radius:var(--radius-sm);border:2px solid #ebf723;background:#ebf723;color:#5a5800;font-size:11px;font-weight:bold;font-family:sans-serif;cursor:pointer;text-align:center;text-decoration:none;transition:all 0.14s;margin-bottom:6px;}
+.open-book-btn:hover{background:#d4df00;border-color:#d4df00;color:#2a2800;}
 
 /* Images in left sidebar */
 .img-section-left{margin-top:4px;}
@@ -154,9 +153,13 @@ body{font-family:'Georgia',serif;background:var(--parch);color:var(--ink);min-he
 /* Read aloud bar */
 .read-bar{background:var(--gold-light);border-bottom:1px solid #E8C870;padding:4px 8px;display:flex;align-items:center;gap:5px;font-family:sans-serif;font-size:11px;flex-shrink:0;justify-content:flex-start;}
 .read-bar-btns{display:flex;gap:5px;margin-left:auto;flex-wrap:wrap;align-items:center;}
-.rbtn{padding:3px 7px;border-radius:16px;border:1px solid var(--gold);background:white;color:var(--gold2);font-size:10px;cursor:pointer;font-family:sans-serif;transition:all 0.14s;white-space:nowrap;}
+.rbtn{padding:3px 7px;border-radius:16px;border:2px solid var(--gold);background:white;color:var(--gold2);font-size:10px;cursor:pointer;font-family:sans-serif;transition:all 0.14s;white-space:nowrap;}
 .rbtn:hover{background:var(--gold);color:white;}
 .rbtn.playing{background:var(--gold);color:white;}
+#btn-read{border-color:#00a933;color:#00a933;}
+#btn-read:hover{background:#00a933;color:white;}
+#btn-stop{border-color:#1e5ee4;color:#1e5ee4;}
+#btn-stop:hover{background:#1e5ee4;color:white;}
 
 /* Session body — scrollable reading area */
 .session-scroll{flex:1;overflow-y:auto;padding:14px 16px;}
@@ -177,17 +180,17 @@ body{font-family:'Georgia',serif;background:var(--parch);color:var(--ink);min-he
 .session-cite{font-size:11px;color:var(--ink3);font-style:italic;font-family:sans-serif;margin-top:10px;padding-top:8px;border-top:1px solid var(--parch3);}
 
 /* Student input area — bottom of center */
-.student-input-area{border-top:2px solid var(--parch3);padding:10px 12px;background:var(--parch2);flex-shrink:0;}
+.student-input-area{border-top:2px solid var(--parch3);padding:10px 12px;background:white;flex-shrink:0;}
 .student-input-bar{display:flex;gap:8px;align-items:flex-end;}
 .student-input-box{flex:1;border:1.5px solid var(--parch3);border-radius:var(--radius-sm);padding:8px 11px;font-size:13px;font-family:'Georgia',serif;color:var(--ink);background:white;resize:none;min-height:38px;max-height:100px;transition:border-color 0.15s;line-height:1.5;}
 .student-input-box:focus{outline:none;border-color:var(--gold);}
 .student-input-box::placeholder{color:var(--ink3);font-style:italic;}
-.student-send-btn{padding:8px 14px;background:var(--gold);color:white;border:none;border-radius:var(--radius-sm);font-size:12px;cursor:pointer;font-family:sans-serif;transition:all 0.15s;flex-shrink:0;height:38px;}
-.student-send-btn:hover{background:var(--gold2);}
+.student-send-btn{padding:8px 14px;background:#10d717;color:white;border:none;border-radius:var(--radius-sm);font-size:12px;cursor:pointer;font-family:sans-serif;transition:all 0.15s;flex-shrink:0;height:38px;}
+.student-send-btn:hover{background:#0aaa12;}
 .student-send-btn:disabled{opacity:0.4;cursor:not-allowed;}
 
 /* Action buttons row */
-.action-row{display:flex;gap:6px;flex-wrap:wrap;padding:8px 12px;border-top:1px solid var(--parch3);background:var(--parch2);flex-shrink:0;}
+.action-row{display:flex;gap:6px;flex-wrap:wrap;padding:8px 12px;border-top:1px solid var(--parch3);background:white;flex-shrink:0;}
 .btn{padding:6px 12px;border-radius:var(--radius-sm);font-size:11px;cursor:pointer;border:1.5px solid var(--parch3);background:white;color:var(--ink2);transition:all 0.14s;font-family:sans-serif;font-weight:600;}
 .btn:hover{border-color:var(--gold);color:var(--ink);background:var(--gold-light);}
 .btn-gold{background:var(--gold);color:white;border-color:var(--gold);}
@@ -215,7 +218,7 @@ body{font-family:'Georgia',serif;background:var(--parch);color:var(--ink);min-he
 .ai-question-box .live-dot{width:7px;height:7px;border-radius:50%;background:#2E9922;display:inline-block;margin-right:5px;animation:pulse 2s infinite;}
 
 /* Student response display */
-.student-response-panel{border-top:2px solid var(--parch3);padding:10px;background:var(--parch2);flex-shrink:0;}
+.student-response-panel{border-top:2px solid var(--parch3);padding:10px;background:white;flex-shrink:0;}
 .student-answer-display{font-size:12px;color:var(--ink);line-height:1.6;display:none;}
 .student-answer-display strong{color:var(--gold2);font-size:10px;text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:3px;font-family:sans-serif;}
 
@@ -345,18 +348,15 @@ body{font-family:'Georgia',serif;background:var(--parch);color:var(--ink);min-he
   <div class="tutor-topbar">
     <button class="back-btn" onclick="goSubjects()">←</button>
     <div>
-      <div class="nav-title" id="tutor-title" style="font-size:15px;font-weight:bold;color:var(--ink);">Tutor</div>
-      <div class="nav-sub" id="tutor-sub" style="font-size:11px;color:var(--ink3);font-family:sans-serif;"></div>
+      <div class="nav-title" id="tutor-title" style="font-size:15px;font-weight:bold;color:#fff;">Tutor</div>
+      <div class="nav-sub" id="tutor-sub" style="font-size:11px;color:rgba(255,255,255,0.75);font-family:sans-serif;"></div>
     </div>
     <button class="begin-top-btn" id="btn-begin-top" onclick="beginSession()">✦ Tap to Begin Today's Lesson</button>
     <!-- Timer -->
     <div class="topbar-timer">
       <span class="topbar-timer-icon">⏱️</span>
       <div>
-        <div style="display:flex;align-items:center;gap:6px;">
-          <div class="topbar-timer-display ok" id="class-timer-display">15:00</div>
-          <div id="phase-label" style="font-size:10px;font-weight:bold;font-family:sans-serif;padding:2px 7px;border-radius:10px;background:var(--parch3);color:var(--ink2);display:none;white-space:nowrap;"></div>
-        </div>
+        <div class="topbar-timer-display ok" id="class-timer-display">15:00</div>
         <div class="topbar-timer-track"><div class="topbar-timer-fill ok" id="class-timer-fill" style="width:100%"></div></div>
       </div>
       <div class="topbar-timer-btns">
@@ -434,7 +434,7 @@ body{font-family:'Georgia',serif;background:var(--parch);color:var(--ink);min-he
           <button class="rbtn" id="btn-pause-read" onclick="pauseReadAloud()" style="display:none">⏸ Pause</button>
           <button class="rbtn" id="btn-resume-read" onclick="resumeReadAloud()" style="display:none">▶ Resume</button>
           <button class="rbtn" id="btn-stop" onclick="stopRead()">■ Stop</button>
-          <select id="voice-speed" onchange="updateSpeed()" style="font-size:10px;border:1px solid var(--gold);border-radius:4px;padding:2px 3px;background:white;font-family:sans-serif;">
+          <select id="voice-speed" onchange="updateSpeed()" style="font-size:10px;border:2px solid #ff8700;border-radius:4px;padding:2px 3px;background:white;font-family:sans-serif;color:#cc6a00;">
             <option value="0.7">Slow</option>
             <option value="0.9" selected>Medium</option>
             <option value="1.1">Fast</option>
@@ -733,150 +733,39 @@ function saveSession(student, subjectId, data){
 }
 
 // ══════════════════════════════════════════════
-// PHASED CLASS TIMER
-// Phases for standard subjects (15 min total):
-//   Phase 1 — Presentation / Read-aloud  : 5 min
-//   Phase 2 — Q&A / Discussion           : 8 min
-//   Phase 3 — Wrap-up / Summary          : 2 min
-// Phases for Math (10 min total):
-//   Phase 1 — Drill / Lesson             : 3 min
-//   Phase 2 — Practice / Questions       : 5 min
-//   Phase 3 — Review / Wrap-up           : 2 min
+// CLASS TIMER
 // ══════════════════════════════════════════════
-
-// Phase definitions
-function getPhases(){
-  if(curSubject && curSubject.isMath){
-    return [
-      { key:'present', label:'📐 Drill',     seconds:3*60, color:'var(--blue)',   bg:'var(--blue-light)'  },
-      { key:'qa',      label:'✏️ Practice',  seconds:5*60, color:'var(--gold2)',  bg:'var(--gold-light)'  },
-      { key:'wrap',    label:'✅ Review',    seconds:2*60, color:'var(--green)',  bg:'var(--green-light)' }
-    ];
-  }
-  return [
-    { key:'present', label:'📖 Reading',   seconds:5*60, color:'var(--blue)',   bg:'var(--blue-light)'  },
-    { key:'qa',      label:'❓ Q&A',       seconds:8*60, color:'var(--gold2)',  bg:'var(--gold-light)'  },
-    { key:'wrap',    label:'✅ Wrap-up',   seconds:2*60, color:'var(--green)',  bg:'var(--green-light)' }
-  ];
-}
-
-let currentPhaseIndex = 0;
-
 function startClassTimer(){
   if(classTimerInterval) return;
-  const phases = getPhases();
-  classTimerTotal = phases.reduce((sum,p)=>sum+p.seconds,0);
-
-  // If already at 0 or at full total, restart from phase 0
-  if(classTimerSeconds <= 0 || classTimerSeconds === classTimerTotal){
-    classTimerSeconds = classTimerTotal;
-    currentPhaseIndex = 0;
-  }
-
+  classTimerTotal = curSubject && curSubject.isMath ? 10*60 : 15*60;
+  if(classTimerSeconds === 0 || classTimerSeconds === classTimerTotal) classTimerSeconds = classTimerTotal;
   const playBtn = document.getElementById('class-timer-play');
   const pauseBtn = document.getElementById('class-timer-pause');
   if(playBtn) playBtn.style.display = 'none';
   if(pauseBtn) pauseBtn.style.display = '';
-
   updateClassTimerDisplay();
-  showPhaseLabel();
-
   classTimerInterval = setInterval(()=>{
     classTimerSeconds--;
-    updateClassTimerDisplay();
-    checkPhaseTransition();
     if(classTimerSeconds <= 0){
-      clearInterval(classTimerInterval); classTimerInterval=null;
-      classTimerSeconds = 0;
+      classTimerSeconds=0; clearInterval(classTimerInterval); classTimerInterval=null;
       const playBtn = document.getElementById('class-timer-play');
       const pauseBtn = document.getElementById('class-timer-pause');
       if(playBtn) playBtn.style.display = '';
       if(pauseBtn) pauseBtn.style.display = 'none';
-      onClassTimerEnd();
     }
+    updateClassTimerDisplay();
   }, 1000);
 }
-
-function checkPhaseTransition(){
-  const phases = getPhases();
-  // Calculate seconds elapsed
-  const totalSecs = phases.reduce((sum,p)=>sum+p.seconds,0);
-  const elapsed = totalSecs - classTimerSeconds;
-
-  let cumulative = 0;
-  for(let i = 0; i < phases.length; i++){
-    cumulative += phases[i].seconds;
-    if(elapsed < cumulative){
-      if(i !== currentPhaseIndex){
-        currentPhaseIndex = i;
-        showPhaseLabel();
-        showPhaseTransitionBanner(phases[i]);
-      }
-      break;
-    }
-  }
-}
-
-function showPhaseLabel(){
-  const phases = getPhases();
-  const phase = phases[currentPhaseIndex];
-  if(!phase) return;
-  const lbl = document.getElementById('phase-label');
-  if(!lbl) return;
-  lbl.textContent = phase.label;
-  lbl.style.display = '';
-  lbl.style.background = phase.bg;
-  lbl.style.color = phase.color;
-}
-
-function showPhaseTransitionBanner(phase){
-  // Remove any existing banner
-  const old = document.getElementById('phase-banner');
-  if(old) old.remove();
-
-  const messages = {
-    present: { title:'📖 Reading Time', body:'Listen carefully to today\'s lesson.' },
-    qa:      { title:'❓ Q&A Time',     body:'Time to answer questions and discuss!' },
-    wrap:    { title:'✅ Wrap-up',      body:'Let\'s summarize what we learned today.' }
-  };
-  const msg = messages[phase.key] || { title: phase.label, body:'' };
-
-  const banner = document.createElement('div');
-  banner.id = 'phase-banner';
-  banner.style.cssText = `
-    position:fixed;top:70px;left:50%;transform:translateX(-50%);
-    z-index:8000;
-    background:${phase.bg};border:2px solid ${phase.color};
-    border-radius:12px;padding:12px 24px;
-    font-family:sans-serif;text-align:center;
-    box-shadow:0 4px 20px rgba(0,0,0,0.18);
-    animation:fadeSlideIn 0.3s ease;
-    pointer-events:none;
-  `;
-  banner.innerHTML = `
-    <div style="font-size:16px;font-weight:bold;color:${phase.color}">${msg.title}</div>
-    ${msg.body ? `<div style="font-size:12px;color:var(--ink2);margin-top:3px">${msg.body}</div>` : ''}
-  `;
-  document.body.appendChild(banner);
-  // Auto-remove after 3.5 seconds
-  setTimeout(()=>{ const b = document.getElementById('phase-banner'); if(b) b.remove(); }, 3500);
-}
-
 function resetClassTimer(){
   clearInterval(classTimerInterval); classTimerInterval=null;
-  currentPhaseIndex = 0;
-  const phases = getPhases();
-  classTimerTotal = phases.reduce((sum,p)=>sum+p.seconds,0);
+  classTimerTotal = curSubject && curSubject.isMath ? 10*60 : 15*60;
   classTimerSeconds = classTimerTotal;
   const playBtn = document.getElementById('class-timer-play');
   const pauseBtn = document.getElementById('class-timer-pause');
   if(playBtn) playBtn.style.display = '';
   if(pauseBtn) pauseBtn.style.display = 'none';
-  const lbl = document.getElementById('phase-label');
-  if(lbl) lbl.style.display = 'none';
   updateClassTimerDisplay();
 }
-
 function pauseClassTimer(){
   clearInterval(classTimerInterval); classTimerInterval=null;
   const playBtn = document.getElementById('class-timer-play');
@@ -897,61 +786,6 @@ function updateClassTimerDisplay(){
   const state = pct > 50 ? 'ok' : pct > 20 ? 'warn' : 'urgent';
   d.className = 'topbar-timer-display ' + state;
   f.className = 'topbar-timer-fill ' + state;
-}
-
-function onClassTimerEnd(){
-  // Stop any ongoing read-aloud
-  stopRead();
-
-  // Auto-mark the subject as done for today
-  if(curStudent && curSubject){
-    try { localStorage.setItem(getDoneKey(curStudent, curSubject.id), '1'); } catch(e){}
-    const sess = getSession(curStudent, curSubject.id);
-    syncToSupabase(curStudent, curSubject.id, sess, true);
-  }
-
-  // Remove phase label and any transition banner
-  const lbl = document.getElementById('phase-label');
-  if(lbl) lbl.style.display = 'none';
-  const banner = document.getElementById('phase-banner');
-  if(banner) banner.remove();
-
-  // Show end-of-class overlay
-  let overlay = document.getElementById('class-end-overlay');
-  if(!overlay){
-    overlay = document.createElement('div');
-    overlay.id = 'class-end-overlay';
-    overlay.style.cssText = `
-      position:fixed;inset:0;z-index:9999;
-      background:rgba(44,44,42,0.82);
-      display:flex;align-items:center;justify-content:center;
-    `;
-    overlay.innerHTML = `
-      <div style="
-        background:var(--parch);border:3px solid var(--gold);border-radius:18px;
-        padding:36px 40px;max-width:360px;width:90%;text-align:center;
-        box-shadow:0 8px 40px rgba(0,0,0,0.35);
-      ">
-        <div style="font-size:48px;margin-bottom:12px;">✝️</div>
-        <div style="font-size:22px;font-weight:bold;color:var(--ink);margin-bottom:8px;">Class Finished!</div>
-        <div style="font-size:15px;color:var(--ink2);font-family:sans-serif;line-height:1.6;margin-bottom:22px;">
-          Great work today.<br>This subject has been marked <strong style="color:var(--green)">done ✓</strong>.
-        </div>
-        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-          <button onclick="document.getElementById('class-end-overlay').remove();goSubjects();"
-            style="padding:11px 22px;border-radius:10px;border:none;background:var(--gold);color:white;font-size:14px;font-weight:bold;cursor:pointer;font-family:sans-serif;">
-            ← Back to Subjects
-          </button>
-          <button onclick="document.getElementById('class-end-overlay').remove();"
-            style="padding:11px 22px;border-radius:10px;border:1.5px solid var(--parch3);background:white;color:var(--ink2);font-size:14px;cursor:pointer;font-family:sans-serif;">
-            Stay Here
-          </button>
-        </div>
-      </div>
-    `;
-    document.body.appendChild(overlay);
-  }
-  overlay.style.display = 'flex';
 }
 
 // ══════════════════════════════════════════════
@@ -1122,32 +956,31 @@ function openSubject(subjectId){
   document.getElementById('tutor-title') && (document.getElementById('tutor-title').textContent = curSubject.name);
   document.getElementById('tutor-sub') && (document.getElementById('tutor-sub').textContent = curSubject.tag);
 
-  // Apply subject bg to ALL tutor panels so the cognitive color fills the study area
+  // Apply subject bg to ALL tutor panels — keep white everywhere except the two special content panels
   const subjBg = curSubject.bg || 'var(--parch)';
   const subjColor = curSubject.color || 'var(--ink)';
-  document.body.style.background = subjBg;
-  document.documentElement.style.setProperty('--subj-bg', subjBg);
+  document.body.style.background = 'white';
+  document.documentElement.style.setProperty('--subj-bg', 'white');
   const tutorEl = document.getElementById('tutor');
-  if(tutorEl) tutorEl.style.background = subjBg;
+  if(tutorEl) tutorEl.style.background = 'white';
   const tutorLeft = document.getElementById('tutor-left');
-  if(tutorLeft) tutorLeft.style.background = subjBg;
+  if(tutorLeft) tutorLeft.style.background = 'white';
   const aiBox = document.getElementById('ai-question-box');
-  if(aiBox) aiBox.style.background = subjBg;
+  if(aiBox) aiBox.style.background = subjBg; // keep subject color for AI questions/feedback panel
   const tutorRight = document.querySelector('.tutor-right');
-  if(tutorRight) tutorRight.style.background = subjBg;
+  if(tutorRight) tutorRight.style.background = 'white';
   const sessionCenter = document.querySelector('.tutor-center');
-  if(sessionCenter) sessionCenter.style.background = subjBg;
-  // Tint the topbar border with the subject accent color
+  if(sessionCenter) sessionCenter.style.background = 'white';
+  // Keep the reading/lesson text panel with subject color
+  const sessionScroll = document.querySelector('.session-scroll');
+  if(sessionScroll) sessionScroll.style.background = subjBg;
+  // Tint the topbar border with the subject accent color (topbar stays blue)
   const topbar = document.querySelector('.tutor-topbar');
-  if(topbar) topbar.style.borderBottomColor = subjColor;
+  if(topbar) topbar.style.borderBottomColor = '#1648b8';
 
-  // Reset class timer to phase-based total
-  currentPhaseIndex = 0;
-  const phases = getPhases();
-  classTimerTotal = phases.reduce((sum,p)=>sum+p.seconds,0);
+  // Reset class timer
+  classTimerTotal = curSubject.isMath ? 10*60 : 15*60;
   classTimerSeconds = classTimerTotal;
-  const phaseLbl = document.getElementById('phase-label');
-  if(phaseLbl) phaseLbl.style.display = 'none';
   updateClassTimerDisplay();
 
   // Book cover
