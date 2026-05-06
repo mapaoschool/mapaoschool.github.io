@@ -733,8 +733,22 @@ function selectStudent(id){
   renderSubjects(id);
   showScreen('subjects');
 }
-function goHome(){ stopRead(); clearInterval(classTimerInterval); classTimerInterval=null; showScreen('home'); }
-function goSubjects(){ stopRead(); showScreen('subjects'); }
+function resetSubjColors(){
+  document.body.style.background = '';
+  document.documentElement.style.setProperty('--subj-bg','var(--parch)');
+  const tutorEl = document.getElementById('tutor');
+  if(tutorEl) tutorEl.style.background = '';
+  const tutorLeft = document.getElementById('tutor-left');
+  if(tutorLeft) tutorLeft.style.background = '';
+  const aiBox = document.getElementById('ai-question-box');
+  if(aiBox) aiBox.style.background = '';
+  const tutorRight = document.querySelector('.tutor-right');
+  if(tutorRight) tutorRight.style.background = '';
+  const topbar = document.querySelector('.tutor-topbar');
+  if(topbar) topbar.style.borderBottomColor = '';
+}
+function goHome(){ stopRead(); clearInterval(classTimerInterval); classTimerInterval=null; resetSubjColors(); showScreen('home'); }
+function goSubjects(){ stopRead(); resetSubjColors(); showScreen('subjects'); }
 
 function getDoneKey(studentId, subjectId){
   const d = new Date();
@@ -805,7 +819,25 @@ function openSubject(subjectId){
 
   document.getElementById('tutor-title') && (document.getElementById('tutor-title').textContent = curSubject.name);
   document.getElementById('tutor-sub') && (document.getElementById('tutor-sub').textContent = curSubject.tag);
-  document.body.style.background = curSubject.bg || 'var(--parch)';
+
+  // Apply subject bg to ALL tutor panels so the cognitive color fills the study area
+  const subjBg = curSubject.bg || 'var(--parch)';
+  const subjColor = curSubject.color || 'var(--ink)';
+  document.body.style.background = subjBg;
+  document.documentElement.style.setProperty('--subj-bg', subjBg);
+  const tutorEl = document.getElementById('tutor');
+  if(tutorEl) tutorEl.style.background = subjBg;
+  const tutorLeft = document.getElementById('tutor-left');
+  if(tutorLeft) tutorLeft.style.background = subjBg;
+  const aiBox = document.getElementById('ai-question-box');
+  if(aiBox) aiBox.style.background = subjBg;
+  const tutorRight = document.querySelector('.tutor-right');
+  if(tutorRight) tutorRight.style.background = subjBg;
+  const sessionCenter = document.querySelector('.tutor-center');
+  if(sessionCenter) sessionCenter.style.background = subjBg;
+  // Tint the topbar border with the subject accent color
+  const topbar = document.querySelector('.tutor-topbar');
+  if(topbar) topbar.style.borderBottomColor = subjColor;
 
   // Reset class timer
   classTimerTotal = curSubject.isMath ? 10*60 : 15*60;
