@@ -739,9 +739,66 @@ function startClassTimer(){
       const pauseBtn = document.getElementById('class-timer-pause');
       if(playBtn) playBtn.style.display = '';
       if(pauseBtn) pauseBtn.style.display = 'none';
+      endSessionByTimer();
     }
     updateClassTimerDisplay();
   }, 1000);
+}
+
+async function endSessionByTimer(){
+  stopRead();
+  // Disable interaction buttons so student cannot keep going
+  ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint','btn-next'].forEach(id=>{
+    const el = document.getElementById(id); if(el) el.disabled = true;
+  });
+  const input = document.getElementById('student-input');
+  if(input) input.disabled = true;
+  const micBtn = document.getElementById('mic-btn');
+  if(micBtn) micBtn.disabled = true;
+
+  // Auto-mark subject as done for today and increment session count
+  if(curStudent && curSubject){
+    const key = getDoneKey(curStudent, curSubject.id);
+    try { localStorage.setItem(key, '1'); } catch(e){}
+    const sess = getSession(curStudent, curSubject.id);
+    sess.sessionCount++;
+    sess.lastLesson = `Session ${sess.sessionCount} — ${curSubject.name}`;
+    saveSession(curStudent, curSubject.id, sess);
+    syncToSupabase(curStudent, curSubject.id, sess, true);
+    const t = `Last: ${sess.lastLesson} · Sessions: ${sess.sessionCount}`;
+    document.getElementById('tracker-text') && (document.getElementById('tracker-text').textContent = t);
+    document.getElementById('tracker-text-right') && (document.getElementById('tracker-text-right').textContent = t);
+  }
+
+  const isMath = curSubject && curSubject.isMath;
+  const limitLabel = isMath ? '10-minute' : '15-minute';
+  const gradeCtx = {
+    AL:'Grade 9–12 — mature, analytical, Thomistic vocabulary',
+    FA:'Grade 1–4 — simple warm language, short sentences',
+    FC:'Grade 1–4 — simple warm language, short sentences',
+    LJ:'Kindergarten with Grade 3 logic — very short playful sentences'
+  };
+
+  const fbArea = document.getElementById('fb-area');
+  if(fbArea) fbArea.innerHTML = `<div class="feedback" style="background:rgba(240,200,48,0.15);color:#412402;border:1px solid #E8C870"><span class="spinner"></span> Time is up — wrapping up the session...</div>`;
+
+  try {
+    const lessonText = document.getElementById('ai-response').textContent.substring(0, 400);
+    const res = await fetch('https://divine-sunset-f2ee.panicovillegas.workers.dev', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-5', max_tokens:200,
+        messages:[{role:'user', content:`You are a tutor for a ${gradeCtx[curStudent]||'student'} in subject: ${curSubject ? curSubject.name : 'class'}. The ${limitLabel} session timer has ended. The lesson so far was about: "${lessonText}". Give a warm, brief (3–4 sentences) closing message. Tell the student that class time is up for today. Summarize in one sentence what was learned. Encourage them and say goodbye until next time. Do not ask any new questions. Do not start with "I".`}]
+      })
+    });
+    const data = await res.json();
+    const msg = data.content?.find(b=>b.type==='text')?.text || `Time is up for today's session! Great work. See you next time!`;
+    if(fbArea) fbArea.innerHTML = `<div class="feedback" style="background:rgba(40,120,60,0.12);color:#042C53;border:1px solid rgba(40,120,80,0.4);font-size:15px;line-height:1.8"><strong>⏰ Class time is up!</strong><br><br>${msg}</div>`;
+    safeReadAloud(msg);
+  } catch(e){
+    if(fbArea) fbArea.innerHTML = `<div class="feedback" style="background:rgba(40,120,60,0.12);color:#042C53;border:1px solid rgba(40,120,80,0.4);font-size:15px;line-height:1.8"><strong>⏰ Class time is up!</strong><br><br>Great work today! Time to take a break. We'll continue next time.</div>`;
+  }
 }
 function resetClassTimer(){
   clearInterval(classTimerInterval); classTimerInterval=null;
@@ -1148,6 +1205,12 @@ Respond in plain, natural tutor voice — no markdown, no bullet symbols.`;
     });
     showBookPageBtn();
     fetchImagesForLesson(text);
+    // Auto-start class timer so it always runs without teacher needing to press ▶
+    clearInterval(classTimerInterval); classTimerInterval = null;
+    classTimerTotal = curSubject && curSubject.isMath ? 10*60 : 15*60;
+    classTimerSeconds = classTimerTotal;
+    updateClassTimerDisplay();
+    startClassTimer();
     // Auto read aloud
     if(!NEEDS_GESTURE_FOR_TTS){
       readAloud(text);
