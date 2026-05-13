@@ -229,6 +229,7 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
 .spinner{display:inline-block;width:11px;height:11px;border:2px solid rgba(255,255,255,0.1);border-top-color:var(--vg-gold);border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:4px;}
 @keyframes spin{to{transform:rotate(360deg);}}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+@keyframes pulse-btn{0%,100%{box-shadow:0 0 0 0 rgba(240,200,48,0.5);}50%{box-shadow:0 0 0 7px rgba(240,200,48,0);}}
 
 /* Responsive */
 @media(max-width:700px){
@@ -651,7 +652,9 @@ UNIVERSAL RULES (apply to every subject):
 // ══════════════════════════════════════════════
 const IS_IOS    = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 const IS_MOBILE = IS_IOS || /Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-const NEEDS_GESTURE_FOR_TTS = IS_IOS || IS_MOBILE;
+// Chrome/Edge/Firefox on all platforms block speechSynthesis without a user gesture.
+// Always require a tap — this is reliable on Windows, Mac, Android, and iOS.
+const NEEDS_GESTURE_FOR_TTS = true;
 const HAS_SPEECH_RECOGNITION = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
 
 // ══════════════════════════════════════════════
@@ -1239,7 +1242,7 @@ function promptTapToListen(text){
   const readBtn = document.getElementById('btn-read');
   const pauseBtn = document.getElementById('btn-pause-read');
   const resumeBtn = document.getElementById('btn-resume-read');
-  if(readBtn){ readBtn.style.display = ''; readBtn.textContent = '▶ Tap to Listen'; readBtn.style.background = 'var(--gold)'; readBtn.style.color = 'white'; readBtn.style.fontWeight = 'bold'; }
+  if(readBtn){ readBtn.style.display = ''; readBtn.textContent = '▶ Tap to Listen'; readBtn.style.background = 'var(--vg-gold)'; readBtn.style.color = '#1A1228'; readBtn.style.fontWeight = 'bold'; readBtn.style.animation = 'pulse-btn 1.2s ease-in-out infinite'; }
   if(pauseBtn) pauseBtn.style.display = 'none';
   if(resumeBtn) resumeBtn.style.display = 'none';
 }
@@ -1543,19 +1546,26 @@ function toggleRead(){
 function startReadAloud(){
   // Reset any "Tap to Listen" styling on btn-read
   const readBtn = document.getElementById('btn-read');
-  if(readBtn){ readBtn.style.background = ''; readBtn.style.color = ''; readBtn.style.fontWeight = ''; readBtn.textContent = '▶ Read'; }
+  if(readBtn){ readBtn.style.background = ''; readBtn.style.color = ''; readBtn.style.fontWeight = ''; readBtn.style.animation = ''; readBtn.textContent = '▶ Read'; }
   // Use pending text (set by promptTapToListen) or current response text
+  const hasPending = !!_pendingReadText;
   const text = _pendingReadText || document.getElementById('ai-response').textContent;
   _pendingReadText = null;
   if(!text || text.includes('Tap "Begin') || text.includes('Tap \"Begin')) return;
-  // Edge/Windows fix: always hard-cancel then wait 400ms before speaking.
-  // This clears any stuck synthesis state and ensures the user gesture is registered.
   readingStopped = true;
   window.speechSynthesis.cancel();
-  setTimeout(()=>{
+  // Always speak immediately on first tap (hasPending) to stay within the
+  // browser gesture context. On re-reads (no pending text), use a short delay
+  // to clear any stuck synthesis state on Windows/Chrome/Edge.
+  if(hasPending){
     readingStopped = false;
     ensureVoices(()=>_doReadAloud(text));
-  }, 400);
+  } else {
+    setTimeout(()=>{
+      readingStopped = false;
+      ensureVoices(()=>_doReadAloud(text));
+    }, 400);
+  }
 }
 function pauseReadAloud(){
   if(!window.speechSynthesis.speaking || window.speechSynthesis.paused) return;
