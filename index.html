@@ -1594,7 +1594,10 @@ function markResponse(type){
 // ══════════════════════════════════════════════
 async function reteachConcept(){
   const btn = document.getElementById('btn-wrong');
-  btn.disabled=true; btn.textContent='...';
+  ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint'].forEach(id=>{
+    const el = document.getElementById(id); if(el){ el.disabled=true; }
+  });
+  btn.textContent='...';
   const fbArea = document.getElementById('fb-area');
   fbArea.innerHTML = `<div class="feedback" style="background:var(--red-light);color:var(--red)"><span class="spinner"></span> Preparing a different explanation...</div>`;
 
@@ -1618,7 +1621,10 @@ async function reteachConcept(){
   } catch(e){
     fbArea.innerHTML = `<div class="feedback" style="background:var(--red-light);color:#5A0000">That's okay! Let's think about it differently. Look back at what we just read — what was the main thing that happened?</div>`;
   }
-  btn.disabled=false; btn.textContent='Reteach';
+  ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint'].forEach(id=>{
+    const el = document.getElementById(id); if(el) el.disabled=false;
+  });
+  btn.textContent='Reteach';
 }
 
 // ══════════════════════════════════════════════
@@ -1634,7 +1640,10 @@ async function giveHint(){
     document.getElementById('hint-ct').textContent = sessionHints;
   }
   const btn = document.getElementById('btn-hint');
-  btn.disabled=true; btn.textContent='...';
+  ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint'].forEach(id=>{
+    const el = document.getElementById(id); if(el) el.disabled=true;
+  });
+  btn.textContent='...';
   const lessonText = document.getElementById('ai-response').textContent.substring(0,400);
   const gradeCtx = {AL:'Grade 9–12 — mature, precise',FA:'Grade 1–4 — simple, warm',FC:'Grade 1–4 — simple, warm',LJ:'Kindergarten with Grade 3 logic — playful, short sentences'};
   try {
@@ -1653,7 +1662,10 @@ async function giveHint(){
   } catch(e){
     document.getElementById('fb-area').innerHTML = `<div class="feedback" style="background:var(--blue-light);color:#042C53"><strong>Hint:</strong> Think about what you remember from last time — the answer is closer than you think!</div>`;
   }
-  btn.disabled=false; btn.textContent='Hint';
+  ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint'].forEach(id=>{
+    const el = document.getElementById(id); if(el) el.disabled=false;
+  });
+  btn.textContent='Hint';
 }
 
 // ══════════════════════════════════════════════
@@ -1661,7 +1673,10 @@ async function giveHint(){
 // ══════════════════════════════════════════════
 async function nextQuestion(){
   const btn = document.getElementById('btn-next');
-  btn.disabled=true; btn.innerHTML='<span class="spinner"></span>';
+  ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint','btn-next'].forEach(id=>{
+    const el = document.getElementById(id); if(el) el.disabled=true;
+  });
+  btn.innerHTML='<span class="spinner"></span>';
   stopRead();
   document.getElementById('ai-response').innerHTML='<span class="spinner"></span>Generating next question...';
   document.getElementById('fb-area').innerHTML='';
@@ -1683,7 +1698,10 @@ async function nextQuestion(){
     fetchImagesForLesson(text);
     readAloud(text);
   } catch(e){ document.getElementById('ai-response').textContent='Connection error. Please try again.'; }
-  btn.disabled=false; btn.innerHTML='Next →';
+  ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint','btn-next'].forEach(id=>{
+    const el = document.getElementById(id); if(el) el.disabled=false;
+  });
+  btn.innerHTML='Next →';
 }
 
 // ══════════════════════════════════════════════
@@ -1735,6 +1753,10 @@ function extractLastQuestion(text){
 async function respondToAnswer(studentAnswer){
   const fbArea = document.getElementById('fb-area');
   fbArea.innerHTML = `<div class="feedback" style="background:var(--parch2);color:var(--ink2)"><span class="spinner"></span> Thinking...</div>`;
+  // Disable all response buttons while AI is evaluating to prevent race conditions
+  ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint'].forEach(id=>{
+    const el = document.getElementById(id); if(el) el.disabled = true;
+  });
   document.getElementById('btn-send').disabled = true;
 
   const lessonText = document.getElementById('ai-response').textContent.substring(0, 600);
@@ -1783,7 +1805,10 @@ Never say the student is jumping ahead. Stay within Catholic classical content. 
   } catch(e){
     fbArea.innerHTML = `<div class="feedback" style="background:var(--parch2);color:var(--ink2)">Connection error. Please check your internet and try again.</div>`;
   }
-  document.getElementById('btn-send').disabled = false;
+  // Re-enable all response buttons after AI evaluation completes
+  ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint'].forEach(id=>{
+    const el = document.getElementById(id); if(el) el.disabled = false;
+  });
 }
 
 function clearTranscript() {
