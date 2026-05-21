@@ -1342,16 +1342,18 @@ function ensureVoices(cb){
   if(allVoices.length){ cb(); return; }
   allVoices = window.speechSynthesis.getVoices();
   if(allVoices.length){ populateVoicePicker(); cb(); return; }
+  // Edge fires onvoiceschanged late — poll up to 30 × 150 ms = 4.5 s before giving up.
+  // cb() is always called so TTS still proceeds with the browser default voice if needed.
   let attempts = 0;
   const poll = setInterval(()=>{
     allVoices = window.speechSynthesis.getVoices();
     attempts++;
-    if(allVoices.length || attempts > 20){
+    if(allVoices.length || attempts > 30){
       clearInterval(poll);
       if(allVoices.length) populateVoicePicker();
       cb();
     }
-  }, 100);
+  }, 150);
 }
 if(window.speechSynthesis){
   window.speechSynthesis.onvoiceschanged = loadVoices;
@@ -1432,12 +1434,12 @@ function readAloud(text){
   // Cancel any current speech
   readingStopped = true;
   window.speechSynthesis.cancel();
-  // Windows/Chrome/Edge need a longer delay after cancel() before speaking again.
-  // 300 ms is more reliable than 150 ms on Windows.
+  // Windows/Chrome/Edge need a delay after cancel() before speaking again.
+  // 400 ms matches startReadAloud() — keeps behavior consistent across all code paths.
   setTimeout(()=>{
     readingStopped = false;
     ensureVoices(()=>_doReadAloud(text));
-  }, 300);
+  }, 400);
 }
 
 function _doReadAloud(text){
@@ -1473,9 +1475,11 @@ function _doReadAloud(text){
       window.speechSynthesis.resume();
     }
     hackTick++;
-    // Safety: if synthesis appears stuck (speaking=true but no onstart/onend fired
-    // after 6 seconds), cancel and restart from current chunk
-    if(hackTick > 6 && isReading === false && window.speechSynthesis.speaking){
+    // Safety: if synthesis appears truly stuck (speaking=true but onstart/onend
+    // never fired after 14 seconds), cancel and restart from current chunk.
+    // Threshold raised from 6 → 14 to avoid false-positive on Edge, where
+    // onstart can fire several seconds after speak() is called.
+    if(hackTick > 14 && isReading === false && window.speechSynthesis.speaking){
       clearInterval(resumeHack);
       window.speechSynthesis.cancel();
       setTimeout(speakChunk, 200);
@@ -1527,6 +1531,19 @@ function _doReadAloud(text){
       document.getElementById('btn-pause-read').style.display = '';
       document.getElementById('btn-resume-read').style.display = 'none';
     };
+    // Edge sometimes fires onstart late or not at all — apply button state
+    // after 1 s as a fallback so the UI doesn't appear frozen.
+    setTimeout(()=>{
+      if(!readingStopped && window.speechSynthesis.speaking && !isReading){
+        isReading = true;
+        const r = document.getElementById('btn-read');
+        const p = document.getElementById('btn-pause-read');
+        const m = document.getElementById('btn-resume-read');
+        if(r) r.style.display = 'none';
+        if(p) p.style.display = '';
+        if(m) m.style.display = 'none';
+      }
+    }, 1000);
 
     // Word boundary highlighting + autoscroll
     utt.onboundary = (e)=>{
@@ -1550,7 +1567,9 @@ function _doReadAloud(text){
 
     utt.onerror = (e)=>{
       if(readingStopped){ clearInterval(resumeHack); finishRead(); return; }
-      if(e.error !== 'interrupted') chunkIndex++;
+      // Edge uses 'canceled'; Chrome uses 'interrupted' — both are non-fatal mid-chunk stops.
+      const nonFatal = e.error === 'interrupted' || e.error === 'canceled';
+      if(!nonFatal) chunkIndex++;
       setTimeout(speakChunk, 50);
     };
 
