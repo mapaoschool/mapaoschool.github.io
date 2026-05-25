@@ -1894,6 +1894,9 @@ function autoGrow(el) {
 }
 
 function handleInputKey(e) {
+  // Stamp the time of every keystroke so the mic+typed merge window is accurate.
+  const inputEl = document.getElementById('student-input');
+  if(inputEl) inputEl._lastTypedAt = Date.now();
   if (e.key === 'Enter' && !e.shiftKey) {
     e.preventDefault();
     submitTextAnswer();
@@ -1902,8 +1905,15 @@ function handleInputKey(e) {
 
 function submitTextAnswer() {
   const input = document.getElementById('student-input');
-  const text = input.value.trim();
-  if (!text) return;
+  const typedText = input.value.trim();
+  if (!typedText) return;
+
+  // Stamp so mic onend merge-window can detect recent typing
+  input._lastTypedAt = Date.now();
+
+  // If the mic already captured a partial transcript, merge rather than replace.
+  const spokenPart = micAccumulated ? micAccumulated.trim() : '';
+  const text = [spokenPart, typedText].filter(Boolean).join(' ').trim();
 
   // Disable all interactive buttons immediately to prevent race conditions / double-submission
   ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint'].forEach(id=>{
@@ -1918,6 +1928,9 @@ function submitTextAnswer() {
 
   input.value = '';
   input.style.height = 'auto';
+  // Also stop any active mic recording so we don't double-submit
+  if(isListening){ clearTimeout(micSilenceTimer); recognition.stop(); return; }
+  micAccumulated = ''; // reset accumulator after typed submit consumed it
 
   const idk = /\b(i don'?t know|no s[eé]|no lo s[eé]|not sure|no idea|dunno|idk|i have no idea|i'?m not sure)\b/i;
   if(idk.test(text)){
@@ -1937,6 +1950,11 @@ function extractLastQuestion(text){
 // AI RESPOND TO STUDENT ANSWER
 // ══════════════════════════════════════════════
 async function respondToAnswer(studentAnswer){
+  // Snapshot lastQuestion NOW before any async operation so that if nextQuestion()
+  // or a new PDF question fires before this resolves, we still evaluate against the
+  // correct question (fixes PDF question mapping race condition).
+  const questionForThisAnswer = lastQuestion;
+
   const fbArea = document.getElementById('fb-area');
   fbArea.innerHTML = `<div class="feedback" style="background:var(--parch2);color:var(--ink2)"><span class="spinner"></span> Thinking...</div>`;
   // Disable all response buttons while AI is evaluating to prevent race conditions
@@ -1946,7 +1964,7 @@ async function respondToAnswer(studentAnswer){
   document.getElementById('btn-send').disabled = true;
 
   const lessonText = document.getElementById('ai-response').textContent.substring(0, 600);
-  const questionContext = lastQuestion ? `\n\nThe specific question you asked the student was:\n"${lastQuestion}"` : '';
+  const questionContext = questionForThisAnswer ? `\n\nThe specific question you asked the student was:\n"${questionForThisAnswer}"` : '';
   const gradeCtx = {
     AL:'Grade 9–12 — mature, analytical, Thomistic vocabulary',
     FA:'Grade 1–4 — simple warm language, short sentences',
@@ -2298,6 +2316,13 @@ let isListening = false;
 let micRetries = 0;
 const MAX_RETRIES = 3;
 
+// Silence grace period: how long (ms) to wait after the last interim result
+// before treating the utterance as complete and auto-submitting.
+// 1200 ms gives students time to pause and think without cutting them off.
+const MIC_SILENCE_GRACE_MS = 1200;
+let micSilenceTimer = null;   // clearTimeout handle
+let micAccumulated = '';      // running transcript across interim events
+
 // Pre-check microphone permission and surface a clear error early
 function checkMicPermission(){
   if(!navigator.permissions) return; // older browsers — skip silently
@@ -2319,38 +2344,41 @@ function initMic() {
   }
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   recognition = new SpeechRecognition();
-  recognition.continuous = false;
+  // continuous=true: don't stop on short pauses; we use a grace-period timer instead.
+  recognition.continuous = true;
   recognition.interimResults = !IS_IOS;
 
   recognition.onstart = () => {
     isListening = true;
+    micAccumulated = '';
+    clearTimeout(micSilenceTimer);
     setMicState('listening');
   };
 
   recognition.onresult = (event) => {
+    // Accumulate all results (final and interim) into a running transcript.
     let interim = '';
-    let final = '';
+    let newFinal = '';
     for (let i = event.resultIndex; i < event.results.length; i++) {
       const t = event.results[i][0].transcript;
-      if (event.results[i].isFinal) final += t;
+      if (event.results[i].isFinal) newFinal += t;
       else interim += t;
     }
-    const display = final || interim;
+    if(newFinal) micAccumulated += (micAccumulated ? ' ' : '') + newFinal.trim();
+    const display = (micAccumulated + (interim ? ' ' + interim : '')).trim() || interim;
     if(display){
       document.getElementById('mic-transcript').textContent = display;
       document.getElementById('mic-clear').style.display = 'block';
     }
-    if (final) {
-      micRetries = 0;
-      setMicState('idle');
-      document.getElementById('mic-status').textContent = '✓ Got it!';
-      const idk = /\b(i don'?t know|no s[eé]|no lo s[eé]|not sure|no idea|dunno|idk|i have no idea|i'?m not sure)\b/i;
-      if(idk.test(final)){
-        reteachConcept();
-      } else {
-        respondToAnswer(final);
-      }
-    }
+    // Reset the silence grace timer on every result event.
+    // If no new speech arrives within MIC_SILENCE_GRACE_MS we treat the utterance as done.
+    clearTimeout(micSilenceTimer);
+    micSilenceTimer = setTimeout(()=>{
+      if(!isListening) return;
+      const full = micAccumulated.trim();
+      if(!full) return;
+      recognition.stop(); // triggers onend; we'll submit from there
+    }, MIC_SILENCE_GRACE_MS);
   };
 
   recognition.onerror = (event) => {
@@ -2377,11 +2405,40 @@ function initMic() {
 
   recognition.onend = () => {
     isListening = false;
-    const transcript = document.getElementById('mic-transcript').textContent;
-    if(!transcript){
-      document.getElementById('mic-status').textContent = "Didn't catch that — tap 🎤 and try again.";
-    }
+    clearTimeout(micSilenceTimer);
     setMicState('idle');
+
+    const spokenPart = micAccumulated.trim();
+    // Merge with anything the student typed in the text box (typed continuation support).
+    const inputEl = document.getElementById('student-input');
+    const typedPart = inputEl ? inputEl.value.trim() : '';
+    // Use a 5-second merge window: typed text typed within 5 s of speaking counts as
+    // a continuation of the same answer, not a separate submission.
+    const MERGE_WINDOW_MS = 5000;
+    const typedRecent = typedPart && (Date.now() - (inputEl._lastTypedAt || 0)) < MERGE_WINDOW_MS;
+    const mergedAnswer = [spokenPart, typedRecent ? typedPart : ''].filter(Boolean).join(' ').trim();
+
+    if(!mergedAnswer){
+      document.getElementById('mic-status').textContent = "Didn't catch that — tap 🎤 and try again.";
+      return;
+    }
+
+    // Clear the typed box if we consumed it in the merge
+    if(typedRecent && inputEl) { inputEl.value = ''; inputEl.style.height = 'auto'; }
+
+    micRetries = 0;
+    document.getElementById('mic-status').textContent = '✓ Got it!';
+    document.getElementById('mic-transcript').textContent = mergedAnswer;
+    document.getElementById('mic-clear').style.display = 'block';
+    document.getElementById('student-answer-display').style.display = 'block';
+    document.getElementById('student-answer-text').textContent = mergedAnswer;
+
+    const idk = /\b(i don'?t know|no s[eé]|no lo s[eé]|not sure|no idea|dunno|idk|i have no idea|i'?m not sure)\b/i;
+    if(idk.test(mergedAnswer)){
+      reteachConcept();
+    } else {
+      respondToAnswer(mergedAnswer);
+    }
     // Do NOT null recognition on normal end — recreating it on every utterance causes
     // permission prompts and broken state on iOS/Android. Reuse the same instance.
   };
@@ -2416,6 +2473,7 @@ function toggleMic() {
   recognition.lang = isSpanish ? 'es-MX' : 'en-US';
 
   if (isListening) {
+    clearTimeout(micSilenceTimer);
     recognition.stop();
     isListening = false;
     setMicState('idle');
