@@ -1654,22 +1654,27 @@ function _doReadAloud(text, targetEl){
     if(IS_EDGE_CHROMIUM){
       const watchdogChunk = chunkIndex; // capture the chunk we just tried
       let watchdogRetries = 0;
+      let watchdogFired = false; // prevent double-fire when both probes hit simultaneously
       const runWatchdog = (delay)=>{
         setTimeout(()=>{
           if(readingStopped) return;
           if(isReading) return;
           if(chunkIndex !== watchdogChunk) return; // chunk advanced — onend already fired
           if(window.speechSynthesis.speaking) return; // speaking fine
-          if(window.speechSynthesis.pending) return; // Edge: queued, not silent-failed
+          // NOTE: do NOT check .pending here — Edge keeps .pending=true even after
+          // silently dropping the utterance, which masks the silent-fail entirely.
+          if(watchdogFired) return; // the other probe already handled this
           if(watchdogRetries >= 2){
-            // Both probes failed — audio is likely autoplay-blocked; prompt user to tap again.
+            // Both probes already attempted — audio is autoplay-blocked; prompt user.
             showTtsBlockedHint();
             return;
           }
+          watchdogFired = true;
           watchdogRetries++;
           console.log('[TTS Edge] silent-fail watchdog fired (attempt', watchdogRetries, ') — retrying chunk', chunkIndex);
           window.speechSynthesis.cancel();
           setTimeout(()=>{
+            watchdogFired = false; // reset so second probe can act if retry also fails
             if(!readingStopped) speakChunk();
           }, 200);
         }, delay);
@@ -1766,11 +1771,11 @@ function startReadAloud(){
 
   readingStopped = true;
   window.speechSynthesis.cancel();
-  // Always speak immediately on first tap (hasPending) to stay within the
-  // browser gesture context. On re-reads (no pending text), use a short delay
-  // to clear any stuck synthesis state on Windows/Chrome/Edge.
-  // Edge fix: use 120 ms even for hasPending — Edge needs slightly more time than
-  // Chrome for cancel() to settle, but 120 ms is safely within the ~1 s gesture window.
+  // On a fresh tap (hasPending) call doSpeak() synchronously — no setTimeout —
+  // so speechSynthesis.speak() fires within the user-gesture window.
+  // Edge Mobile enforces a strict ~100 ms gesture window; a 120 ms delay was
+  // previously used here but exceeded it, causing silent autoplay-blocked fails.
+  // On re-reads (no pending text, no live gesture) keep 400 ms to clear stuck state.
   const doSpeak = ()=>{
     readingStopped = false;
     // Eagerly show Pause button so it's available even if onstart fires late (F.C. fix)
@@ -1779,7 +1784,11 @@ function startReadAloud(){
     if(pauseBtn) pauseBtn.style.display = '';
     ensureVoices(()=>_doReadAloud(text));
   };
-  setTimeout(doSpeak, hasPending ? 120 : 400);
+  if(hasPending){
+    doSpeak(); // synchronous — stay inside user-gesture context on Edge Mobile
+  } else {
+    setTimeout(doSpeak, 400);
+  }
 }
 function pauseReadAloud(){
   // Accept paused OR speaking (covers browsers where paused flag lags)

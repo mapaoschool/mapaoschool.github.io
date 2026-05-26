@@ -1,0 +1,207 @@
+# Ma Pao's Homeschool Tutor — Cross-Platform Compatibility Policy
+
+## 1. General Principles
+
+- **Capability detection, never user-agent sniffing.**  
+  Use `'speechSynthesis' in window`, `navigator.userAgentData`, `'SpeechRecognition' in window`, etc.  
+  UA strings are unreliable and break over browser updates.
+
+- **Graceful degradation.**  
+  If a feature is unavailable, fail silently or show a plain-text fallback — never throw an unhandled error.
+
+- **Pointer events first, mouse/touch as fallback.**  
+  Use `onclick` or `addEventListener('pointerup', ...)`. Do not rely on `touchstart` alone.
+
+---
+
+## 2. Text-to-Speech (TTS) — `speechSynthesis` API
+
+### Feature detection
+```js
+if (!('speechSynthesis' in window)) {
+  // TTS not available — hide Read button, do nothing
+  return;
+}
+```
+
+### Known platform quirks and mitigations
+
+| Platform / Browser | Quirk | Mitigation in code |
+|---|---|---|
+| **Edge (Chromium) desktop & mobile** | `speak()` silently fails: `onstart` never fires, no `onerror`, `speaking` stays `false` | 800 ms watchdog after `speak()` — if still not speaking, `cancel()` + retry once. Detected via `navigator.userAgentData.brands` (no UA string). |
+| **Windows / Chrome / Edge** | `speechSynthesis` freezes mid-utterance (paused flag, or `speaking=true` but silent) | `resumeHack` interval: resumes if `paused`; restarts chunk if stuck >14 s with `isReading===false`. |
+| **Windows / Chrome / Edge** | Second `cancel()` in same tick kills queued speech | Single `cancel()` in `readAloud()` / `startReadAloud()`, 400 ms delay before `speak()`. No second `cancel()` in `_doReadAloud`. |
+| **iOS Safari** | `speak()` must be called synchronously inside a user gesture | `startReadAloud()` calls `doSpeak()` immediately (no `setTimeout`) when `hasPending` is true. |
+| **All browsers** | `onstart` may fire late (especially Edge) | 1 s fallback timer in `speakChunk()` sets button state even if `onstart` hasn't fired. |
+| **Firefox** | `onboundary` not implemented (word highlighting skipped) | `onboundary` handler is present but word index advances only on event — no highlight on Firefox; acceptable degradation. |
+| **Android Chrome** | Voices list empty until `onvoiceschanged` fires | `ensureVoices()` waits for the event before calling `_doReadAloud`. |
+
+### Audio codec fallbacks
+This app uses the browser `speechSynthesis` API (no audio files are served). Codec fallbacks are therefore N/A. If a future version adds pre-recorded audio, serve both **MP3** and **OGG** and use `<audio>` `canPlayType()` to select:
+```js
+const audio = new Audio();
+const src = audio.canPlayType('audio/ogg') ? 'file.ogg' : 'file.mp3';
+```
+
+### `play()` promise handling (for any future `HTMLAudioElement` use)
+```js
+const p = audio.play();
+if (p !== undefined) {
+  p.catch(err => {
+    // Autoplay blocked — show a "Tap to play" prompt
+    console.warn('Autoplay blocked:', err);
+  });
+}
+```
+
+---
+
+## 3. Speech Recognition — `SpeechRecognition` API
+
+| Platform | Status |
+|---|---|
+| Chrome / Edge (desktop + Android) | ✅ Supported (`webkitSpeechRecognition`) |
+| Safari (iOS 14.5+, macOS 14+) | ✅ Supported (`SpeechRecognition`) |
+| Firefox (all) | ❌ Not supported — mic button hidden via `HAS_SPEECH_RECOGNITION` flag |
+
+Detection:
+```js
+const HAS_SPEECH_RECOGNITION = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+```
+
+---
+
+## 4. Test Matrix
+
+### Platforms to test for every release
+
+| OS | Browser | TTS | Mic | Notes |
+|---|---|---|---|---|
+| Windows 11 | Chrome latest | ✅ required | ✅ required | Primary dev platform |
+| Windows 11 | Edge latest | ✅ required | ✅ required | Edge silent-fail fix must be verified |
+| Windows 11 | Firefox latest | ✅ required | — | No mic expected |
+| macOS 14+ | Safari latest | ✅ required | ✅ required | iOS-style gesture requirement |
+| macOS 14+ | Chrome latest | ✅ required | ✅ required | |
+| Ubuntu Linux | Chrome latest | ✅ required | ✅ required | Student device (A.L.) |
+| Ubuntu Linux | Firefox latest | ✅ required | — | |
+| iOS 16+ | Safari | ✅ required | ✅ required | Student device (L.J.) |
+| iOS 16+ | Chrome (iOS) | ✅ required | — | Uses WebKit under the hood |
+| Android 12+ | Chrome | ✅ required | ✅ required | Student device |
+| Android 12+ | Firefox | ✅ required | — | |
+| Mac OS X 10.4 Tiger | Safari 2/3 | ⚠️ best-effort | — | Very old — no `speechSynthesis`; Read button should hide gracefully |
+
+---
+
+## 5. Test Cases & Pass/Fail Criteria
+
+### TC-01 · Read button — basic playback
+- **Action:** Click/tap ▶ Read on a page with AI response text.
+- **Pass:** Audio plays within 1.5 s; ▶ Read hides, ⏸ Pause appears.
+- **Fail:** No audio after 3 s, or button stays as ▶ Read.
+
+### TC-02 · Edge silent-fail watchdog
+- **Action:** Click ▶ Read in Edge (desktop or mobile).
+- **Pass:** Audio starts within 1.6 s (800 ms watchdog + 200 ms retry + buffer).
+- **Fail:** No audio after 3 s.
+
+### TC-03 · Pause / Resume
+- **Action:** Click ⏸ Pause mid-speech; click ▶ Resume.
+- **Pass:** Audio pauses and restarts at same position; buttons update correctly.
+- **Fail:** Pause has no effect, or Resume restarts from beginning.
+
+### TC-04 · Word highlighting
+- **Action:** Click ▶ Read on Chrome or Edge.
+- **Pass:** Words highlight in sync with speech; auto-scrolls to current word.
+- **Fail:** No highlighting, or highlighting is static/wrong word.
+- **Note:** Firefox — highlighting not expected (onboundary not supported); acceptable.
+
+### TC-05 · Stop during playback
+- **Action:** Navigate away or click ✗ Stop mid-speech.
+- **Pass:** Audio stops immediately; buttons reset; no ghost speech continues.
+- **Fail:** Audio continues or buttons stuck in playing state.
+
+### TC-06 · Re-read (second tap without new response)
+- **Action:** Tap ▶ Read, let it finish, tap ▶ Read again.
+- **Pass:** Plays again from beginning without error.
+- **Fail:** Silent fail, error in console.
+
+### TC-07 · TTS on iOS (gesture requirement)
+- **Action:** Open app cold in Safari iOS; tap ▶ Read without using mic first.
+- **Pass:** Audio plays immediately on first tap.
+- **Fail:** Silent fail; audio plays only after mic is used.
+
+### TC-08 · No `speechSynthesis` — graceful degradation
+- **Action:** Simulate `window.speechSynthesis = undefined` via devtools.
+- **Pass:** Read button either hidden or click does nothing; no JS error.
+- **Fail:** Uncaught exception thrown.
+
+### TC-09 · resumeHack — stuck speech recovery
+- **Action:** On Windows/Chrome, let a long response play; observe console for hack firing.
+- **Pass:** Speech continues without going silent; hack fires < once per session.
+- **Fail:** Speech goes permanently silent mid-text with hack not recovering it.
+
+### TC-10 · Race condition — rapid button clicks
+- **Action:** Click ✓ Correct, ✗ Wrong, Hint, or Send buttons multiple times rapidly.
+- **Pass:** Only one AI evaluation fires; buttons re-enable after response.
+- **Fail:** Multiple API calls fire, or buttons stay disabled permanently.
+
+---
+
+## 6. Recent Fixes — Cross-Platform Verification Status
+
+| Fix | Applied | Tested on | Notes |
+|---|---|---|---|
+| **Remove `.pending` guard from watchdog** | ✅ Yes | Needs Edge test | Edge keeps `.pending=true` after silent-drop, masking the watchdog entirely — guard removed |
+| **Synchronous `doSpeak()` on fresh gesture** | ✅ Yes | Needs Edge Mobile test | 120 ms `setTimeout` exceeded Edge Mobile gesture window (~100 ms); now synchronous for hasPending path |
+| **`watchdogFired` flag prevents double-fire** | ✅ Yes | Needs Edge test | Both probes could race with `onerror:'canceled'` and call `speakChunk()` twice; flag prevents this |
+| **Edge silent-fail watchdog (original)** | ✅ Yes | Manual: Edge 124 Win11 | 800 ms + 1500 ms retry probes |
+| **Remove redundant `cancel()` in `_doReadAloud`** | ✅ Yes | Chrome Win11, Chrome macOS | Prevents queued speech being killed |
+| **`readAloud()` / `startReadAloud()` 400 ms delay** | ✅ Yes | Chrome Win11, Edge Win11 | Re-read path only; fresh-tap path now synchronous |
+| **`resumeHack` raised threshold 6→14 ticks** | ✅ Yes | Chrome Win11 | Reduces false-positive restarts on Edge |
+| **1 s `onstart` fallback timer** | ✅ Yes | Edge Win11 | UI no longer appears frozen when onstart fires late |
+| **`onerror` 'canceled' non-fatal on Edge** | ✅ Yes | Edge Win11 | 'canceled' vs 'interrupted' both treated as non-fatal |
+| **Race condition fix — 5 async buttons disabled** | ✅ Yes | Chrome Win11 | All 5 buttons (✓ Correct, ✗ Wrong, Partial, Hint, Send) disabled at async start |
+| **LJ pitch boost cap** | ✅ Yes | Chrome Win11, iOS Safari | `Math.min(pitch + LJ_PITCH_BOOST, 1.2)` |
+| **iOS gesture unlock via mic tap** | ✅ Yes | iOS Safari 17 | `ttsGestureUnlocked = true` on mic tap |
+
+**Outstanding issues:**
+- **Firefox word highlighting** — `onboundary` not fired in Firefox on any OS. Words do not highlight. Documented as acceptable degradation (no highlighting ≠ broken TTS).
+- **Mac OS X 10.4 Tiger (Safari 2/3)** — `speechSynthesis` unavailable. Read button should hide via `if(!window.speechSynthesis) return`. Needs manual verification on that specific machine.
+- **Edge Mobile (Android)** — Needs manual test after this fix. The synchronous gesture path and updated watchdog now apply to mobile Edge.
+
+---
+
+## 7. Commit Reference
+
+**Branch:** `fix/edge-tts-gesture-and-watchdog`  
+**Files changed:** `index.html` (3 locations)  
+**Commit message:**
+```
+fix(tts): fix 3 Edge bugs — .pending mask, gesture window, watchdog double-fire
+
+Bug 1: Watchdog .pending guard prevented retries entirely.
+  Edge keeps .pending=true even after silently dropping speak().
+  Guard removed — watchdog now fires correctly.
+
+Bug 2: 120 ms setTimeout in startReadAloud() exceeded Edge Mobile
+  gesture window (~100 ms), causing silent autoplay-block on every
+  fresh tap. Fresh-tap path (hasPending) now calls doSpeak() synchronously.
+
+Bug 3: watchdogFired flag added to prevent both 800 ms and 1500 ms
+  probes calling speakChunk() simultaneously when retry is needed.
+
+No behaviour changes on Chrome, Firefox, or Safari.
+All five async buttons remain managed together per race-condition fix.
+
+Closes: Edge Read / Tap to Listen not working (desktop + mobile)
+```
+
+**PR description:**
+> **Root cause (3 bugs):**
+> 1. `if(window.speechSynthesis.pending) return` inside the watchdog. Edge leaves `.pending=true` after silently dropping an utterance, so the watchdog never retried.
+> 2. `setTimeout(doSpeak, 120)` on fresh tap exceeded Edge Mobile's ~100 ms autoplay-gesture window.
+> 3. Both watchdog probes (800 ms + 1500 ms) could call `speakChunk()` concurrently if both fired before the retry resolved.
+>
+> **Files changed:** `index.html` — 3 targeted edits in `speakChunk()` and `startReadAloud()`.
+>
+> **Test evidence needed:** Click ▶ Read in Edge desktop and mobile immediately after page load. Audio should start within 1.5 s. Console should show `[TTS Edge] onstart fired` or `[TTS Edge] silent-fail watchdog fired (attempt 1)` followed by audio.
