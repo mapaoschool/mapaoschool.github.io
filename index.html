@@ -1557,12 +1557,32 @@ function _doReadAloud(text, targetEl){
     utt.lang = isSpanish ? 'es-MX' : 'en-US';
     if(chosenVoice) utt.voice = chosenVoice;
 
+    let timedHlInterval = null; // Edge timed-highlight fallback handle
     utt.onstart = ()=>{
       if(readingStopped){ window.speechSynthesis.cancel(); return; }
       isReading = true;
+      console.log('[TTS Edge] onstart fired for chunk', chunkIndex); // Edge diagnostic
       document.getElementById('btn-read').style.display = 'none';
       document.getElementById('btn-pause-read').style.display = '';
       document.getElementById('btn-resume-read').style.display = 'none';
+      // Edge timed-highlight fallback: if onboundary hasn't fired within 2 s, advance
+      // words by estimated duration (~350 ms/word at rate=0.9, scaled by speed).
+      if(IS_EDGE_CHROMIUM){
+        setTimeout(()=>{
+          if(boundaryFired || readingStopped) return; // onboundary working — no need
+          const msPerWord = Math.round(350 / (speed || 0.9));
+          timedHlInterval = setInterval(()=>{
+            if(readingStopped || boundaryFired){ clearInterval(timedHlInterval); timedHlInterval=null; return; }
+            document.querySelectorAll('.hl-word.reading-word').forEach(el=>el.classList.remove('reading-word'));
+            const el = document.getElementById('hw' + currentWordIndex);
+            if(el){
+              el.classList.add('reading-word');
+              el.scrollIntoView({behavior:'smooth', block:'nearest'});
+              currentWordIndex++;
+            }
+          }, msPerWord);
+        }, 2000);
+      }
     };
     // Edge sometimes fires onstart late or not at all — apply button state
     // after 1 s as a fallback so the UI doesn't appear frozen.
@@ -1579,8 +1599,10 @@ function _doReadAloud(text, targetEl){
     }, 1000);
 
     // Word boundary highlighting + autoscroll
+    let boundaryFired = false;
     utt.onboundary = (e)=>{
       if(e.name !== 'word') return;
+      boundaryFired = true;
       // Clear previous highlight
       document.querySelectorAll('.hl-word.reading-word').forEach(el=>el.classList.remove('reading-word'));
       const el = document.getElementById('hw' + currentWordIndex);
@@ -1593,12 +1615,14 @@ function _doReadAloud(text, targetEl){
     };
 
     utt.onend = ()=>{
+      if(timedHlInterval){ clearInterval(timedHlInterval); timedHlInterval=null; }
       if(readingStopped){ clearInterval(resumeHack); finishRead(); return; }
       chunkIndex++;
       setTimeout(speakChunk, 50);
     };
 
     utt.onerror = (e)=>{
+      if(timedHlInterval){ clearInterval(timedHlInterval); timedHlInterval=null; }
       if(readingStopped){ clearInterval(resumeHack); finishRead(); return; }
       // Edge uses 'canceled'; Chrome uses 'interrupted' — both are non-fatal mid-chunk stops.
       const nonFatal = e.error === 'interrupted' || e.error === 'canceled';
@@ -1622,7 +1646,9 @@ function _doReadAloud(text, targetEl){
         if(isReading) return;
         if(chunkIndex !== watchdogChunk) return; // chunk advanced — onend already fired
         if(window.speechSynthesis.speaking) return; // speaking fine
+        if(window.speechSynthesis.pending) return; // Edge fix: queued, not silent-failed
         // Silent fail confirmed — cancel and retry this chunk once.
+        console.log('[TTS Edge] silent-fail watchdog fired — retrying chunk', chunkIndex);
         window.speechSynthesis.cancel();
         setTimeout(()=>{
           if(!readingStopped) speakChunk();
@@ -1679,6 +1705,7 @@ function toggleRead(){
   }
 }
 function startReadAloud(){
+  ttsGestureUnlocked = true; // Edge fix: Read button is a valid user gesture — unlock auto-play
   // Reset any "Tap to Listen" styling on btn-read
   const readBtn = document.getElementById('btn-read');
   if(readBtn){ readBtn.style.background = ''; readBtn.style.color = ''; readBtn.style.fontWeight = ''; readBtn.style.animation = ''; readBtn.textContent = '▶ Read'; }
@@ -1702,11 +1729,9 @@ function startReadAloud(){
     if(pauseBtn) pauseBtn.style.display = '';
     ensureVoices(()=>_doReadAloud(text));
   };
-  if(hasPending){
-    doSpeak();
-  } else {
-    setTimeout(doSpeak, 400);
-  }
+  // Edge fix: always wait for cancel() to settle before speaking, even on first tap.
+  // 50 ms is safely within browser gesture lifetime (~1 s) but long enough for Edge.
+  setTimeout(doSpeak, hasPending ? 50 : 400);
 }
 function pauseReadAloud(){
   // Accept paused OR speaking (covers browsers where paused flag lags)
