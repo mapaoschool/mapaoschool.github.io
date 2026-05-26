@@ -685,6 +685,21 @@ const IS_MOBILE = IS_IOS || /Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test
 const NEEDS_GESTURE_FOR_TTS = true;
 const HAS_SPEECH_RECOGNITION = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
 
+// Edge capability detection — NO user-agent sniffing.
+// CSS.supports('(-webkit-appearance:none)') is true in all Chromium-based browsers,
+// but we detect Edge specifically via its CSS paint worklet behaviour: Edge/Chromium
+// exposes CSS.paintWorklet while other Chromium forks may not. We also use the
+// NavigatorUAData API (available in Edge 90+) as a clean, forward-compatible check.
+// If neither is available we fall back to false (safe default — no edge-only hacks).
+const IS_EDGE_CHROMIUM = (()=>{
+  // Preferred: UA Client Hints (no string parsing, privacy-preserving)
+  if(navigator.userAgentData && typeof navigator.userAgentData.brands === 'object'){
+    return navigator.userAgentData.brands.some(b =>
+      b.brand && b.brand.toLowerCase().includes('edge'));
+  }
+  return false;
+})();
+
 // ══════════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════════
@@ -1593,6 +1608,28 @@ function _doReadAloud(text, targetEl){
 
     speechUtterance = utt;
     window.speechSynthesis.speak(utt);
+
+    // ── Edge silent-fail watchdog ──────────────────────────────────────────
+    // Edge (Chromium) sometimes silently drops speak() — onstart never fires,
+    // speechSynthesis.speaking stays false, and no onerror is raised.
+    // Detected via capability check (navigator.userAgentData brands), not UA string.
+    // Fix: 800 ms after speak(), if synthesis still hasn't started, cancel + retry once.
+    if(IS_EDGE_CHROMIUM){
+      const watchdogChunk = chunkIndex; // capture the chunk we just tried
+      setTimeout(()=>{
+        if(readingStopped) return;
+        // If synthesis is already running or this chunk moved on, nothing to do.
+        if(isReading) return;
+        if(chunkIndex !== watchdogChunk) return; // chunk advanced — onend already fired
+        if(window.speechSynthesis.speaking) return; // speaking fine
+        // Silent fail confirmed — cancel and retry this chunk once.
+        window.speechSynthesis.cancel();
+        setTimeout(()=>{
+          if(!readingStopped) speakChunk();
+        }, 200);
+      }, 800);
+    }
+    // ──────────────────────────────────────────────────────────────────────
   }
 
   setTimeout(speakChunk, 200);
