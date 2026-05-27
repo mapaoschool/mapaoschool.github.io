@@ -1557,7 +1557,9 @@ function _doReadAloud(text, targetEl, startChunk){
     if(!window.speechSynthesis.speaking && !window.speechSynthesis.pending){
       clearInterval(resumeHack); return;
     }
-    if(window.speechSynthesis.paused){
+    // Only auto-resume if OUR app didn't intentionally pause — otherwise the hack
+    // fights pauseReadAloud() and restarts speech the student just paused.
+    if(window.speechSynthesis.paused && !isPaused){
       window.speechSynthesis.resume();
     }
     hackTick++;
@@ -1678,14 +1680,27 @@ function _doReadAloud(text, targetEl, startChunk){
 
     utt.onend = ()=>{
       if(timedHlInterval){ clearInterval(timedHlInterval); timedHlInterval=null; }
-      if(readingStopped){ clearInterval(resumeHack); finishRead(); return; }
+      if(readingStopped){
+        clearInterval(resumeHack);
+        // Don't call finishRead() if we're paused — it would reset isPaused to false
+        // and break resumeReadAloud().
+        if(!isPaused) finishRead();
+        return;
+      }
       chunkIndex++;
       setTimeout(speakChunk, 50);
     };
 
     utt.onerror = (e)=>{
       if(timedHlInterval){ clearInterval(timedHlInterval); timedHlInterval=null; }
-      if(readingStopped){ clearInterval(resumeHack); finishRead(); return; }
+      if(readingStopped){
+        clearInterval(resumeHack);
+        // If we're in a pause operation (isPaused=true), do NOT call finishRead() —
+        // finishRead() sets isPaused=false which breaks resumeReadAloud().
+        // Just return and let the pause state stand.
+        if(!isPaused) finishRead();
+        return;
+      }
       // Edge uses 'canceled'; Chrome uses 'interrupted' — both are non-fatal mid-chunk stops.
       const nonFatal = e.error === 'interrupted' || e.error === 'canceled';
       if(!nonFatal) chunkIndex++;
@@ -2529,8 +2544,9 @@ const MAX_RETRIES = 3;
 
 // Silence grace period: how long (ms) to wait after the last interim result
 // before treating the utterance as complete and auto-submitting.
-// 1200 ms gives students time to pause and think without cutting them off.
-const MIC_SILENCE_GRACE_MS = 1200;
+// 2500 ms gives students time to pause and think on Chrome Windows where
+// transcript finalization can be delayed.
+const MIC_SILENCE_GRACE_MS = 2500;
 let micSilenceTimer = null;   // clearTimeout handle
 let micAccumulated = '';      // running transcript across interim events
 
@@ -2580,13 +2596,20 @@ function initMic() {
     if(display){
       document.getElementById('mic-transcript').textContent = display;
       document.getElementById('mic-clear').style.display = 'block';
+      // Show student-answer-display live so student sees their words as they speak.
+      // This also ensures the answer area is populated even if onend fires with
+      // only interim results (Chrome Windows behavior).
+      document.getElementById('student-answer-display').style.display = 'block';
+      document.getElementById('student-answer-text').textContent = display;
     }
     // Reset the silence grace timer on every result event.
     // If no new speech arrives within MIC_SILENCE_GRACE_MS we treat the utterance as done.
     clearTimeout(micSilenceTimer);
     micSilenceTimer = setTimeout(()=>{
       if(!isListening) return;
-      const full = micAccumulated.trim();
+      // Use micAccumulated if available; fall back to whatever is showing in the transcript
+      // display (handles Chrome Windows interim-only scenario where micAccumulated stays empty).
+      const full = micAccumulated.trim() || document.getElementById('mic-transcript').textContent.trim();
       if(!full) return;
       recognition.stop(); // triggers onend; we'll submit from there
     }, MIC_SILENCE_GRACE_MS);
@@ -2619,7 +2642,11 @@ function initMic() {
     clearTimeout(micSilenceTimer);
     setMicState('idle');
 
-    const spokenPart = micAccumulated.trim();
+    // On Chrome Windows, onresult may fire with only interim results and never
+    // produce a final result before onend fires — leaving micAccumulated empty.
+    // Fall back to whatever is already shown in the transcript display as a safety net.
+    const displayFallback = document.getElementById('mic-transcript').textContent.trim();
+    const spokenPart = micAccumulated.trim() || displayFallback;
     // Merge with anything the student typed in the text box (typed continuation support).
     const inputEl = document.getElementById('student-input');
     const typedPart = inputEl ? inputEl.value.trim() : '';
