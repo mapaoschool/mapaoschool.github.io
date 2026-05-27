@@ -729,6 +729,12 @@ let classTimerTotal = 15 * 60;
 let highlightWords = [];
 let currentWordIndex = 0;
 
+// Pause/resume state — chunk-restart approach (speechSynthesis.pause() unreliable on Edge offline voices)
+let pausedChunkIndex = 0;   // which chunk to restart from on resume
+let pausedWordIndex = 0;     // word index to restore highlight from
+let isPaused = false;        // our own paused flag
+let pausedFullText = null;   // full text being read
+
 // TTS gesture unlock: set true on first mic use so bot replies auto-play
 let ttsGestureUnlocked = false;
 
@@ -1481,8 +1487,10 @@ function readAloud(text, targetEl){
   }, 400);
 }
 
-function _doReadAloud(text, targetEl){
+function _doReadAloud(text, targetEl, startChunk){
   if(readingStopped) return;
+  pausedFullText = text;   // save for pause/resume restart
+  isPaused = false;
 
   // Prepare word highlight spans in the target element (default: #ai-response)
   const sessionBody = targetEl || document.getElementById('ai-response');
@@ -1551,9 +1559,11 @@ function _doReadAloud(text, targetEl){
   // A second cancel() at this point kills queued speech on Windows/Chrome.
 
   const chunks = splitIntoChunks(text, 200);
-  let chunkIndex = 0;
+  let chunkIndex = (startChunk && startChunk > 0) ? startChunk : 0;
 
   function speakChunk(){
+    pausedChunkIndex = chunkIndex;   // keep module-scope in sync for pause
+    pausedWordIndex = currentWordIndex;
     if(readingStopped){ clearInterval(resumeHack); finishRead(); return; }
     if(chunkIndex >= chunks.length){ clearInterval(resumeHack); finishRead(); return; }
 
@@ -1690,6 +1700,7 @@ function _doReadAloud(text, targetEl){
 
 function finishRead(){
   isReading = false;
+  isPaused = false;
   document.querySelectorAll('.hl-word.reading-word').forEach(el=>el.classList.remove('reading-word'));
   const btnRead = document.getElementById('btn-read');
   const btnPause = document.getElementById('btn-pause-read');
@@ -1791,27 +1802,35 @@ function startReadAloud(){
   }
 }
 function pauseReadAloud(){
-  // Accept paused OR speaking (covers browsers where paused flag lags)
-  if(!window.speechSynthesis.speaking && !window.speechSynthesis.paused) return;
-  if(window.speechSynthesis.paused) return; // already paused
-  window.speechSynthesis.pause();
+  if(!window.speechSynthesis.speaking && !window.speechSynthesis.paused && !isReading) return;
+  if(isPaused) return; // already paused
+  // Try native pause first; if unsupported (Edge + offline voices), fall back to cancel + save position
+  isPaused = true;
   isReading = false;
+  readingStopped = true;
+  window.speechSynthesis.cancel();
+  // pausedChunkIndex and pausedWordIndex already kept in sync by speakChunk()
   document.getElementById('btn-read').style.display = 'none';
   document.getElementById('btn-pause-read').style.display = 'none';
   document.getElementById('btn-resume-read').style.display = '';
 }
 function resumeReadAloud(){
-  if(!window.speechSynthesis.paused) return;
-  window.speechSynthesis.resume();
-  isReading = true;
+  if(!isPaused) return;
+  isPaused = false;
+  readingStopped = false;
+  // Restore word index so highlighting continues from where we paused
+  currentWordIndex = pausedWordIndex;
   document.getElementById('btn-read').style.display = 'none';
   document.getElementById('btn-pause-read').style.display = '';
   document.getElementById('btn-resume-read').style.display = 'none';
+  // Restart from the saved chunk position
+  ensureVoices(()=>_doReadAloud(pausedFullText, null, pausedChunkIndex));
 }
 
 // FIX: Stop now sets readingStopped flag so chunks don't restart
 function stopRead(){
   readingStopped = true;
+  isPaused = false;
   if(window.speechSynthesis) window.speechSynthesis.cancel();
   finishRead();
 }
