@@ -168,7 +168,7 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
 #btn-stop{border-color:rgba(60,100,220,0.4);color:var(--al-clr);}
 #btn-stop:hover{background:rgba(60,100,220,0.15);border-color:var(--al-clr);}
 .session-scroll{flex:1;overflow-y:auto;padding:14px 16px;}
-.session-body{font-size:14px;line-height:1.9;color:var(--vg-text);white-space:pre-wrap;font-weight:300;}
+.session-body{font-size:14px;line-height:1.9;color:#1A1A1A;white-space:pre-wrap;font-weight:400;}
 .session-body .hl-word.reading-word{background:var(--vg-gold);color:#1A1228;border-radius:4px;padding:0 4px;font-size:1.25em;font-weight:700;line-height:1;display:inline-block;transform:translateY(-1px);transition:background 0.08s;}
 .session-cite{font-size:11px;color:var(--vg-text3);font-style:italic;font-family:'Lato',sans-serif;margin-top:10px;padding-top:8px;border-top:1px solid var(--vg-border);}
 .student-input-area{border-top:1px solid var(--vg-border);padding:10px 12px;background:var(--vg-bg2);flex-shrink:0;}
@@ -1152,6 +1152,11 @@ function openSubject(subjectId){
   });
   document.getElementById('btn-begin-top').disabled = false;
   document.getElementById('btn-begin-top').textContent = '✦ Tap to Begin Today\'s Lesson';
+  // Re-enable text input and mic in case a previous session's timer disabled them
+  const inp = document.getElementById('student-input');
+  if(inp) inp.disabled = false;
+  const micBtn2 = document.getElementById('mic-btn');
+  if(micBtn2) micBtn2.disabled = false;
   showScreen('tutor');
   checkMicPermission();
 }
@@ -1282,7 +1287,22 @@ Respond in plain, natural tutor voice — no markdown, no bullet symbols.`;
       return;
     }
     const text = data.content?.find(b=>b.type==='text')?.text || 'Could not load lesson. Please check your connection and try again.';
-    document.getElementById('ai-response').textContent = text;
+    // Always build highlight spans so text is visible AND highlightable on all platforms
+    {
+      const sessionBody = document.getElementById('ai-response');
+      const words = text.split(/(\s+)/);
+      let html = '';
+      let wordIdx = 0;
+      for(const part of words){
+        if(/\S/.test(part)){
+          html += `<span class="hl-word" id="hw${wordIdx}">${part.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</span>`;
+          wordIdx++;
+        } else {
+          html += part.replace(/\n/g,'<br>');
+        }
+      }
+      sessionBody.innerHTML = html;
+    }
     // Save lesson topic immediately so the next session knows what was covered.
     // Extract the first meaningful sentence (after the greeting) as the lesson title.
     const sentences = text.replace(/\n+/g,' ').match(/[^.!?]{15,}[.!?]/g) || [];
@@ -1387,13 +1407,14 @@ function ensureVoices(cb){
   if(allVoices.length){ cb(); return; }
   allVoices = window.speechSynthesis.getVoices();
   if(allVoices.length){ populateVoicePicker(); cb(); return; }
-  // Edge fires onvoiceschanged late — poll up to 30 × 150 ms = 4.5 s before giving up.
+  // Edge fires onvoiceschanged late — poll up to 60 × 150 ms = 9 s before giving up.
+  // Ubuntu Chromium may take several seconds to surface eSpeak voices.
   // cb() is always called so TTS still proceeds with the browser default voice if needed.
   let attempts = 0;
   const poll = setInterval(()=>{
     allVoices = window.speechSynthesis.getVoices();
     attempts++;
-    if(allVoices.length || attempts > 30){
+    if(allVoices.length || attempts > 60){
       clearInterval(poll);
       if(allVoices.length) populateVoicePicker();
       cb();
@@ -1467,7 +1488,8 @@ function pickVoice(profile){
     if(v) return v;
   }
   const fallback = allVoices.find(v=>v.lang===profile.lang) || allVoices.find(v=>v.lang.startsWith(profile.lang.split('-')[0]));
-  return fallback || null;
+  // Last resort: any English voice (covers Linux eSpeak voices like "English", "en-GB")
+  return fallback || allVoices.find(v=>v.lang.startsWith('en')) || allVoices[0] || null;
 }
 
 // ══════════════════════════════════════════════
@@ -1551,6 +1573,8 @@ function _doReadAloud(text, targetEl, startChunk){
     const lang = isSpanish ? 'es' : 'en';
     chosenVoice = allVoices.find(v=>v.lang.startsWith(lang)) || allVoices[0];
   }
+  // If still no voice chosen but voices exist, just use the first one (Linux eSpeak fallback)
+  if(!chosenVoice && allVoices.length) chosenVoice = allVoices[0];
 
   const profileKey = getSubjectKey();
   const profile = VOICE_PROFILES[profileKey] || VOICE_PROFILES.aesop;
@@ -2015,7 +2039,22 @@ async function nextQuestion(){
     });
     const data = await res.json();
     const text = data.content?.find(b=>b.type==='text')?.text||'Could not generate next question.';
-    document.getElementById('ai-response').textContent=text;
+    // Build highlight spans so text is visible and highlightable
+    {
+      const sessionBody = document.getElementById('ai-response');
+      const words = text.split(/(\s+)/);
+      let html = '';
+      let wordIdx = 0;
+      for(const part of words){
+        if(/\S/.test(part)){
+          html += `<span class="hl-word" id="hw${wordIdx}">${part.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</span>`;
+          wordIdx++;
+        } else {
+          html += part.replace(/\n/g,'<br>');
+        }
+      }
+      sessionBody.innerHTML = html;
+    }
     lastQuestion = extractLastQuestion(text);
     fetchImagesForLesson(text);
     sessionQuestionIndex++;
@@ -2587,6 +2626,10 @@ function initMic() {
     }
     // Do NOT null recognition on normal end — recreating it on every utterance causes
     // permission prompts and broken state on iOS/Android. Reuse the same instance.
+    // EXCEPTION: null it here so toggleMic() always creates a fresh instance on next tap.
+    // On Chrome/Edge Windows, the same SpeechRecognition object fails silently after
+    // one use; a fresh object avoids the stale-state bug.
+    recognition = null;
   };
 
   return true;
