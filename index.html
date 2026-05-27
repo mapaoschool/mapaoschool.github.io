@@ -1642,7 +1642,9 @@ function _doReadAloud(text, targetEl){
     };
 
     speechUtterance = utt;
+    console.log('[TTS] calling speak() — chunk', chunkIndex, '— voice:', chosenVoice ? chosenVoice.name : 'default', '— pending before:', window.speechSynthesis.pending, '— speaking before:', window.speechSynthesis.speaking);
     window.speechSynthesis.speak(utt);
+    console.log('[TTS] after speak() — pending:', window.speechSynthesis.pending, '— speaking:', window.speechSynthesis.speaking);
 
     // ── Edge silent-fail watchdog ──────────────────────────────────────────
     // Edge (Chromium) sometimes silently drops speak() — onstart never fires,
@@ -1745,6 +1747,7 @@ function toggleRead(){
   }
 }
 function startReadAloud(){
+  console.log('[TTS] startReadAloud() called — ttsGestureUnlocked:', ttsGestureUnlocked, 'IS_EDGE_CHROMIUM:', IS_EDGE_CHROMIUM);
   ttsGestureUnlocked = true; // Edge fix: Read button is a valid user gesture — unlock auto-play
   // Reset any "Tap to Listen" styling on btn-read
   const readBtn = document.getElementById('btn-read');
