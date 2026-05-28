@@ -749,6 +749,7 @@ let pausedChunkIndex = 0;   // which chunk to restart from on resume
 let pausedWordIndex = 0;     // word index to restore highlight from
 let isPaused = false;        // our own paused flag
 let pausedFullText = null;   // full text being read
+let readGeneration = 0;      // incremented on every readAloud() call; stale closures abort when generation changes
 
 // TTS gesture unlock: set true on first mic use so bot replies auto-play
 let ttsGestureUnlocked = false;
@@ -1516,9 +1517,15 @@ function readAloud(text, targetEl){
   // Cancel any current speech
   readingStopped = true;
   window.speechSynthesis.cancel();
+  // Increment generation so any in-flight 400ms setTimeout from a previous call
+  // knows it is stale and must not overwrite the DOM or start speaking.
+  const myGen = ++readGeneration;
   // Windows/Chrome/Edge need a delay after cancel() before speaking again.
   // 400 ms matches startReadAloud() — keeps behavior consistent across all code paths.
   setTimeout(()=>{
+    // If another readAloud() was called while we were waiting, abort — don't
+    // overwrite the newer content already rendered in ai-response.
+    if(myGen !== readGeneration) return;
     readingStopped = false;
     ensureVoices(()=>_doReadAloud(text, targetEl));
   }, 400);
@@ -1557,9 +1564,7 @@ function _doReadAloud(text, targetEl, startChunk){
     if(!window.speechSynthesis.speaking && !window.speechSynthesis.pending){
       clearInterval(resumeHack); return;
     }
-    // Only auto-resume if OUR app didn't intentionally pause — otherwise the hack
-    // fights pauseReadAloud() and restarts speech the student just paused.
-    if(window.speechSynthesis.paused && !isPaused){
+    if(window.speechSynthesis.paused){
       window.speechSynthesis.resume();
     }
     hackTick++;
@@ -1680,27 +1685,14 @@ function _doReadAloud(text, targetEl, startChunk){
 
     utt.onend = ()=>{
       if(timedHlInterval){ clearInterval(timedHlInterval); timedHlInterval=null; }
-      if(readingStopped){
-        clearInterval(resumeHack);
-        // Don't call finishRead() if we're paused — it would reset isPaused to false
-        // and break resumeReadAloud().
-        if(!isPaused) finishRead();
-        return;
-      }
+      if(readingStopped){ clearInterval(resumeHack); finishRead(); return; }
       chunkIndex++;
       setTimeout(speakChunk, 50);
     };
 
     utt.onerror = (e)=>{
       if(timedHlInterval){ clearInterval(timedHlInterval); timedHlInterval=null; }
-      if(readingStopped){
-        clearInterval(resumeHack);
-        // If we're in a pause operation (isPaused=true), do NOT call finishRead() —
-        // finishRead() sets isPaused=false which breaks resumeReadAloud().
-        // Just return and let the pause state stand.
-        if(!isPaused) finishRead();
-        return;
-      }
+      if(readingStopped){ clearInterval(resumeHack); finishRead(); return; }
       // Edge uses 'canceled'; Chrome uses 'interrupted' — both are non-fatal mid-chunk stops.
       const nonFatal = e.error === 'interrupted' || e.error === 'canceled';
       if(!nonFatal) chunkIndex++;
@@ -2069,22 +2061,10 @@ async function nextQuestion(){
     });
     const data = await res.json();
     const text = data.content?.find(b=>b.type==='text')?.text||'Could not generate next question.';
-    // Build highlight spans so text is visible and highlightable
-    {
-      const sessionBody = document.getElementById('ai-response');
-      const words = text.split(/(\s+)/);
-      let html = '';
-      let wordIdx = 0;
-      for(const part of words){
-        if(/\S/.test(part)){
-          html += `<span class="hl-word" id="hw${wordIdx}">${part.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</span>`;
-          wordIdx++;
-        } else {
-          html += part.replace(/\n/g,'<br>');
-        }
-      }
-      sessionBody.innerHTML = html;
-    }
+    // Set plain text first — _doReadAloud will replace with highlight spans after 400ms.
+    // Do NOT build spans here: a stale safeReadAloud closure would overwrite them anyway,
+    // and double-building caused the "question changes mid-highlight" race condition.
+    document.getElementById('ai-response').textContent = text;
     lastQuestion = extractLastQuestion(text);
     fetchImagesForLesson(text);
     sessionQuestionIndex++;
@@ -2544,9 +2524,8 @@ const MAX_RETRIES = 3;
 
 // Silence grace period: how long (ms) to wait after the last interim result
 // before treating the utterance as complete and auto-submitting.
-// 2500 ms gives students time to pause and think on Chrome Windows where
-// transcript finalization can be delayed.
-const MIC_SILENCE_GRACE_MS = 2500;
+// 1200 ms gives students time to pause and think without cutting them off.
+const MIC_SILENCE_GRACE_MS = 1200;
 let micSilenceTimer = null;   // clearTimeout handle
 let micAccumulated = '';      // running transcript across interim events
 
@@ -2596,20 +2575,13 @@ function initMic() {
     if(display){
       document.getElementById('mic-transcript').textContent = display;
       document.getElementById('mic-clear').style.display = 'block';
-      // Show student-answer-display live so student sees their words as they speak.
-      // This also ensures the answer area is populated even if onend fires with
-      // only interim results (Chrome Windows behavior).
-      document.getElementById('student-answer-display').style.display = 'block';
-      document.getElementById('student-answer-text').textContent = display;
     }
     // Reset the silence grace timer on every result event.
     // If no new speech arrives within MIC_SILENCE_GRACE_MS we treat the utterance as done.
     clearTimeout(micSilenceTimer);
     micSilenceTimer = setTimeout(()=>{
       if(!isListening) return;
-      // Use micAccumulated if available; fall back to whatever is showing in the transcript
-      // display (handles Chrome Windows interim-only scenario where micAccumulated stays empty).
-      const full = micAccumulated.trim() || document.getElementById('mic-transcript').textContent.trim();
+      const full = micAccumulated.trim();
       if(!full) return;
       recognition.stop(); // triggers onend; we'll submit from there
     }, MIC_SILENCE_GRACE_MS);
@@ -2642,11 +2614,7 @@ function initMic() {
     clearTimeout(micSilenceTimer);
     setMicState('idle');
 
-    // On Chrome Windows, onresult may fire with only interim results and never
-    // produce a final result before onend fires — leaving micAccumulated empty.
-    // Fall back to whatever is already shown in the transcript display as a safety net.
-    const displayFallback = document.getElementById('mic-transcript').textContent.trim();
-    const spokenPart = micAccumulated.trim() || displayFallback;
+    const spokenPart = micAccumulated.trim();
     // Merge with anything the student typed in the text box (typed continuation support).
     const inputEl = document.getElementById('student-input');
     const typedPart = inputEl ? inputEl.value.trim() : '';
