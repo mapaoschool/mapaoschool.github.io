@@ -200,24 +200,27 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
 /* RIGHT SIDEBAR */
 .tutor-right{border-left:1px solid var(--vg-border);display:flex;flex-direction:column;overflow:hidden;background:var(--vg-bg);}
 .right-section{padding:10px 10px 0;flex-shrink:0;}
-.right-label{font-size:9px;font-weight:700;color:#444;text-transform:uppercase;letter-spacing:0.1em;font-family:'Lato',sans-serif;margin-bottom:5px;}
+.right-label{font-size:10px;font-weight:700;color:#8878B8;text-transform:uppercase;letter-spacing:0.1em;font-family:'Lato',sans-serif;margin-bottom:5px;}
 .ai-question-box{flex:1;overflow-y:auto;padding:12px;font-size:13px;line-height:1.8;color:#1A1A1A;background:var(--vg-bg);}
 .ai-question-box .live-dot{width:7px;height:7px;border-radius:50%;background:#40C860;display:inline-block;margin-right:5px;animation:pulse 2s infinite;}
-.student-response-panel{border-top:1px solid var(--vg-border);padding:10px;background:var(--vg-bg2);flex-shrink:0;}
-.student-answer-display{font-size:12px;color:var(--vg-text);line-height:1.6;display:none;}
-.mic-compact{display:flex;align-items:center;gap:8px;margin-bottom:5px;}
-.mic-btn{width:34px;height:34px;border-radius:50%;border:none;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+/* Student response panel — always dark, never overridden to white */
+.student-response-panel{border-top:2px solid rgba(140,100,220,0.35);padding:12px;background:#1A1228 !important;flex-shrink:0;}
+.student-answer-display{font-size:14px;color:#E8DCC8;line-height:1.6;display:none;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.13);border-radius:var(--radius-sm);padding:8px 10px;margin-top:6px;}
+.student-answer-display strong{color:#B8A0E8;font-size:11px;text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:3px;}
+#student-answer-text{color:#F0E8D0;font-size:15px;font-weight:600;}
+.mic-compact{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.mic-btn{width:36px;height:36px;border-radius:50%;border:none;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
 .mic-btn.idle{background:var(--vg-purple);color:#C0A0F0;}
 .mic-btn.idle:hover{background:rgba(100,60,180,0.6);}
 .mic-btn.listening{background:rgba(160,30,30,0.7);color:white;animation:mic-pulse 1s infinite;}
 .mic-btn.processing{background:rgba(180,100,10,0.7);color:white;}
 @keyframes mic-pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.12);}}
-.mic-status{font-size:10px;color:var(--vg-text3);flex:1;font-family:'Lato',sans-serif;}
-.mic-transcript{background:rgba(255,255,255,0.04);border:1px solid var(--vg-border2);border-radius:var(--radius-sm);padding:6px 9px;font-size:11px;color:var(--vg-text);min-height:30px;line-height:1.5;font-style:italic;margin-top:5px;}
-.mic-transcript:empty::before{content:'Voice answer here...';color:var(--vg-text3);}
-.feedback{padding:8px 10px;border-radius:var(--radius-sm);font-size:11px;font-family:'Lato',sans-serif;line-height:1.6;margin-top:6px;}
-#fb-area{padding:6px 10px;}
-.hint-warn{background:rgba(80,20,20,0.5);border:1px solid rgba(180,60,60,0.35);border-radius:var(--radius-sm);padding:7px 10px;font-size:11px;color:#FF9090;display:flex;align-items:center;gap:6px;margin:6px 10px;font-family:'Lato',sans-serif;}
+.mic-status{font-size:12px;color:#9880C0;flex:1;font-family:'Lato',sans-serif;}
+.mic-transcript{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.18);border-radius:var(--radius-sm);padding:8px 10px;font-size:14px;color:#F0E8D0;min-height:34px;line-height:1.6;font-style:italic;margin-top:5px;}
+.mic-transcript:empty::before{content:'Voice answer here...';color:#5A4A8A;}
+.feedback{padding:10px 12px;border-radius:var(--radius-sm);font-size:14px;font-family:'Lato',sans-serif;line-height:1.7;margin-top:6px;}
+#fb-area{padding:4px 0;}
+.hint-warn{background:rgba(80,20,20,0.5);border:1px solid rgba(180,60,60,0.35);border-radius:var(--radius-sm);padding:7px 10px;font-size:13px;color:#FF9090;display:flex;align-items:center;gap:6px;margin:6px 0;font-family:'Lato',sans-serif;}
 .warn-icon{width:16px;height:16px;border-radius:50%;background:rgba(160,30,30,0.7);color:white;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .tracker{background:#1a3a22;border:1px solid #2d6b3a;border-radius:var(--radius-sm);padding:7px 10px;font-size:11px;color:#d4f0dc;font-family:'Lato',sans-serif;display:flex;align-items:center;gap:6px;margin:0 10px 6px;font-weight:400;}
 .tracker-icon{font-size:12px;}
@@ -519,8 +522,8 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
         <div id="fb-area"></div>
 
         <!-- Teacher response area -->
-        <div style="margin-top:8px;font-size:10px;font-weight:bold;color:var(--vg-text3);text-transform:uppercase;letter-spacing:0.07em;font-family:sans-serif;">Student response will appear here</div>
-        <div id="response-body" style="font-size:12px;color:var(--vg-text);line-height:1.6;margin-top:4px;min-height:40px;"></div>
+        <div style="margin-top:8px;font-size:10px;font-weight:bold;color:#8878B8;text-transform:uppercase;letter-spacing:0.07em;font-family:sans-serif;">Student response will appear here</div>
+        <div id="response-body" style="font-size:14px;color:#E8DCC8;line-height:1.6;margin-top:4px;min-height:40px;"></div>
       </div>
 
     </div><!-- end tutor-right -->
@@ -744,6 +747,7 @@ let isReading = false;
 let readingStopped = false; // FIX: track explicit stop so chunks don't restart
 let lastQuestion = '';
 let sessionQuestionIndex = 0; // tracks how many questions answered this session for resume
+let sessionAskedQuestions = []; // tracks all questions asked this session to prevent repeats
 
 // Class timer state
 let classTimerInterval = null;
@@ -945,6 +949,8 @@ async function endSessionByTimer(){
     const t = `Last: ${sess.lastLesson} · Sessions: ${sess.sessionCount}`;
     document.getElementById('tracker-text') && (document.getElementById('tracker-text').textContent = t);
     document.getElementById('tracker-text-right') && (document.getElementById('tracker-text-right').textContent = t);
+    // Update subject card to show strikethrough immediately
+    renderSubjects(curStudent);
   }
 
   const isMath = curSubject && curSubject.isMath;
@@ -1206,6 +1212,7 @@ function openSubject(subjectId){
   sessionHints = 0;
   sessionQuestionIndex = 0;
   lastQuestion = '';
+  sessionAskedQuestions = [];
   stopRead();
   clearInterval(classTimerInterval); classTimerInterval = null;
 
@@ -1224,7 +1231,7 @@ function openSubject(subjectId){
   const aiBox = document.getElementById('ai-question-box');
   if(aiBox) aiBox.style.background = subjBg; // keep subject color for AI questions/feedback panel
   const tutorRight = document.querySelector('.tutor-right');
-  if(tutorRight) tutorRight.style.background = 'white';
+  if(tutorRight) tutorRight.style.background = ''; // keep dark theme from CSS
   const sessionCenter = document.querySelector('.tutor-center');
   if(sessionCenter) sessionCenter.style.background = 'white';
   // Keep the reading/lesson text panel with subject color
@@ -1477,6 +1484,7 @@ Respond in plain, natural tutor voice — no markdown, no bullet symbols.`;
     saveProgress(curStudent, curSubject.id, sessionQuestionIndex, lastQuestion);
     // Extract questions for right panel
     lastQuestion = extractLastQuestion(text);
+    if(lastQuestion) sessionAskedQuestions.push(lastQuestion);
     const questions = text.match(/[^.!?]*\?[^?]*/g) || [];
     document.getElementById('ai-question-box').innerHTML = questions.length
       ? questions.map(q=>`<div style="background:rgba(60,120,240,0.12);border:1px solid rgba(80,140,240,0.25);border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:13px;color:#1A1A1A;line-height:1.7;font-family:'Lato',sans-serif;font-weight:400;">${q.trim()}</div>`).join('')
@@ -2103,7 +2111,7 @@ function updateTimerDisplay(){
 function markResponse(type){
   const sess = getSession(curStudent, curSubject.id);
   if(type==='correct'){
-    const msg = {text:'✓ Correct! Well done. Session recorded.',bg:'var(--green-light)',tc:'var(--green)'};
+    const msg = {text:'✓ Correct! Well done. Session recorded.',bg:'#0A2A12',tc:'#60E080'};
     document.getElementById('fb-area').innerHTML = `<div class="feedback" style="background:${msg.bg};color:${msg.tc}">${msg.text}</div>`;
     if(!sessionCountedThisOpen){ sess.sessionCount++; sessionCountedThisOpen = true; }
     sess.lastLesson = `Session ${sess.sessionCount} — ${curSubject.name}`;
@@ -2131,7 +2139,7 @@ async function reteachConcept(){
   });
   btn.textContent='...';
   const fbArea = document.getElementById('fb-area');
-  fbArea.innerHTML = `<div class="feedback" style="background:var(--red-light);color:var(--red)"><span class="spinner"></span> Preparing a different explanation...</div>`;
+  fbArea.innerHTML = `<div class="feedback" style="background:#2A0A08;color:#FF9090"><span class="spinner"></span> Preparing a different explanation...</div>`;
 
   const lessonText = document.getElementById('ai-response').textContent.substring(0, 500);
   const studentAnswer = document.getElementById('mic-transcript').textContent || document.getElementById('student-answer-text').textContent || 'no answer given';
@@ -2148,10 +2156,10 @@ async function reteachConcept(){
     });
     const data = await res.json();
     const text = data.content?.find(b=>b.type==='text')?.text || "That's okay! Let's think about this differently.";
-    fbArea.innerHTML = `<div class="feedback" style="background:var(--red-light);color:#5A0000;border:1px solid #F0A898"><strong>📖 Let me explain it another way:</strong><br><br>${text}</div>`;
+    fbArea.innerHTML = `<div class="feedback" style="background:#2A0A08;color:#FFBBB0;border:1px solid #8B3A30"><strong>📖 Let me explain it another way:</strong><br><br>${text}</div>`;
     safeReadAloud(text);
   } catch(e){
-    fbArea.innerHTML = `<div class="feedback" style="background:var(--red-light);color:#5A0000">That's okay! Let's think about it differently. Look back at what we just read — what was the main thing that happened?</div>`;
+    fbArea.innerHTML = `<div class="feedback" style="background:#2A0A08;color:#FFBBB0">That's okay! Let's think about it differently. Look back at what we just read — what was the main thing that happened?</div>`;
   }
   ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint'].forEach(id=>{
     const el = document.getElementById(id); if(el) el.disabled=false;
@@ -2189,10 +2197,10 @@ async function giveHint(){
     });
     const data = await res.json();
     const hint = data.content?.find(b=>b.type==='text')?.text||'Think about what you know — take your time!';
-    document.getElementById('fb-area').innerHTML = `<div class="feedback" style="background:var(--blue-light);color:#042C53"><strong>Hint ${sessionHints}:</strong> ${hint}</div>`;
+    document.getElementById('fb-area').innerHTML = `<div class="feedback" style="background:#0D2040;color:#A8D0FF"><strong>Hint ${sessionHints}:</strong> ${hint}</div>`;
     safeReadAloud(hint);
   } catch(e){
-    document.getElementById('fb-area').innerHTML = `<div class="feedback" style="background:var(--blue-light);color:#042C53"><strong>Hint:</strong> Think about what you remember from last time — the answer is closer than you think!</div>`;
+    document.getElementById('fb-area').innerHTML = `<div class="feedback" style="background:#0D2040;color:#A8D0FF"><strong>Hint:</strong> Think about what you remember from last time — the answer is closer than you think!</div>`;
   }
   ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint'].forEach(id=>{
     const el = document.getElementById(id); if(el) el.disabled=false;
@@ -2210,38 +2218,44 @@ async function nextQuestion(){
   });
   btn.innerHTML='<span class="spinner"></span>';
   stopRead();
-  document.getElementById('ai-response').innerHTML='<span class="spinner"></span>Generating next question...';
+  // Show spinner only in the question box — do NOT overwrite ai-response (lesson text)
+  document.getElementById('ai-question-box').innerHTML='<span class="spinner"></span> Generating next question...';
   document.getElementById('fb-area').innerHTML='';
   const sess = getSession(curStudent, curSubject.id);
   // Increment session count so bot always knows we are past session 1
   if(sess.sessionCount === 0){ sess.sessionCount = 1; saveSession(curStudent, curSubject.id, sess); }
   const studentNames = {AL:'A.L. (Grade 9–12)',FA:'F.A. (Grade 1–4)',FC:'F.C. (Grade 1–4)',LJ:'L.J. (Kindergarten, logic Grade 3)'};
+  // Build asked-questions context to prevent repeats
+  const alreadyAsked = sessionAskedQuestions.length
+    ? `\nQUESTIONS ALREADY ASKED THIS SESSION (do NOT repeat these):\n${sessionAskedQuestions.map((q,i)=>`${i+1}. ${q}`).join('\n')}\n`
+    : '';
   try {
     const res = await fetch('https://divine-sunset-f2ee.panicovillegas.workers.dev',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-5',max_tokens:600,
-        messages:[{role:'user',content:`${UNIVERSAL_RULES}\n${curSubject.prompt}\nSTUDENT: ${studentNames[curStudent]}\nContinue the session with the NEXT question or activity. Ask a DIFFERENT question from any already asked this session. Be specific, cite the source, never give away the answer. Subject: ${curSubject.name}.`}]
+        model:'claude-sonnet-4-5',max_tokens:400,
+        messages:[{role:'user',content:`${UNIVERSAL_RULES}\n${curSubject.prompt}\nSTUDENT: ${studentNames[curStudent]}\n${alreadyAsked}\nContinue the session with the NEXT question or activity. Ask a DIFFERENT question — never repeat any question already asked. Be specific, cite the source, never give away the answer. Subject: ${curSubject.name}.`}]
       })
     });
     const data = await res.json();
     const text = data.content?.find(b=>b.type==='text')?.text||'Could not generate next question.';
-    // Set plain text first — _doReadAloud will replace with highlight spans after 400ms.
-    // Do NOT build spans here: a stale safeReadAloud closure would overwrite them anyway,
-    // and double-building caused the "question changes mid-highlight" race condition.
-    document.getElementById('ai-response').textContent = text;
-    // Update right-panel question box with the new question(s)
+    // Update right-panel question box with the new question — do NOT touch ai-response (lesson text)
     const newQs = text.match(/[^.!?]*\?[^?]*/g) || [];
     document.getElementById('ai-question-box').innerHTML = newQs.length
       ? newQs.map(q=>`<div style="background:rgba(60,120,240,0.12);border:1px solid rgba(80,140,240,0.25);border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:13px;color:#1A1A1A;line-height:1.7;font-family:'Lato',sans-serif;font-weight:400;">${q.trim()}</div>`).join('')
-      : `<div style="font-size:13px;color:#1A1A1A;line-height:1.8;font-weight:400;">${text.substring(0,300)}...</div>`;
-    lastQuestion = extractLastQuestion(text);
+      : `<div style="font-size:13px;color:#1A1A1A;line-height:1.8;font-weight:400;">${text.substring(0,300)}</div>`;
+    // Track this question to avoid repeating it
+    const newQ = extractLastQuestion(text);
+    if(newQ) sessionAskedQuestions.push(newQ);
+    lastQuestion = newQ || lastQuestion;
     fetchImagesForLesson(text);
     sessionQuestionIndex++;
     saveProgress(curStudent, curSubject.id, sessionQuestionIndex, lastQuestion);
-    safeReadAloud(text);
-  } catch(e){ document.getElementById('ai-response').textContent='Connection error. Please try again.'; }
+    // Read aloud from the question box element (not the lesson text)
+    const qBox = document.getElementById('ai-question-box');
+    readAloud(text, qBox);
+  } catch(e){ document.getElementById('ai-question-box').innerHTML='<span style="color:var(--vg-text3)">Connection error. Please try again.</span>'; }
   ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint','btn-next'].forEach(id=>{
     const el = document.getElementById(id); if(el) el.disabled=false;
   });
@@ -2319,7 +2333,7 @@ async function respondToAnswer(studentAnswer){
   const questionForThisAnswer = lastQuestion;
 
   const fbArea = document.getElementById('fb-area');
-  fbArea.innerHTML = `<div class="feedback" style="background:var(--parch2);color:var(--ink2)"><span class="spinner"></span> Thinking...</div>`;
+  fbArea.innerHTML = `<div class="feedback" style="background:#1E1630;color:#C0B0E0"><span class="spinner"></span> Thinking...</div>`;
   // Disable all response buttons while AI is evaluating to prevent race conditions
   ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint'].forEach(id=>{
     const el = document.getElementById(id); if(el) el.disabled = true;
@@ -2335,6 +2349,10 @@ async function respondToAnswer(studentAnswer){
     LJ:'Kindergarten with Grade 3 logic — very short playful sentences'
   };
 
+  const alreadyAskedCtx = sessionAskedQuestions.length
+    ? `\nQUESTIONS ALREADY ASKED THIS SESSION (do NOT repeat these):\n${sessionAskedQuestions.map((q,i)=>`${i+1}. ${q}`).join('\n')}\n`
+    : '';
+
   try {
     const res = await fetch('https://divine-sunset-f2ee.panicovillegas.workers.dev',{
       method:'POST',
@@ -2345,7 +2363,7 @@ async function respondToAnswer(studentAnswer){
 
 The lesson content was:
 "${lessonText}"${questionContext}
-
+${alreadyAskedCtx}
 CRITICAL: The question you asked was "${questionForThisAnswer || lastQuestion}". Evaluate ONLY whether the student answered THAT specific question correctly. Do not confuse different questions or operations.
 
 The student answered:
@@ -2354,7 +2372,7 @@ The student answered:
 Respond in this exact order — no labels, no bullet points, plain tutor voice:
 1. Evaluate the answer warmly and specifically (correct, partially correct, or gently incorrect — referring directly to the question you asked).
 2. If incorrect or partial: briefly explain the correct idea in a DIFFERENT way from the original lesson.
-3. Ask the NEXT question or give the next instruction to keep the session going. Ask a DIFFERENT question — do NOT repeat the same concept.
+3. Ask the NEXT question or give the next instruction to keep the session going. Ask a DIFFERENT question — never repeat any question already asked this session.
 
 IMPORTANT: If the student answered correctly, praise them and immediately move to a new topic or next question. Do NOT probe deeper on the same question they already answered correctly.
 Never say the student is jumping ahead. Stay within Catholic classical content. Do not start with "I".`}]
@@ -2363,8 +2381,10 @@ Never say the student is jumping ahead. Stay within Catholic classical content. 
     const data = await res.json();
     if(data.error) throw new Error(data.error.message);
     const reply = data.content?.find(b=>b.type==='text')?.text || "Good try! Let's keep going.";
-    lastQuestion = extractLastQuestion(reply) || lastQuestion;
-    fbArea.innerHTML = `<div class="feedback" style="background:var(--blue-light);color:#042C53;line-height:1.7">${reply}</div>`;
+    const newQ = extractLastQuestion(reply);
+    if(newQ){ sessionAskedQuestions.push(newQ); lastQuestion = newQ; }
+    else { lastQuestion = extractLastQuestion(reply) || lastQuestion; }
+    fbArea.innerHTML = `<div class="feedback" style="background:#0D2040;color:#A8D0FF;line-height:1.7">${reply}</div>`;
     // Also update right panel question box with new question
     const newQs = reply.match(/[^.!?]*\?[^?]*/g) || [];
     if(newQs.length){
@@ -2378,7 +2398,7 @@ Never say the student is jumping ahead. Stay within Catholic classical content. 
     sessionQuestionIndex++;
     saveProgress(curStudent, curSubject.id, sessionQuestionIndex, lastQuestion);
   } catch(e){
-    fbArea.innerHTML = `<div class="feedback" style="background:var(--parch2);color:var(--ink2)">Connection error. Please check your internet and try again.</div>`;
+    fbArea.innerHTML = `<div class="feedback" style="background:#1E1630;color:#C0B0E0">Connection error. Please check your internet and try again.</div>`;
   }
   // Re-enable all response buttons after AI evaluation completes
   ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint'].forEach(id=>{
