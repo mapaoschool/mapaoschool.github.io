@@ -750,6 +750,7 @@ let pausedWordIndex = 0;     // word index to restore highlight from
 let isPaused = false;        // our own paused flag
 let pausedFullText = null;   // full text being read
 let readGeneration = 0;      // incremented on every readAloud() call; stale closures abort when generation changes
+let sessionCountedThisOpen = false; // prevents double-increment of sessionCount across lesson-load / markResponse / endSessionByTimer
 
 // TTS gesture unlock: set true on first mic use so bot replies auto-play
 let ttsGestureUnlocked = false;
@@ -782,6 +783,55 @@ async function syncToSupabase(student, subjectId, data, doneToday){
       body: JSON.stringify(payload)
     });
   } catch(e){ /* silent fail — localStorage always works */ }
+}
+
+// ══════════════════════════════════════════════
+// SUPABASE READ-BACK — seed localStorage from cloud on startup
+// ══════════════════════════════════════════════
+async function loadSessionsFromSupabase(){
+  try {
+    const res = await fetch(
+      `${SUPA_URL}/rest/v1/progress?select=student,subject_id,session_count,last_lesson,hints,done_today,last_updated`,
+      { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` } }
+    );
+    if(!res.ok) return;
+    const rows = await res.json();
+    if(!Array.isArray(rows)) return;
+    rows.forEach(row => {
+      const key = `mapao_${row.student}_${row.subject_id}`;
+      let local = null;
+      try { local = JSON.parse(localStorage.getItem(key)); } catch(e){}
+      const localCount = (local && local.sessionCount) ? local.sessionCount : 0;
+      const cloudCount = row.session_count || 0;
+      // Only overwrite local if cloud has more sessions (cloud wins on higher count)
+      if(cloudCount > localCount){
+        const merged = {
+          sessionCount: cloudCount,
+          lastLesson: row.last_lesson || 'Not started',
+          hints: row.hints || 0
+        };
+        try { localStorage.setItem(key, JSON.stringify(merged)); } catch(e){}
+      }
+      // Restore done_today from Supabase only if it was today
+      // (done_today in Supabase reflects last sync — only trust it on same calendar day)
+      // Restore done_today if Supabase record was last updated today
+      if(row.done_today && row.last_updated){
+        const recordDate = new Date(row.last_updated);
+        const today = new Date();
+        const sameDay = recordDate.getFullYear()===today.getFullYear()
+          && recordDate.getMonth()===today.getMonth()
+          && recordDate.getDate()===today.getDate();
+        if(sameDay){
+          const dateStr = `${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}`;
+          const doneKey = `done_${row.student}_${row.subject_id}_${dateStr}`;
+          try { if(!localStorage.getItem(doneKey)) localStorage.setItem(doneKey,'1'); } catch(e){}
+        }
+      }
+    });
+    console.log('[Ma Pao] Session data synced from cloud:', rows.length, 'records');
+  } catch(e){
+    console.log('[Ma Pao] Could not sync from cloud (offline?):', e.message);
+  }
 }
 
 // ══════════════════════════════════════════════
@@ -853,7 +903,7 @@ async function endSessionByTimer(){
     const key = getDoneKey(curStudent, curSubject.id);
     try { localStorage.setItem(key, '1'); } catch(e){}
     const sess = getSession(curStudent, curSubject.id);
-    sess.sessionCount++;
+    if(!sessionCountedThisOpen){ sess.sessionCount++; sessionCountedThisOpen = true; }
     sess.lastLesson = `Session ${sess.sessionCount} — ${curSubject.name}`;
     saveSession(curStudent, curSubject.id, sess);
     syncToSupabase(curStudent, curSubject.id, sess, true);
@@ -934,6 +984,7 @@ function showScreen(id){
 }
 function selectStudent(id){
   curStudent = id;
+  loadSessionsFromSupabase(); // refresh cloud data silently each time a student is selected
   const names = {AL:'A.L.',FA:'F.A.',FC:'F.C.',LJ:'L.J.'};
   const grades = {AL:'High School · Grade 9–12',FA:'Elementary · Grade 1–4',FC:'Elementary · Grade 1–4',LJ:'Kindergarten · Logic Gr. 3'};
   const avatarColors = {AL:'background:rgba(20,40,90,0.8);color:#6AABF0;border:1.5px solid rgba(80,140,240,0.4);',FA:'background:rgba(90,50,10,0.8);color:#FFB840;border:1.5px solid rgba(220,150,40,0.4);',FC:'background:rgba(100,30,30,0.8);color:#FF9090;border:1.5px solid rgba(220,70,70,0.4);',LJ:'background:rgba(60,50,10,0.8);color:#F0E040;border:1.5px solid rgba(210,200,40,0.4);'};
@@ -1130,6 +1181,7 @@ function openSubject(subjectId){
 
   // Reset class timer
   classTimerTotal = curSubject.isMath ? 10*60 : 15*60;
+  sessionCountedThisOpen = false; // reset per subject open
   classTimerSeconds = classTimerTotal;
   updateClassTimerDisplay();
 
@@ -1339,6 +1391,7 @@ Respond in plain, natural tutor voice — no markdown, no bullet symbols.`;
     const lessonTitle = sentences.find(s => !/\b(hello|hi|good morning|good afternoon|welcome|great to see|nice to see|let's|let us begin|today we)\b/i.test(s))
       || sentences[1] || sentences[0] || text.substring(0, 80);
     const sess = getSession(curStudent, curSubject.id);
+    if(!sessionCountedThisOpen){ sess.sessionCount++; sessionCountedThisOpen = true; }
     sess.lastLesson = lessonTitle.trim().substring(0, 120);
     saveSession(curStudent, curSubject.id, sess);
     const t = `Last: ${sess.lastLesson} · Sessions: ${sess.sessionCount}`;
@@ -1976,7 +2029,7 @@ function markResponse(type){
   if(type==='correct'){
     const msg = {text:'✓ Correct! Well done. Session recorded.',bg:'var(--green-light)',tc:'var(--green)'};
     document.getElementById('fb-area').innerHTML = `<div class="feedback" style="background:${msg.bg};color:${msg.tc}">${msg.text}</div>`;
-    sess.sessionCount++;
+    if(!sessionCountedThisOpen){ sess.sessionCount++; sessionCountedThisOpen = true; }
     sess.lastLesson = `Session ${sess.sessionCount} — ${curSubject.name}`;
     saveSession(curStudent, curSubject.id, sess);
     const t = `Last: ${sess.lastLesson} · Sessions: ${sess.sessionCount}`;
@@ -2747,6 +2800,8 @@ function toggleMic() {
     }
   }
 }
+// Start cloud sync on load — restores session history on any device/browser
+loadSessionsFromSupabase();
 </script>
 
 <!-- ── TEACHER DASHBOARD SCREEN ── -->
