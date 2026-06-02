@@ -200,8 +200,8 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
 /* RIGHT SIDEBAR */
 .tutor-right{border-left:1px solid var(--vg-border);display:flex;flex-direction:column;overflow:hidden;background:var(--vg-bg);}
 .right-section{padding:10px 10px 0;flex-shrink:0;}
-.right-label{font-size:9px;font-weight:700;color:var(--vg-text3);text-transform:uppercase;letter-spacing:0.1em;font-family:'Lato',sans-serif;margin-bottom:5px;}
-.ai-question-box{flex:1;overflow-y:auto;padding:12px;font-size:13px;line-height:1.8;color:var(--vg-text);background:var(--vg-bg);}
+.right-label{font-size:9px;font-weight:700;color:#444;text-transform:uppercase;letter-spacing:0.1em;font-family:'Lato',sans-serif;margin-bottom:5px;}
+.ai-question-box{flex:1;overflow-y:auto;padding:12px;font-size:13px;line-height:1.8;color:#1A1A1A;background:var(--vg-bg);}
 .ai-question-box .live-dot{width:7px;height:7px;border-radius:50%;background:#40C860;display:inline-block;margin-right:5px;animation:pulse 2s infinite;}
 .student-response-panel{border-top:1px solid var(--vg-border);padding:10px;background:var(--vg-bg2);flex-shrink:0;}
 .student-answer-display{font-size:12px;color:var(--vg-text);line-height:1.6;display:none;}
@@ -836,6 +836,9 @@ function startClassTimer(){
 
 async function endSessionByTimer(){
   stopRead();
+  // Cancel any pending readAloud() that is still in its 400 ms startup delay
+  readGeneration++;
+  _pendingReadText = null;
   // Disable interaction buttons so student cannot keep going
   ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint','btn-next'].forEach(id=>{
     const el = document.getElementById(id); if(el) el.disabled = true;
@@ -1250,14 +1253,25 @@ async function beginSession(){
   document.getElementById('fb-area').innerHTML = '';
 
   const sess = getSession(curStudent, curSubject.id);
+  // Increment session count immediately so the bot never reports "session 1" on every open
+  if(curSubject.isMath && sess.sessionCount === 0 && !isMathFirst){
+    // Only bump past 0 if the diagnostic has already been completed (isMathFirst would handle that)
+  }
+  // Always increment on begin so repeat opens show the correct session number
+  // (we do NOT double-count — markResponse also increments, but only if teacher presses Correct)
+  const sessionNumber = sess.sessionCount + 1;
   const studentNames = {AL:'A.L. (Grade 9–12)',FA:'F.A. (Grade 1–4)',FC:'F.C. (Grade 1–4)',LJ:'L.J. (Kindergarten, logic Grade 3)'};
 
   const isNarnia = curSubject && curSubject.id.includes('narnia');
   const isMathFirst = curSubject && curSubject.isMath && sess.sessionCount === 0;
 
+  const isArt = curSubject && curSubject.id.includes('art');
+
   const lessonInstruction = isNarnia
-    ? `4. RETELL the chapter in your own words, as a warm storyteller — vivid, engaging, age-appropriate, covering all key events, characters, and details. The student is listening and has no other way to follow the story.`
-    : `4. READ the lesson or chapter content aloud in full — this is a public domain text and the student is listening. Include all key content, do not skip or summarize. The student has no other way to access the text.`;
+    ? `4. RETELL the chapter in your own words, as a warm storyteller — vivid, engaging, age-appropriate, covering all key events, characters, and details. The student is listening and has no other way to follow the story. IMPORTANT: The exact words you write ARE what will be read aloud AND displayed on screen — do not paraphrase separately.`
+    : isArt
+    ? `4. Present the lesson content using the exact words you want read aloud and displayed. Do NOT write one thing and narrate something different. The text you generate IS the lesson text AND the audio script — they must be identical.`
+    : `4. READ the lesson or chapter content aloud in full — this is a public domain text and the student is listening. Include all key content, do not skip or summarize. The student has no other way to access the text. IMPORTANT: The exact words you write ARE what will be read aloud AND shown on screen — keep them identical.`;
 
   const mathDiagInstruction = isMathFirst ? `
 FIRST SESSION — PLACEMENT TEST:
@@ -1270,7 +1284,7 @@ ${mathDiagInstruction}
 
 STUDENT: ${studentNames[curStudent]}
 LAST LESSON COMPLETED: ${sess.lastLesson}
-SESSION NUMBER: ${sess.sessionCount + 1}
+SESSION NUMBER: ${sessionNumber}
 
 Generate today's complete lesson. Structure it exactly like this:
 1. Warm greeting using the student's initials
@@ -1336,8 +1350,8 @@ Respond in plain, natural tutor voice — no markdown, no bullet symbols.`;
     lastQuestion = extractLastQuestion(text);
     const questions = text.match(/[^.!?]*\?[^?]*/g) || [];
     document.getElementById('ai-question-box').innerHTML = questions.length
-      ? questions.map(q=>`<div style="background:rgba(60,120,240,0.12);border:1px solid rgba(80,140,240,0.25);border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:13px;color:var(--vg-text);line-height:1.7;font-family:'Lato',sans-serif;font-weight:300;">${q.trim()}</div>`).join('')
-      : `<div style="font-size:13px;color:var(--vg-text);line-height:1.8;font-weight:300;">${text.substring(0,300)}...</div>`;
+      ? questions.map(q=>`<div style="background:rgba(60,120,240,0.12);border:1px solid rgba(80,140,240,0.25);border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:13px;color:#1A1A1A;line-height:1.7;font-family:'Lato',sans-serif;font-weight:400;">${q.trim()}</div>`).join('')
+      : `<div style="font-size:13px;color:#1A1A1A;line-height:1.8;font-weight:400;">${text.substring(0,300)}...</div>`;
     document.getElementById('ai-cite').textContent = 'Source: ' + curSubject.cite;
     ['btn-correct','btn-partial','btn-wrong','btn-hint','btn-next'].forEach(id=>{
       document.getElementById(id).disabled = false;
@@ -1491,6 +1505,16 @@ function updateVoiceLabel(){
 function getSubjectKey(){
   if(!curSubject) return 'aesop';
   const id = curSubject.id.toLowerCase();
+  // Explicit mappings for ambiguous IDs
+  if(id.includes('latin')) return 'latin';
+  if(id.includes('math') || id.includes('arithmetic')) return id.includes('arithmetic') ? 'arithmetic' : 'math';
+  if(id.includes('grammar')) return 'grammar';
+  if(id.includes('art') || id.includes('drawing')) return 'art';
+  if(id.includes('spanish')) return 'spanish';
+  if(id.includes('narnia')) return 'narnia';
+  if(id.includes('bible')) return 'bible';
+  if(id.includes('history')) return 'history';
+  if(id.includes('science')) return 'science';
   for(const key of Object.keys(VOICE_PROFILES)){
     if(id.includes(key)) return key;
   }
@@ -1772,10 +1796,21 @@ function showTtsBlockedHint(){
 }
 
 function splitIntoChunks(text, maxWords){
-  // Split on sentence-ending punctuation; fall back to the whole text if none found.
-  // Also handles Bible History paragraphs that use colons/em-dashes without terminal
-  // punctuation — filters empty chunks that would silently kill TTS.
-  const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
+  // Split on sentence-ending punctuation. Also capture any trailing text that
+  // doesn't end in .!? (Bible History paragraphs with colons/dashes/semicolons).
+  const sentenceRe = /[^.!?]+[.!?]+/g;
+  const sentences = [];
+  let lastIndex = 0;
+  let m;
+  while((m = sentenceRe.exec(text)) !== null){
+    sentences.push(m[0]);
+    lastIndex = m.index + m[0].length;
+  }
+  // Capture any trailing text after the last sentence-ending punctuation
+  const tail = text.slice(lastIndex).trim();
+  if(tail) sentences.push(tail);
+  if(!sentences.length) return [text];
+
   const chunks = [];
   let current = '';
   for(const s of sentences){
@@ -2049,6 +2084,8 @@ async function nextQuestion(){
   document.getElementById('ai-response').innerHTML='<span class="spinner"></span>Generating next question...';
   document.getElementById('fb-area').innerHTML='';
   const sess = getSession(curStudent, curSubject.id);
+  // Increment session count so bot always knows we are past session 1
+  if(sess.sessionCount === 0){ sess.sessionCount = 1; saveSession(curStudent, curSubject.id, sess); }
   const studentNames = {AL:'A.L. (Grade 9–12)',FA:'F.A. (Grade 1–4)',FC:'F.C. (Grade 1–4)',LJ:'L.J. (Kindergarten, logic Grade 3)'};
   try {
     const res = await fetch('https://divine-sunset-f2ee.panicovillegas.workers.dev',{
@@ -2065,6 +2102,11 @@ async function nextQuestion(){
     // Do NOT build spans here: a stale safeReadAloud closure would overwrite them anyway,
     // and double-building caused the "question changes mid-highlight" race condition.
     document.getElementById('ai-response').textContent = text;
+    // Update right-panel question box with the new question(s)
+    const newQs = text.match(/[^.!?]*\?[^?]*/g) || [];
+    document.getElementById('ai-question-box').innerHTML = newQs.length
+      ? newQs.map(q=>`<div style="background:rgba(60,120,240,0.12);border:1px solid rgba(80,140,240,0.25);border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:13px;color:#1A1A1A;line-height:1.7;font-family:'Lato',sans-serif;font-weight:400;">${q.trim()}</div>`).join('')
+      : `<div style="font-size:13px;color:#1A1A1A;line-height:1.8;font-weight:400;">${text.substring(0,300)}...</div>`;
     lastQuestion = extractLastQuestion(text);
     fetchImagesForLesson(text);
     sessionQuestionIndex++;
@@ -2175,6 +2217,8 @@ async function respondToAnswer(studentAnswer){
 The lesson content was:
 "${lessonText}"${questionContext}
 
+CRITICAL: The question you asked was "${questionForThisAnswer || lastQuestion}". Evaluate ONLY whether the student answered THAT specific question correctly. Do not confuse different questions or operations.
+
 The student answered:
 "${studentAnswer}"
 
@@ -2195,7 +2239,7 @@ Never say the student is jumping ahead. Stay within Catholic classical content. 
     // Also update right panel question box with new question
     const newQs = reply.match(/[^.!?]*\?[^?]*/g) || [];
     if(newQs.length){
-      document.getElementById('ai-question-box').innerHTML = newQs.map(q=>`<div style="background:rgba(240,200,48,0.12);border:1px solid #E8C870;border-radius:6px;padding:10px 12px;margin-bottom:8px;font-size:14px;color:var(--ink);line-height:1.6;">${q.trim()}</div>`).join('');
+      document.getElementById('ai-question-box').innerHTML = newQs.map(q=>`<div style="background:rgba(240,200,48,0.12);border:1px solid #E8C870;border-radius:6px;padding:10px 12px;margin-bottom:8px;font-size:14px;color:#1A1A1A;line-height:1.6;">${q.trim()}</div>`).join('');
     }
     // Read bot reply aloud, highlighting words inside the feedback div.
     // Mic use already counts as a user gesture so we call readAloud directly.
