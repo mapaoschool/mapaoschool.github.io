@@ -1154,33 +1154,70 @@ function editSession(studentId, subjectId){
   const safeId = (studentId+'__'+subjectId).replace(/[^a-zA-Z0-9_]/g,'_');
   const row = document.getElementById('row_'+safeId);
   if(!row) return;
-  // Close any other open edit rows first
-  document.querySelectorAll('.dash-edit-row').forEach(r=>{ if(r !== row) r.remove(); });
-  // Already open? Close it
+  document.querySelectorAll('.dash-edit-row').forEach(r=>r.remove());
   const existing = document.getElementById('editrow_'+safeId);
   if(existing){ existing.remove(); return; }
   const sess = getSession(studentId, subjectId);
   const editRow = document.createElement('tr');
   editRow.id = 'editrow_'+safeId;
   editRow.className = 'dash-edit-row';
-  const lessonVal = (sess.lastLesson||'').replace(/"/g,'&quot;');
-  const countVal = sess.sessionCount||0;
-  editRow.innerHTML = '<td colspan="6"><div class="dash-edit-form">'
-    +'<div style="display:flex;flex-direction:column;gap:3px;">'
-    +'<label>Last Lesson / Notes</label>'
-    +'<input type="text" id="edit_lesson_'+safeId+'" value="'+lessonVal+'" placeholder="e.g. Lesson 7 — The Fox and the Grapes" style="width:240px;">'
-    +'</div>'
-    +'<div style="display:flex;flex-direction:column;gap:3px;">'
-    +'<label>Session Count</label>'
-    +'<input type="number" id="edit_count_'+safeId+'" value="'+countVal+'" min="0" max="999" style="width:64px;">'
-    +'</div>'
-    +'<button class="dash-save-btn" onclick="saveEditSession(this)" data-student="'+studentId+'" data-subject="'+subjectId+'">✓ Save</button>'
-    +'<button class="dash-cancel-btn" onclick="document.getElementById('editrow_'+safeId+'').remove()">Cancel</button>'
-    +'<span id="edit_msg_'+safeId+'" style="font-size:11px;color:#80F0A0;font-family:Lato,sans-serif;display:none;">✓ Saved!</span>'
-    +'</div></td>';
+  // Build form using DOM — no inline onclick strings, avoids all quote nesting issues
+  const td = document.createElement('td');
+  td.colSpan = 6;
+  const form = document.createElement('div');
+  form.className = 'dash-edit-form';
+  // Lesson label + input
+  const lessonWrap = document.createElement('div');
+  lessonWrap.style.cssText = 'display:flex;flex-direction:column;gap:3px;';
+  const lessonLbl = document.createElement('label');
+  lessonLbl.textContent = 'Last Lesson / Notes';
+  const lessonInp = document.createElement('input');
+  lessonInp.type = 'text';
+  lessonInp.id = 'edit_lesson_'+safeId;
+  lessonInp.value = sess.lastLesson || '';
+  lessonInp.placeholder = 'e.g. Lesson 7 — The Fox and the Grapes';
+  lessonInp.style.width = '240px';
+  lessonWrap.appendChild(lessonLbl);
+  lessonWrap.appendChild(lessonInp);
+  // Count label + input
+  const countWrap = document.createElement('div');
+  countWrap.style.cssText = 'display:flex;flex-direction:column;gap:3px;';
+  const countLbl = document.createElement('label');
+  countLbl.textContent = 'Session Count';
+  const countInp = document.createElement('input');
+  countInp.type = 'number';
+  countInp.id = 'edit_count_'+safeId;
+  countInp.value = sess.sessionCount || 0;
+  countInp.min = 0; countInp.max = 999;
+  countInp.style.width = '64px';
+  countWrap.appendChild(countLbl);
+  countWrap.appendChild(countInp);
+  // Save button
+  const saveBtn = document.createElement('button');
+  saveBtn.className = 'dash-save-btn';
+  saveBtn.textContent = '✓ Save';
+  saveBtn.dataset.student = studentId;
+  saveBtn.dataset.subject = subjectId;
+  saveBtn.onclick = function(){ saveEditSession(this); };
+  // Cancel button
+  const cancelBtn = document.createElement('button');
+  cancelBtn.className = 'dash-cancel-btn';
+  cancelBtn.textContent = 'Cancel';
+  cancelBtn.onclick = function(){ var er=document.getElementById('editrow_'+safeId); if(er) er.remove(); };
+  // Saved msg
+  const msg = document.createElement('span');
+  msg.id = 'edit_msg_'+safeId;
+  msg.style.cssText = 'font-size:11px;color:#80F0A0;font-family:Lato,sans-serif;display:none;';
+  msg.textContent = '✓ Saved!';
+  form.appendChild(lessonWrap);
+  form.appendChild(countWrap);
+  form.appendChild(saveBtn);
+  form.appendChild(cancelBtn);
+  form.appendChild(msg);
+  td.appendChild(form);
+  editRow.appendChild(td);
   row.after(editRow);
-  const inp = document.getElementById('edit_lesson_'+safeId);
-  if(inp) inp.focus();
+  lessonInp.focus();
 }
 
 function saveEditSession(btn){
