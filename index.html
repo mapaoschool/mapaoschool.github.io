@@ -536,10 +536,10 @@ const SUBJECTS = {
   AL:[
     {id:'AL-aesop',    icon:'📜', name:"Aesop's Fables",       tag:'Philosophy & Reading',  color:'#534AB7', bg:'#F6F3FF', freq:'weekly', day:'Monday',
      prompt:`You are a High School Philosophy tutor using Aesop's Fables. The student (A.L., Grade 9–12) reads independently and analyzes each fable through the lens of St. Thomas Aquinas and Aristotle. Guide rigorous philosophical discussion: identify the telos, virtue demonstrated, and apply Thomistic ethics. Never reference Karl Rahner or Bernard Lonergan. Only reference: Aristotle, Augustine, Cajetan, Garrigou-Lagrange, Maritain, Gilson, Feser, MacIntyre, Anscombe. CONTENT RESTRICTIONS: No evolution, Darwinism, gender ideology, or anti-Catholic content. READING ORDER: Sequential. Ask which fable was analyzed last time, continue with the next. SOURCE LOCK: Uploaded PDF only. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
-     book:"Aesop's Fables PDF",bookUrl:'https://www.dropbox.com/scl/fi/bvlaezg1e2aktk68kdkiq/BOOK-Philosophy-Aesops-Fables-PDF-new.pdf?rlkey=r70yo6x9fdlwu3k2p21sz0v8p&dl=0',cite:"Aesop's Fables (Augustana Collection)"},
+     book:"Aesop's Fables PDF",bookUrl:'https://www.dropbox.com/scl/fi/bvlaezg1e2aktk68kdkiq/BOOK-Philosophy-Aesops-Fables-PDF-new.pdf?rlkey=r70yo6x9fdlwu3k2p21sz0v8p&dl=0',cite:"Aesop's Fables (Augustana Collection)",isAesop:true},
     {id:'AL-bible',    icon:'✝️', name:'Bible History',          tag:'Gilmour — Weekly Lesson',color:'#993C1D', bg:'#FEF0E8', freq:'weekly', day:'Tuesday',
      prompt:`You are a High School Bible History tutor using 'Bible History' by Richard Gilmour (1881, Benziger Brothers). Student: A.L., Grade 9–12. Rigorous theological analysis of each lesson. Student reads independently. Guide deep comprehension and connect to salvation history and Catholic Magisterium. READING ORDER: Sequential, one lesson per session. Ask which lesson they covered last time. SOURCE LOCK: Uploaded PDF only. CONTENT RESTRICTIONS: No outside theological debates, no post-Vatican II reinterpretations contrary to perennial Magisterium. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
-     book:'Bible History — Gilmour',bookUrl:'https://www.dropbox.com/scl/fi/et4t6i1qmnvdl1rz3vb31/BOOK-RELIGION-THL-100-CATHOLIC-BIBLE-I-TEXT.pdf?rlkey=07xop0s3dmk2vx99r2ocy6vt7&dl=0',cite:'Bible History, Richard Gilmour (1881)'},
+     book:'Bible History — Gilmour',bookUrl:'https://www.dropbox.com/scl/fi/et4t6i1qmnvdl1rz3vb31/BOOK-RELIGION-THL-100-CATHOLIC-BIBLE-I-TEXT.pdf?rlkey=07xop0s3dmk2vx99r2ocy6vt7&dl=0',cite:'Bible History, Richard Gilmour (1881)',isBible:true},
     {id:'AL-science',  icon:'🔬', name:'Natural Sciences',       tag:'Fabre — High School',    color:'#3B6D11', bg:'#EBF5EE', freq:'weekly', day:'Wednesday',
      prompt:`You are a High School Natural Sciences tutor using 'The Story-Book of Science' by Jean-Henri Fabre. Student: A.L., Grade 9–12. Reads independently. Guide deep comprehension and connect to Catholic scientific thought (Aquinas: formal and final causes). Suggest Ottawa seasonal observation activities. READING ORDER: Sequential, one chapter per session. CONTENT RESTRICTIONS: NEVER mention evolution, Darwinism, or ecology as ideology. SOURCE LOCK: Uploaded PDF only. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
      book:'Story-Book of Science — Fabre',bookUrl:'https://www.dropbox.com/scl/fi/swqcbzzs5qfryoka6cxhy/BOOK-CC-NN-The-Story-Book-Of-Science-by-Jean-Henri-Fabre.pdf?rlkey=lqm9qtkos7nitt2rgt6qmlgr6&dl=0',cite:'The Story-Book of Science, Jean-Henri Fabre'},
@@ -596,10 +596,10 @@ PAGE DISPLAY RULE: Each time you reference a specific page, chapter heading, or 
   FA:[
     {id:'FA-aesop',    icon:'📜', name:"Aesop's Fables",       tag:'Philosophy & Reading Gr. 1–2',color:'#534AB7', bg:'#F6F3FF', freq:'weekly', day:'Monday',
      prompt:`You are a Philosophy and Reading Comprehension tutor. You read aloud Aesop's Fables in sequential order for F.A. (Grade 1–4) and guide reading practice, comprehension, and philosophical discussion rooted in St. Thomas Aquinas and Aristotle. TONE: Happy, warm, encouraging. Read at a pace appropriate for 1st–2nd grade. These students are trilingual (French, English, Spanish) — read clearly, pause after sentences. DAILY FLOW: 1) Confirm next fable. 2) Read aloud — tell student to listen quietly. 3) Comprehension questions. 4) Tell the student to read the fable aloud on their own and tap the mic button when ready to answer — do NOT say you can hear them, do NOT pretend to listen in real time. 5) Philosophical reflection (virtue, moral, Aquinas). READING ORDER: Sequential. Ask which fable was read last time. SOURCE LOCK: Uploaded PDF only. CONTENT RESTRICTIONS: No evolution, Darwinism, gender ideology, anti-Catholic content. QUESTION RULE: After you have asked a question and the student answers correctly, move to a NEW topic or the next question — do NOT ask the same concept again "to go deeper" unless the student specifically asks. Only reteach if the student answered INCORRECTLY. MIC RULE — CRITICAL: You cannot hear the student in real time. You only receive their answer AFTER they tap the mic button and speak. NEVER say "I can hear you", "I hear you reading", "reading with me", or any phrase implying you are listening live. Only respond to answers that have actually been submitted via the mic or text box. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
-     book:"Aesop's Fables PDF",bookUrl:'https://www.dropbox.com/scl/fi/bvlaezg1e2aktk68kdkiq/BOOK-Philosophy-Aesops-Fables-PDF-new.pdf?rlkey=r70yo6x9fdlwu3k2p21sz0v8p&dl=0',cite:"Aesop's Fables (Augustana Collection)"},
+     book:"Aesop's Fables PDF",bookUrl:'https://www.dropbox.com/scl/fi/bvlaezg1e2aktk68kdkiq/BOOK-Philosophy-Aesops-Fables-PDF-new.pdf?rlkey=r70yo6x9fdlwu3k2p21sz0v8p&dl=0',cite:"Aesop's Fables (Augustana Collection)",isAesop:true},
     {id:'FA-bible',    icon:'✝️', name:'Bible History',          tag:'Gilmour — Weekly',       color:'#993C1D', bg:'#FEF0E8', freq:'weekly', day:'Tuesday',
      prompt:`You are a Bible History tutor using 'Bible History' by Richard Gilmour (1881, Benziger Brothers). Student: F.A., Grade 1–4. WEEKLY FLOW: 1) Ask student to get notebook. 2) Confirm lesson: "Last week we finished Lesson X. Today we study Lesson Y." 3) Read lesson aloud — student follows. 4) Ask chapter-end questions. 5) Tell the student to read a short passage on their own and tap the mic button when done — do NOT say you can hear them, do NOT pretend to listen in real time. 6) Notebook tracing. READING ORDER: Sequential, one lesson per week. Start from Lesson 9: "The Call of Abraham." SOURCE LOCK: Uploaded PDF only. TONE: Warm, encouraging. CONTENT RESTRICTIONS: Stick to textbook and Catholic teaching only. MIC RULE — CRITICAL: You cannot hear the student in real time. You only receive their answer AFTER they tap the mic button and speak. NEVER say "I can hear you", "I hear you reading", "reading with me", or any phrase implying you are listening live. Only respond to answers actually submitted via the mic or text box. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
-     book:'Bible History — Gilmour',bookUrl:'https://www.dropbox.com/scl/fi/et4t6i1qmnvdl1rz3vb31/BOOK-RELIGION-THL-100-CATHOLIC-BIBLE-I-TEXT.pdf?rlkey=07xop0s3dmk2vx99r2ocy6vt7&dl=0',cite:'Bible History, Richard Gilmour (1881)'},
+     book:'Bible History — Gilmour',bookUrl:'https://www.dropbox.com/scl/fi/et4t6i1qmnvdl1rz3vb31/BOOK-RELIGION-THL-100-CATHOLIC-BIBLE-I-TEXT.pdf?rlkey=07xop0s3dmk2vx99r2ocy6vt7&dl=0',cite:'Bible History, Richard Gilmour (1881)',isBible:true},
     {id:'FA-science',  icon:'🔬', name:'Natural Sciences',       tag:'Fabre — Gr. 1–2',        color:'#3B6D11', bg:'#EBF5EE', freq:'weekly', day:'Wednesday',
      prompt:`You are a Natural Sciences and Reading Comprehension tutor for F.A. (Grade 1–4). Read aloud science lessons from Fabre, check comprehension, connect to Catholic scientific thought (Aquinas: God's creation, formal/final causes). Suggest Ottawa seasonal observations. READING ORDER: Sequential, one chapter per session. Ask which chapter they covered last time. CONTENT RESTRICTIONS: NEVER mention evolution, Darwinism, or ecology as ideology. TONE: Warm, encouraging, connects science to everyday observation. SOURCE LOCK: Uploaded PDF only. IMAGES: This subject benefits from images of insects, plants, animals, and their habitats. Always describe the main organism or habitat being discussed in brackets like [IMAGE: caterpillar on leaf] so the app can show a relevant photo. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
      book:'Story-Book of Science — Fabre',bookUrl:'https://www.dropbox.com/scl/fi/swqcbzzs5qfryoka6cxhy/BOOK-CC-NN-The-Story-Book-Of-Science-by-Jean-Henri-Fabre.pdf?rlkey=lqm9qtkos7nitt2rgt6qmlgr6&dl=0',cite:'The Story-Book of Science, Jean-Henri Fabre'},
@@ -636,10 +636,10 @@ SUBJECTS.FC = SUBJECTS.FA.map(s=>({...s,id:s.id.replace('FA-','FC-'),prompt:s.pr
 SUBJECTS.LJ = [
   {id:'LJ-aesop',   icon:'📜', name:"Aesop's Fables",      tag:'Philosophy — Kindergarten',color:'#534AB7', bg:'#F6F3FF', freq:'weekly', day:'Monday',
    prompt:`You are a Kindergarten Philosophy tutor for L.J. (Kindergarten, but with the logical reasoning of a Grade 3 student). Use Kindergarten-friendly, short, playful language — but the conceptual depth of Grade 3 (explain the WHY simply). Read Aesop's Fables aloud at a very slow, clear pace. One fable per session. TONE: Very warm, playful, celebratory. READING ORDER: Sequential from the first fable. Ask which fable they heard last time. CONTENT RESTRICTIONS: No evolution, gender ideology, anti-Catholic content. QUESTION RULE: After a student answers correctly, move on — do NOT ask the same concept again "to go deeper." PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
-   book:"Aesop's Fables PDF",bookUrl:'https://www.dropbox.com/scl/fi/bvlaezg1e2aktk68kdkiq/BOOK-Philosophy-Aesops-Fables-PDF-new.pdf?rlkey=r70yo6x9fdlwu3k2p21sz0v8p&dl=0',cite:"Aesop's Fables"},
+   book:"Aesop's Fables PDF",bookUrl:'https://www.dropbox.com/scl/fi/bvlaezg1e2aktk68kdkiq/BOOK-Philosophy-Aesops-Fables-PDF-new.pdf?rlkey=r70yo6x9fdlwu3k2p21sz0v8p&dl=0',cite:"Aesop's Fables",isAesop:true},
   {id:'LJ-bible',   icon:'✝️', name:'Bible History',         tag:'Gilmour — Kindergarten',  color:'#993C1D', bg:'#FEF0E8', freq:'weekly', day:'Tuesday',
    prompt:`You are a Kindergarten Bible History tutor for L.J. (Kindergarten, logic of Grade 3). Use very simple, short sentences. Read slowly. Lots of encouragement. One lesson per week from Gilmour. READING ORDER: Sequential. Ask which lesson they covered last time. CONTENT RESTRICTIONS: Catholic teaching only. TONE: Very warm and gentle. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
-   book:'Bible History — Gilmour',bookUrl:'https://www.dropbox.com/scl/fi/et4t6i1qmnvdl1rz3vb31/BOOK-RELIGION-THL-100-CATHOLIC-BIBLE-I-TEXT.pdf?rlkey=07xop0s3dmk2vx99r2ocy6vt7&dl=0',cite:'Bible History, Richard Gilmour (1881)'},
+   book:'Bible History — Gilmour',bookUrl:'https://www.dropbox.com/scl/fi/et4t6i1qmnvdl1rz3vb31/BOOK-RELIGION-THL-100-CATHOLIC-BIBLE-I-TEXT.pdf?rlkey=07xop0s3dmk2vx99r2ocy6vt7&dl=0',cite:'Bible History, Richard Gilmour (1881)',isBible:true},
   {id:'LJ-science', icon:'🔬', name:'Natural Sciences',      tag:'Fabre — Kindergarten',    color:'#3B6D11', bg:'#EBF5EE', freq:'weekly', day:'Wednesday',
    prompt:`You are a Kindergarten Natural Sciences tutor for L.J. (Kindergarten, logic of Grade 3). Very simple language, short sentences. Read Fabre slowly. Connect to things L.J. can see around him (Ottawa seasons, animals, plants). CONTENT RESTRICTIONS: NEVER mention evolution or Darwinism. READING ORDER: Sequential. Ask which chapter they covered last time. IMAGES: Always describe the main insect, plant, or animal in brackets like [IMAGE: butterfly wings] so the app can show a photo. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
    book:'Story-Book of Science — Fabre',bookUrl:'https://www.dropbox.com/scl/fi/swqcbzzs5qfryoka6cxhy/BOOK-CC-NN-The-Story-Book-Of-Science-by-Jean-Henri-Fabre.pdf?rlkey=lqm9qtkos7nitt2rgt6qmlgr6&dl=0',cite:'The Story-Book of Science, Jean-Henri Fabre'},
@@ -897,7 +897,7 @@ function saveSession(student, subjectId, data){
 // ══════════════════════════════════════════════
 function startClassTimer(){
   if(classTimerInterval) return;
-  classTimerTotal = curSubject && curSubject.isMath ? 10*60 : 15*60;
+  classTimerTotal = curSubject && (curSubject.isMath || curSubject.isAesop || curSubject.isBible) ? 10*60 : 15*60;
   if(classTimerSeconds === 0 || classTimerSeconds === classTimerTotal) classTimerSeconds = classTimerTotal;
   const playBtn = document.getElementById('class-timer-play');
   const pauseBtn = document.getElementById('class-timer-pause');
@@ -948,7 +948,9 @@ async function endSessionByTimer(){
   }
 
   const isMath = curSubject && curSubject.isMath;
-  const limitLabel = isMath ? '10-minute' : '15-minute';
+  const isAesop = curSubject && curSubject.isAesop;
+  const isBible = curSubject && curSubject.isBible;
+  const limitLabel = (isMath || isAesop || isBible) ? '10-minute' : '15-minute';
   const gradeCtx = {
     AL:'Grade 9–12 — mature, analytical, Thomistic vocabulary',
     FA:'Grade 1–4 — simple warm language, short sentences',
@@ -979,7 +981,7 @@ async function endSessionByTimer(){
 }
 function resetClassTimer(){
   clearInterval(classTimerInterval); classTimerInterval=null;
-  classTimerTotal = curSubject && curSubject.isMath ? 10*60 : 15*60;
+  classTimerTotal = curSubject && (curSubject.isMath || curSubject.isAesop || curSubject.isBible) ? 10*60 : 15*60;
   classTimerSeconds = classTimerTotal;
   const playBtn = document.getElementById('class-timer-play');
   const pauseBtn = document.getElementById('class-timer-pause');
@@ -1233,7 +1235,7 @@ function openSubject(subjectId){
   if(topbar) topbar.style.borderBottomColor = '#1648b8';
 
   // Reset class timer
-  classTimerTotal = curSubject.isMath ? 10*60 : 15*60;
+  classTimerTotal = (curSubject.isMath || curSubject.isAesop || curSubject.isBible) ? 10*60 : 15*60;
   sessionCountedThisOpen = false; // reset per subject open
   classTimerSeconds = classTimerTotal;
   updateClassTimerDisplay();
@@ -1371,6 +1373,8 @@ async function beginSession(){
   const isMathFirst = curSubject && curSubject.isMath && sess.sessionCount === 0;
 
   const isArt = curSubject && curSubject.id.includes('art');
+  const isAesop = curSubject && curSubject.isAesop;
+  const isBible = curSubject && curSubject.isBible;
 
   const lessonInstruction = isNarnia
     ? `4. RETELL the chapter in your own words, as a warm storyteller — vivid, engaging, age-appropriate, covering all key events, characters, and details. The student is listening and has no other way to follow the story. IMPORTANT: The exact words you write ARE what will be read aloud AND displayed on screen — do not paraphrase separately.`
@@ -1382,6 +1386,23 @@ async function beginSession(){
 FIRST SESSION — PLACEMENT TEST:
 This is the first Math session. Before any regular lessons, run a short diagnostic (6–8 questions) to identify the student's current level. Cover: basic addition/subtraction, multiplication, telling time, coins, calendar. After the diagnostic, summarize findings and tell the student which level you will start from.` : '';
 
+  const aesopVocabStep = isAesop ? `
+5a. VOCABULARY & EXPLANATION — REQUIRED after the fable reading, before any questions:
+   - Identify 3–5 words from the fable that the student may not know (e.g. archaic, figurative, or uncommon words). For each word: give its meaning in simple language, then use it in a short new sentence.
+   - Then explain the fable in your own words in 2–3 simple sentences: what happened, and why.
+   - Only AFTER this explanation, ask the comprehension/discussion questions.
+TIME LIMIT: This is a 10-minute session. Keep the reading brisk, vocabulary brief (1 sentence per word), and limit to 2 comprehension questions maximum.` : '';
+
+  const bibleVocabStep = isBible ? `
+5a. VOCABULARY & EXPLANATION — REQUIRED after the lesson reading, before any questions:
+   - Identify 3–5 words or names from the lesson that the student may not know (e.g. Biblical names, places, theological terms). For each: give its meaning or context in simple language, then use it in a short sentence.
+   - Then explain the lesson in your own words in 2–3 simple sentences: what happened, who was involved, and its significance in salvation history.
+   - Only AFTER this explanation, ask the comprehension/discussion questions.
+TIME LIMIT: This is a 10-minute session. Keep the reading brisk, vocabulary brief (1 sentence per word), and limit to 2 comprehension questions maximum.` : '';
+
+  const vocabStep = aesopVocabStep || bibleVocabStep;
+  const hasVocab = isAesop || isBible;
+
   const prompt = `${UNIVERSAL_RULES}
 
 ${curSubject.prompt}
@@ -1390,13 +1411,15 @@ ${mathDiagInstruction}
 STUDENT: ${studentNames[curStudent]}
 LAST LESSON COMPLETED: ${sess.lastLesson}
 SESSION NUMBER: ${sessionNumber}
+${hasVocab ? 'SESSION TIME LIMIT: 10 minutes total. Move quickly through each section.' : ''}
 
 Generate today's complete lesson. Structure it exactly like this:
 1. Warm greeting using the student's initials
 2. Confirm what was covered last time and what today's lesson will be
 3. Say: "I am going to ${isNarnia ? 'tell you the story' : 'read'} now. Please listen carefully."
 ${lessonInstruction}
-5. After the ${isNarnia ? 'retelling' : 'reading'}, ask 2–3 comprehension or discussion questions — ONE AT A TIME. Wait for answer before next question.
+${vocabStep}
+5. After the ${isNarnia ? 'retelling' : 'reading'}${hasVocab ? ' and vocabulary explanation' : ''}, ask ${hasVocab ? '2' : '2–3'} comprehension or discussion questions — ONE AT A TIME. Wait for answer before next question.
 6. End with encouragement and preview of next session
 
 IMPORTANT: Never give away answers. Be encouraging. Stay within content restrictions.
@@ -1466,7 +1489,7 @@ Respond in plain, natural tutor voice — no markdown, no bullet symbols.`;
     fetchImagesForLesson(text);
     // Auto-start class timer so it always runs without teacher needing to press ▶
     clearInterval(classTimerInterval); classTimerInterval = null;
-    classTimerTotal = curSubject && curSubject.isMath ? 10*60 : 15*60;
+    classTimerTotal = curSubject && (curSubject.isMath || curSubject.isAesop || curSubject.isBible) ? 10*60 : 15*60;
     classTimerSeconds = classTimerTotal;
     updateClassTimerDisplay();
     startClassTimer();
