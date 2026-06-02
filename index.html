@@ -264,6 +264,15 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
 .dash-badge-not{display:inline-block;padding:2px 8px;border-radius:10px;background:rgba(255,255,255,0.06);color:var(--vg-text3);font-size:10px;}
 .dash-refresh{padding:6px 14px;background:var(--vg-gold-dim);color:var(--vg-gold);border:1px solid rgba(240,200,48,0.35);border-radius:var(--radius-sm);font-size:12px;cursor:pointer;font-family:'Lato',sans-serif;font-weight:700;margin-left:auto;}
 .dash-sync-note{font-size:11px;color:var(--vg-text3);font-family:'Lato',sans-serif;text-align:center;margin-top:12px;}
+.cloud-status-bar{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:8px;font-size:12px;font-family:'Lato',sans-serif;font-weight:700;margin:10px 0 4px;border:1px solid transparent;}
+.cloud-status-bar.ok{background:#0d2b1a;color:#4ade80;border-color:#1a5c33;}
+.cloud-status-bar.fail{background:#2b0d0d;color:#f87171;border-color:#5c1a1a;}
+.cloud-status-bar.checking{background:#1a1a2b;color:#a78bfa;border-color:#3a2a6b;}
+.cloud-status-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.cloud-status-bar.ok .cloud-status-dot{background:#4ade80;}
+.cloud-status-bar.fail .cloud-status-dot{background:#f87171;animation:blink 1.2s infinite;}
+.cloud-status-bar.checking .cloud-status-dot{background:#a78bfa;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.2;}}
 .dash-loading{text-align:center;padding:40px;color:var(--vg-text3);font-family:'Lato',sans-serif;}
 </style>
 </head>
@@ -586,10 +595,10 @@ PAGE DISPLAY RULE: Each time you reference a specific page, chapter heading, or 
   ],
   FA:[
     {id:'FA-aesop',    icon:'📜', name:"Aesop's Fables",       tag:'Philosophy & Reading Gr. 1–2',color:'#534AB7', bg:'#F6F3FF', freq:'weekly', day:'Monday',
-     prompt:`You are a Philosophy and Reading Comprehension tutor. You read aloud Aesop's Fables in sequential order for F.A. (Grade 1–4) and guide reading practice, comprehension, and philosophical discussion rooted in St. Thomas Aquinas and Aristotle. TONE: Happy, warm, encouraging. Read at a pace appropriate for 1st–2nd grade. These students are trilingual (French, English, Spanish) — read clearly, pause after sentences. DAILY FLOW: 1) Confirm next fable. 2) Read aloud — tell student to listen quietly. 3) Comprehension questions. 4) Student reads aloud. 5) Philosophical reflection (virtue, moral, Aquinas). READING ORDER: Sequential. Ask which fable was read last time. SOURCE LOCK: Uploaded PDF only. CONTENT RESTRICTIONS: No evolution, Darwinism, gender ideology, anti-Catholic content. QUESTION RULE: After you have asked a question and the student answers correctly, move to a NEW topic or the next question — do NOT ask the same concept again "to go deeper" unless the student specifically asks. Only reteach if the student answered INCORRECTLY. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
+     prompt:`You are a Philosophy and Reading Comprehension tutor. You read aloud Aesop's Fables in sequential order for F.A. (Grade 1–4) and guide reading practice, comprehension, and philosophical discussion rooted in St. Thomas Aquinas and Aristotle. TONE: Happy, warm, encouraging. Read at a pace appropriate for 1st–2nd grade. These students are trilingual (French, English, Spanish) — read clearly, pause after sentences. DAILY FLOW: 1) Confirm next fable. 2) Read aloud — tell student to listen quietly. 3) Comprehension questions. 4) Tell the student to read the fable aloud on their own and tap the mic button when ready to answer — do NOT say you can hear them, do NOT pretend to listen in real time. 5) Philosophical reflection (virtue, moral, Aquinas). READING ORDER: Sequential. Ask which fable was read last time. SOURCE LOCK: Uploaded PDF only. CONTENT RESTRICTIONS: No evolution, Darwinism, gender ideology, anti-Catholic content. QUESTION RULE: After you have asked a question and the student answers correctly, move to a NEW topic or the next question — do NOT ask the same concept again "to go deeper" unless the student specifically asks. Only reteach if the student answered INCORRECTLY. MIC RULE — CRITICAL: You cannot hear the student in real time. You only receive their answer AFTER they tap the mic button and speak. NEVER say "I can hear you", "I hear you reading", "reading with me", or any phrase implying you are listening live. Only respond to answers that have actually been submitted via the mic or text box. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
      book:"Aesop's Fables PDF",bookUrl:'https://www.dropbox.com/scl/fi/bvlaezg1e2aktk68kdkiq/BOOK-Philosophy-Aesops-Fables-PDF-new.pdf?rlkey=r70yo6x9fdlwu3k2p21sz0v8p&dl=0',cite:"Aesop's Fables (Augustana Collection)"},
     {id:'FA-bible',    icon:'✝️', name:'Bible History',          tag:'Gilmour — Weekly',       color:'#993C1D', bg:'#FEF0E8', freq:'weekly', day:'Tuesday',
-     prompt:`You are a Bible History tutor using 'Bible History' by Richard Gilmour (1881, Benziger Brothers). Student: F.A., Grade 1–4. WEEKLY FLOW: 1) Ask student to get notebook. 2) Confirm lesson: "Last week we finished Lesson X. Today we study Lesson Y." 3) Read lesson aloud — student follows. 4) Ask chapter-end questions. 5) Student reads aloud. 6) Notebook tracing. READING ORDER: Sequential, one lesson per week. Start from Lesson 9: "The Call of Abraham." SOURCE LOCK: Uploaded PDF only. TONE: Warm, encouraging. CONTENT RESTRICTIONS: Stick to textbook and Catholic teaching only. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
+     prompt:`You are a Bible History tutor using 'Bible History' by Richard Gilmour (1881, Benziger Brothers). Student: F.A., Grade 1–4. WEEKLY FLOW: 1) Ask student to get notebook. 2) Confirm lesson: "Last week we finished Lesson X. Today we study Lesson Y." 3) Read lesson aloud — student follows. 4) Ask chapter-end questions. 5) Tell the student to read a short passage on their own and tap the mic button when done — do NOT say you can hear them, do NOT pretend to listen in real time. 6) Notebook tracing. READING ORDER: Sequential, one lesson per week. Start from Lesson 9: "The Call of Abraham." SOURCE LOCK: Uploaded PDF only. TONE: Warm, encouraging. CONTENT RESTRICTIONS: Stick to textbook and Catholic teaching only. MIC RULE — CRITICAL: You cannot hear the student in real time. You only receive their answer AFTER they tap the mic button and speak. NEVER say "I can hear you", "I hear you reading", "reading with me", or any phrase implying you are listening live. Only respond to answers actually submitted via the mic or text box. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
      book:'Bible History — Gilmour',bookUrl:'https://www.dropbox.com/scl/fi/et4t6i1qmnvdl1rz3vb31/BOOK-RELIGION-THL-100-CATHOLIC-BIBLE-I-TEXT.pdf?rlkey=07xop0s3dmk2vx99r2ocy6vt7&dl=0',cite:'Bible History, Richard Gilmour (1881)'},
     {id:'FA-science',  icon:'🔬', name:'Natural Sciences',       tag:'Fabre — Gr. 1–2',        color:'#3B6D11', bg:'#EBF5EE', freq:'weekly', day:'Wednesday',
      prompt:`You are a Natural Sciences and Reading Comprehension tutor for F.A. (Grade 1–4). Read aloud science lessons from Fabre, check comprehension, connect to Catholic scientific thought (Aquinas: God's creation, formal/final causes). Suggest Ottawa seasonal observations. READING ORDER: Sequential, one chapter per session. Ask which chapter they covered last time. CONTENT RESTRICTIONS: NEVER mention evolution, Darwinism, or ecology as ideology. TONE: Warm, encouraging, connects science to everyday observation. SOURCE LOCK: Uploaded PDF only. IMAGES: This subject benefits from images of insects, plants, animals, and their habitats. Always describe the main organism or habitat being discussed in brackets like [IMAGE: caterpillar on leaf] so the app can show a relevant photo. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
@@ -678,6 +687,7 @@ UNIVERSAL RULES (apply to every subject):
 14. WAIT FOR ANSWER: After asking any question, STOP and wait for the student to respond. One question at a time.
 15. RETEACH AND ASK AGAIN: If the student does not know the answer: (1) Explain differently. (2) Ask the SAME question again. Do not move on until the student answers correctly.
 16. NO REPETITIVE QUESTIONS: After a student answers a question correctly, move to the NEXT question or topic. Do NOT ask the same concept again "to go deeper" or "explore further" — only reteach if the student answered incorrectly.
+17. MIC RULE — CRITICAL: You cannot hear the student in real time. You only receive their response AFTER they tap the mic button and submit it. NEVER say "I can hear you", "I hear you reading", "reading with me", "I'm listening", or any phrase implying you are listening live. If you ask the student to read aloud, tell them to tap the mic button when they are done, then wait. Never acknowledge or comment on reading until an answer is actually submitted.
 `;
 
 // ══════════════════════════════════════════════
@@ -794,9 +804,9 @@ async function loadSessionsFromSupabase(){
       `${SUPA_URL}/rest/v1/progress?select=student,subject_id,session_count,last_lesson,hints,done_today,last_updated`,
       { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` } }
     );
-    if(!res.ok) return;
+    if(!res.ok){ window._cloudSyncStatus = 'fail'; window._cloudSyncMsg = `Cloud error: HTTP ${res.status}`; return; }
     const rows = await res.json();
-    if(!Array.isArray(rows)) return;
+    if(!Array.isArray(rows)){ window._cloudSyncStatus = 'fail'; window._cloudSyncMsg = 'Cloud returned unexpected data'; return; }
     rows.forEach(row => {
       const key = `mapao_${row.student}_${row.subject_id}`;
       let local = null;
@@ -828,9 +838,33 @@ async function loadSessionsFromSupabase(){
         }
       }
     });
+    window._cloudSyncStatus = 'ok';
+    window._cloudSyncMsg = `Cloud connected — ${rows.length} record${rows.length===1?'':'s'} loaded (${new Date().toLocaleTimeString()})`;
     console.log('[Ma Pao] Session data synced from cloud:', rows.length, 'records');
   } catch(e){
+    window._cloudSyncStatus = 'fail';
+    window._cloudSyncMsg = `Cannot reach cloud: ${e.message}`;
     console.log('[Ma Pao] Could not sync from cloud (offline?):', e.message);
+  }
+}
+
+// ══════════════════════════════════════════════
+// SUPABASE KEEP-ALIVE — prevents free-tier auto-pause (fires once per day)
+// ══════════════════════════════════════════════
+async function supabaseKeepAlive(){
+  const PING_KEY = 'mapao_last_keepalive';
+  const ONE_DAY = 23 * 60 * 60 * 1000; // 23 hours
+  const last = parseInt(localStorage.getItem(PING_KEY) || '0', 10);
+  if(Date.now() - last < ONE_DAY) return; // already pinged today
+  try {
+    await fetch(`${SUPA_URL}/rest/v1/progress?limit=1`, {
+      method: 'HEAD',
+      headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` }
+    });
+    localStorage.setItem(PING_KEY, Date.now().toString());
+    console.log('[Ma Pao] Keep-alive ping sent to Supabase.');
+  } catch(e){
+    console.log('[Ma Pao] Keep-alive ping failed (offline?):', e.message);
   }
 }
 
@@ -1043,6 +1077,25 @@ function checkDashPassword(){
   }
 }
 function loadDashboard(){
+  // Show cloud sync status in dashboard
+  const bar = document.getElementById('cloud-status-bar');
+  const msg = document.getElementById('cloud-status-msg');
+  if(bar && msg){
+    const s = window._cloudSyncStatus;
+    if(s === 'ok'){
+      bar.className = 'cloud-status-bar ok';
+      msg.textContent = window._cloudSyncMsg || 'Cloud connected';
+    } else if(s === 'fail'){
+      bar.className = 'cloud-status-bar fail';
+      msg.textContent = (window._cloudSyncMsg || 'Cloud sync failed') + ' — session counts may be out of date on this device. Check Supabase project is active and CORS allows mapaoschool.github.io';
+    } else {
+      bar.className = 'cloud-status-bar checking';
+      msg.textContent = 'Checking cloud connection...';
+      // Re-attempt sync and refresh after
+      loadSessionsFromSupabase().then(()=>loadDashboard());
+      return;
+    }
+  }
   const grid = document.getElementById('dash-grid');
   grid.innerHTML = '';
   const students = ['AL','FA','FC','LJ'];
@@ -2802,6 +2855,7 @@ function toggleMic() {
 }
 // Start cloud sync on load — restores session history on any device/browser
 loadSessionsFromSupabase();
+supabaseKeepAlive(); // keep Supabase free tier from pausing
 </script>
 
 <!-- ── TEACHER DASHBOARD SCREEN ── -->
@@ -2823,6 +2877,10 @@ loadSessionsFromSupabase();
       <div class="dash-err" id="dash-err" style="display:none">Incorrect password</div>
     </div>
     <div id="dash-content" style="display:none">
+      <div id="cloud-status-bar" class="cloud-status-bar checking">
+        <div class="cloud-status-dot"></div>
+        <span id="cloud-status-msg">Checking cloud connection...</span>
+      </div>
       <div id="dash-grid" class="dash-grid">
         <div class="dash-loading">Loading progress from all devices...</div>
       </div>
