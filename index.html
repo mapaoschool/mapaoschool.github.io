@@ -169,7 +169,7 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
 #btn-stop:hover{background:rgba(60,100,220,0.15);border-color:var(--al-clr);}
 .session-scroll{flex:1;overflow-y:auto;padding:14px 16px;}
 .session-body{font-size:14px;line-height:1.9;color:#1A1A1A;white-space:pre-wrap;font-weight:400;}
-.session-body .hl-word.reading-word,#response-body .hl-word.reading-word,#ai-question-box .hl-word.reading-word,#fb-area .hl-word.reading-word{background:var(--vg-gold);color:#1A1228;border-radius:4px;padding:0 4px;font-size:1.25em;font-weight:700;line-height:1;display:inline-block;transform:translateY(-1px);transition:background 0.08s;}
+.session-body .hl-word.reading-word{background:var(--vg-gold);color:#1A1228;border-radius:4px;padding:0 4px;font-size:1.25em;font-weight:700;line-height:1;display:inline-block;transform:translateY(-1px);transition:background 0.08s;}
 .session-cite{font-size:11px;color:var(--vg-text3);font-style:italic;font-family:'Lato',sans-serif;margin-top:10px;padding-top:8px;border-top:1px solid var(--vg-border);}
 .student-input-area{border-top:1px solid var(--vg-border);padding:10px 12px;background:var(--vg-bg2);flex-shrink:0;}
 .student-input-bar{display:flex;gap:8px;align-items:flex-end;}
@@ -973,7 +973,7 @@ async function endSessionByTimer(){
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
-        model:'claude-sonnet-4-5', max_tokens:200,
+        model:'claude-sonnet-4-6', max_tokens:200,
         messages:[{role:'user', content:`You are a tutor for a ${gradeCtx[curStudent]||'student'} in subject: ${curSubject ? curSubject.name : 'class'}. The ${limitLabel} session timer has ended. The lesson so far was about: "${lessonText}". Give a warm, brief (3–4 sentences) closing message. Tell the student that class time is up for today. Summarize in one sentence what was learned. Encourage them and say goodbye until next time. Do not ask any new questions. Do not start with "I".`}]
       })
     });
@@ -1367,17 +1367,13 @@ async function beginSession(){
   document.getElementById('fb-area').innerHTML = '';
 
   const sess = getSession(curStudent, curSubject.id);
-  // Increment session count immediately so the bot never reports "session 1" on every open
-  if(curSubject.isMath && sess.sessionCount === 0 && !isMathFirst){
-    // Only bump past 0 if the diagnostic has already been completed (isMathFirst would handle that)
-  }
+  const isMathFirst = curSubject && curSubject.isMath && sess.sessionCount === 0;
   // Always increment on begin so repeat opens show the correct session number
   // (we do NOT double-count — markResponse also increments, but only if teacher presses Correct)
   const sessionNumber = sess.sessionCount + 1;
   const studentNames = {AL:'A.L. (Grade 9–12)',FA:'F.A. (Grade 1–4)',FC:'F.C. (Grade 1–4)',LJ:'L.J. (Kindergarten, logic Grade 3)'};
 
   const isNarnia = curSubject && curSubject.id.includes('narnia');
-  const isMathFirst = curSubject && curSubject.isMath && sess.sessionCount === 0;
 
   const isArt = curSubject && curSubject.id.includes('art');
   const isAesop = curSubject && curSubject.isAesop;
@@ -1438,7 +1434,7 @@ Respond in plain, natural tutor voice — no markdown, no bullet symbols.`;
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-5',
+        model:'claude-sonnet-4-6',
         max_tokens: isLiterature ? 2000 : 1000,
         messages:[{role:'user',content:prompt}]
       })
@@ -1699,21 +1695,24 @@ function _doReadAloud(text, targetEl, startChunk){
 
   // Prepare word highlight spans — skip rebuild if resuming (startChunk set, spans already exist)
   const sessionBody = targetEl || document.getElementById('ai-response');
+  const isMainLesson = !targetEl || targetEl === document.getElementById('ai-response');
   if(startChunk == null){
-    const words = text.split(/(\s+)/);
-    highlightWords = [];
-    let html = '';
-    let wordIdx = 0;
-    for(const part of words){
-      if(/\S/.test(part)){
-        html += `<span class="hl-word" id="hw${wordIdx}">${part.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</span>`;
-        highlightWords.push(wordIdx);
-        wordIdx++;
-      } else {
-        html += part.replace(/\n/g,'<br>');
+    if(isMainLesson){
+      const words = text.split(/(\s+)/);
+      highlightWords = [];
+      let html = '';
+      let wordIdx = 0;
+      for(const part of words){
+        if(/\S/.test(part)){
+          html += `<span class="hl-word" id="hw${wordIdx}">${part.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</span>`;
+          highlightWords.push(wordIdx);
+          wordIdx++;
+        } else {
+          html += part.replace(/\n/g,'<br>');
+        }
       }
+      sessionBody.innerHTML = html;
     }
-    sessionBody.innerHTML = html;
     currentWordIndex = 0;
   }
 
@@ -1769,9 +1768,19 @@ function _doReadAloud(text, targetEl, startChunk){
 
   const chunks = splitIntoChunks(text, 200);
   let chunkIndex = (startChunk != null && startChunk > 0) ? startChunk : 0;
+  // Build per-chunk word-start offsets so onboundary can map charIndex → global word index
+  const chunkWordStart = [];
+  let _wOffset = 0;
+  for(const ch of chunks){
+    chunkWordStart.push(_wOffset);
+    _wOffset += ch.trim().split(/\s+/).filter(w=>w.length>0).length;
+  }
 
   function speakChunk(){
     pausedChunkIndex = chunkIndex;   // keep module-scope in sync for pause
+    // Sync currentWordIndex to the start of this chunk so timed highlight fallback
+    // and onboundary both begin at the correct global word position.
+    currentWordIndex = chunkWordStart[chunkIndex] || 0;
     pausedWordIndex = currentWordIndex;
     if(readingStopped){ clearInterval(resumeHack); finishRead(); return; }
     if(chunkIndex >= chunks.length){ clearInterval(resumeHack); finishRead(); return; }
@@ -1797,7 +1806,7 @@ function _doReadAloud(text, targetEl, startChunk){
       // words by estimated duration (~350 ms/word at rate=0.9, scaled by speed).
       // 600 ms (down from 2 s) because Edge often never fires onboundary at all;
       // waiting 2 s meant half the first sentence was spoken with no highlight.
-      if(NEEDS_TTS_WATCHDOG){
+      if(NEEDS_TTS_WATCHDOG && isMainLesson){
         setTimeout(()=>{
           if(boundaryFired || readingStopped) return; // onboundary working — no need
           const msPerWord = Math.round(350 / (speed || 0.9));
@@ -1828,11 +1837,19 @@ function _doReadAloud(text, targetEl, startChunk){
       }
     }, 1000);
 
-    // Word boundary highlighting + autoscroll
+    // Word boundary highlighting + autoscroll (main lesson only — feedback has no hw* spans)
     let boundaryFired = false;
     utt.onboundary = (e)=>{
       if(e.name !== 'word') return;
+      if(!isMainLesson) return;
       boundaryFired = true;
+      // Use charIndex to find which word in the chunk we're on, then map to global index.
+      // This fixes "wrong word highlighted" on all browsers.
+      const chunkText = chunks[chunkIndex] || '';
+      const before = chunkText.slice(0, e.charIndex);
+      const wordsInBefore = before.trim() ? before.trim().split(/\s+/).length : 0;
+      const globalIdx = (chunkWordStart[chunkIndex] || 0) + wordsInBefore;
+      currentWordIndex = globalIdx;
       // Clear previous highlight
       document.querySelectorAll('.hl-word.reading-word').forEach(el=>el.classList.remove('reading-word'));
       const el = document.getElementById('hw' + currentWordIndex);
@@ -2150,7 +2167,7 @@ async function reteachConcept(){
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-5', max_tokens:300,
+        model:'claude-sonnet-4-6', max_tokens:300,
         messages:[{role:'user',content:`A student (${gradeCtx[curStudent]}) said "${studentAnswer}" when asked about this lesson:\n\n"${lessonText}"\n\nRule 15 applies: the student does not know the answer. Do ALL of the following in one response:\n1. Acknowledge kindly (1 sentence, do NOT say "I").\n2. Explain the concept in a COMPLETELY DIFFERENT way — use an analogy, story, or vivid example appropriate for the grade level. Be specific and clear (3–5 sentences).\n3. Ask the EXACT SAME question again.\n\nDo not give away the answer directly. Stay within Catholic classical content. Subject: ${curSubject.name}.`}]
       })
     });
@@ -2191,7 +2208,7 @@ async function giveHint(){
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-5',max_tokens:150,
+        model:'claude-sonnet-4-6',max_tokens:150,
         messages:[{role:'user',content:`Give ONE short, gentle hint (1–2 sentences) for a ${gradeCtx[curStudent]} student who is stuck on this lesson content: "${lessonText}". Nudge toward the answer without giving it away. Be warm and encouraging. Do not start with "I". Subject: ${curSubject.name}.`}]
       })
     });
@@ -2234,7 +2251,7 @@ async function nextQuestion(){
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-5',max_tokens:400,
+        model:'claude-sonnet-4-6',max_tokens:400,
         messages:[{role:'user',content:`${UNIVERSAL_RULES}\n${curSubject.prompt}\nSTUDENT: ${studentNames[curStudent]}\n${alreadyAsked}\nContinue the session with the NEXT question or activity. Ask a DIFFERENT question — never repeat any question already asked. Be specific, cite the source, never give away the answer. Subject: ${curSubject.name}.`}]
       })
     });
@@ -2358,7 +2375,7 @@ async function respondToAnswer(studentAnswer){
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-5', max_tokens:400,
+        model:'claude-sonnet-4-6', max_tokens:400,
         messages:[{role:'user',content:`You are a tutor for a ${gradeCtx[curStudent]} student. Subject: ${curSubject.name}.
 
 The lesson content was:
@@ -2632,7 +2649,7 @@ async function fetchImagesForLesson(lessonText) {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
-        model: 'claude-sonnet-4-5',
+        model: 'claude-sonnet-4-6',
         max_tokens: 100,
         messages: [{role: 'user', content: `${subjectHint}\n\nLesson text: "${lessonText.substring(0,500)}"\n\nExtract 2 short Wikipedia-friendly image search queries (3-5 words each) that would show a student the main visual subject of this lesson. Focus on concrete nouns — animals, objects, people, places. Reply with ONLY a JSON array of 2 strings, no other text. Example: ["garden spider web","spider anatomy diagram"]`}]
       })
