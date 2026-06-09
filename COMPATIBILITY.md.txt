@@ -145,21 +145,68 @@ const HAS_SPEECH_RECOGNITION = !!(window.SpeechRecognition || window.webkitSpeec
 - **Pass:** Only one AI evaluation fires; buttons re-enable after response.
 - **Fail:** Multiple API calls fire, or buttons stay disabled permanently.
 
+### TC-11 · Last Lesson saves after session ends
+- **Action:** Open any subject for any student, begin a session, answer at least one question, let the timer complete (or wait for `endSessionByTimer()`).
+- **Pass:** Open Teacher Dashboard → subject row shows updated "Last Lesson" text (not "Not started" or "—"). Value matches what the AI reported as the lesson topic.
+- **Fail:** Last Lesson still shows "Not started" or "—" after session ends.
+- **Code at risk:** `endSessionByTimer()`, `saveSession()`, `sess.lastLesson` assignment.
+
+### TC-12 · Session count increments exactly once per session
+- **Action:** Open a subject, begin session, complete it (timer ends or all questions answered). Check session count in dashboard.
+- **Pass:** Count increases by exactly 1. Open the same subject again and complete another session — count increases by 1 again.
+- **Fail:** Count increases by 2 (double-increment), stays at 0, or resets to 0 on reload.
+- **Code at risk:** `sessionCountedThisOpen` guard in `endSessionByTimer()` and `markResponse()`. Must be `false` at session start and set to `true` on first increment.
+
+### TC-13 · Progress persists after page reload (localStorage)
+- **Action:** Complete a session so Last Lesson and session count are updated. Hard-reload the page (Ctrl+Shift+R). Open Teacher Dashboard.
+- **Pass:** Last Lesson and session count are identical to before the reload.
+- **Fail:** Values reset to "Not started" / 0 after reload.
+- **Code at risk:** `saveSession()` writing to `localStorage`; `getSession()` reading from `localStorage` on render.
+
+### TC-14 · Cross-device sync — Supabase round-trip
+- **Action:** Complete a session on Device A (e.g. Windows Chrome). Open the app fresh on Device B (e.g. iPhone Safari or Linux Chrome). Open Teacher Dashboard on Device B.
+- **Pass:** Last Lesson and session count from Device A appear on Device B within a few seconds of opening.
+- **Fail:** Device B shows "Not started" / 0 — local data from Device A never reached Supabase, or Device B never loaded from Supabase.
+- **Code at risk:** `syncToSupabase()` called in `saveSession()` and `toggleDone()`; `loadSessionsFromSupabase()` called on startup and in `selectStudent()` (must be awaited before `renderSubjects()`).
+
+### TC-15 · Done Today resets at midnight
+- **Action:** Mark a subject as done (✓). Note the date. The next calendar day, reload the app and open Teacher Dashboard.
+- **Pass:** The subject shows "—" (not done) under Today column on the new day.
+- **Fail:** Subject still shows "✔ Done" the next day.
+- **Code at risk:** `getDoneKey()` uses date string `YYYY-M-D` as part of the localStorage key — a new day produces a new key, so old "done" state is invisible. Verify date string format has not changed.
+
+### TC-16 · Dashboard manual edit saves and syncs
+- **Action:** In Teacher Dashboard, click ✏️ on any subject row. Change Last Lesson to "Lesson 7" and Sessions to 3. Click ✔ Save.
+- **Pass:** Row immediately shows "Lesson 7" and 3 sessions. Reload the page — values persist. On a second device, reload dashboard — values match (Supabase synced).
+- **Fail:** Row reverts after save, values lost on reload, or second device shows old values.
+- **Code at risk:** `saveDashEdit()` writing to localStorage and calling `syncToSupabase()`; `renderDashRow()` re-rendering the row after save.
+
+### TC-17 · Cloud wins over local when cloud session count is higher
+- **Action:** Manually set a student's session count to 5 in Supabase Table Editor. Clear localStorage (`localStorage.clear()` in browser console). Reload the app.
+- **Pass:** Teacher Dashboard shows 5 sessions for that subject — cloud data was loaded into localStorage on startup.
+- **Fail:** Dashboard shows 0 — `loadSessionsFromSupabase()` did not seed localStorage, or the cloud-wins logic was bypassed.
+- **Code at risk:** Merge logic in `loadSessionsFromSupabase()`: `if(cloudCount > localCount)` overwrites local. Verify this condition has not been inverted or removed.
+
+### TC-18 · FC inherits FA subject changes
+- **Action:** Add a new flag or subject to F.A.'s subject list in code (e.g. a new `isAesop: true` flag). Deploy. Open F.C.'s subject list in the app.
+- **Pass:** F.C. has the identical subject with the identical flag — no separate code change was needed.
+- **Fail:** F.C. is missing the subject or flag — inheritance via object spread was broken.
+- **Code at risk:** F.C. subjects defined as `...FA_SUBJECT_OBJECT_SPREAD` at runtime. Any change that hardcodes F.C. subjects separately breaks this.
+
+---
+
 ---
 
 ## 6. Recent Fixes — Cross-Platform Verification Status
 
 | Fix | Applied | Tested on | Notes |
 |---|---|---|---|
-| **Remove `.pending` guard from watchdog** | ✅ Yes | Needs Edge test | Edge keeps `.pending=true` after silent-drop, masking the watchdog entirely — guard removed |
-| **Synchronous `doSpeak()` on fresh gesture** | ✅ Yes | Needs Edge Mobile test | 120 ms `setTimeout` exceeded Edge Mobile gesture window (~100 ms); now synchronous for hasPending path |
-| **`watchdogFired` flag prevents double-fire** | ✅ Yes | Needs Edge test | Both probes could race with `onerror:'canceled'` and call `speakChunk()` twice; flag prevents this |
-| **Edge silent-fail watchdog (original)** | ✅ Yes | Manual: Edge 124 Win11 | 800 ms + 1500 ms retry probes |
-| **Remove redundant `cancel()` in `_doReadAloud`** | ✅ Yes | Chrome Win11, Chrome macOS | Prevents queued speech being killed |
-| **`readAloud()` / `startReadAloud()` 400 ms delay** | ✅ Yes | Chrome Win11, Edge Win11 | Re-read path only; fresh-tap path now synchronous |
+| **Edge silent-fail watchdog** (this PR) | ✅ Yes | Manual: Edge 124 Win11 | New fix — manual test required before deploy |
+| **Remove redundant `cancel()` in `_doReadAloud`** | ✅ Yes (line 1529 comment confirms) | Chrome Win11, Chrome macOS | Prevents queued speech being killed |
+| **`readAloud()` / `startReadAloud()` 400 ms delay** | ✅ Yes | Chrome Win11, Edge Win11 | Consistent across both code paths |
 | **`resumeHack` raised threshold 6→14 ticks** | ✅ Yes | Chrome Win11 | Reduces false-positive restarts on Edge |
-| **1 s `onstart` fallback timer** | ✅ Yes | Edge Win11 | UI no longer appears frozen when onstart fires late |
-| **`onerror` 'canceled' non-fatal on Edge** | ✅ Yes | Edge Win11 | 'canceled' vs 'interrupted' both treated as non-fatal |
+| **1 s `onstart` fallback timer** | ✅ Yes | Edge Win11 (reported fix) | UI no longer appears frozen when onstart fires late |
+| **`onerror` 'canceled' non-fatal on Edge** | ✅ Yes (line 1588–1590) | Edge Win11 | 'canceled' vs 'interrupted' both treated as non-fatal |
 | **Race condition fix — 5 async buttons disabled** | ✅ Yes | Chrome Win11 | All 5 buttons (✓ Correct, ✗ Wrong, Partial, Hint, Send) disabled at async start |
 | **LJ pitch boost cap** | ✅ Yes | Chrome Win11, iOS Safari | `Math.min(pitch + LJ_PITCH_BOOST, 1.2)` |
 | **iOS gesture unlock via mic tap** | ✅ Yes | iOS Safari 17 | `ttsGestureUnlocked = true` on mic tap |
@@ -167,41 +214,116 @@ const HAS_SPEECH_RECOGNITION = !!(window.SpeechRecognition || window.webkitSpeec
 **Outstanding issues:**
 - **Firefox word highlighting** — `onboundary` not fired in Firefox on any OS. Words do not highlight. Documented as acceptable degradation (no highlighting ≠ broken TTS).
 - **Mac OS X 10.4 Tiger (Safari 2/3)** — `speechSynthesis` unavailable. Read button should hide via `if(!window.speechSynthesis) return`. Needs manual verification on that specific machine.
-- **Edge Mobile (Android)** — Needs manual test after this fix. The synchronous gesture path and updated watchdog now apply to mobile Edge.
+- **Edge Mobile (Android)** — Not manually tested yet. The watchdog applies to all `IS_EDGE_CHROMIUM` contexts including mobile Edge. Flag for next manual test cycle.
 
 ---
 
-## 7. Commit Reference
+## 7. Supabase — Known Issues & Troubleshooting
 
-**Branch:** `fix/edge-tts-gesture-and-watchdog`  
-**Files changed:** `index.html` (3 locations)  
+### 7.1 Free-tier auto-pause
+Supabase free-tier projects pause automatically after **7 days of inactivity** (no database requests).
+
+**Symptom:** Dashboard shows red banner — `Cloud error: HTTP 401` or `HTTP 500`.
+
+**Prevention:** `supabaseKeepAlive()` in `index.html` sends a HEAD ping to Supabase every 23 hours.
+- This function and its startup call **must never be removed** from `index.html`.
+- Verify its presence after every edit with: `grep -n "supabaseKeepAlive" index.html`
+
+**Recovery if paused:**
+1. Go to [supabase.com](https://supabase.com) → sign in → open `mapao-progress` project
+2. If banner says **"Project paused"** → click **Restore** and wait ~2 minutes
+3. Reload the app — cloud sync should resume automatically
+
+---
+
+### 7.2 API key format (important — June 2026 migration)
+Supabase migrated to a new `sb_publishable_...` key format. **This format does NOT work** with the direct REST `apikey` / `Authorization: Bearer` header pattern used in this app.
+
+**Always use the legacy `eyJ...` JWT key:**
+- In Supabase dashboard → Settings → API Keys → click **"Legacy anon, service_role API keys"** tab
+- Copy the **anon** key (starts with `eyJhbGciOiJIUzI1NiIs...`)
+- This is set as `SUPA_KEY` in `index.html`
+
+**Current key location in code:** `const SUPA_KEY = 'eyJ...'` (line ~776)
+
+---
+
+### 7.3 HTTP 401 — authentication rejected
+**Causes (in order of likelihood):**
+1. Wrong key format — using `sb_publishable_` instead of legacy `eyJ...` JWT (see 7.2)
+2. Project is paused (see 7.1)
+3. Key was rotated in Supabase dashboard — fetch new legacy key and update `SUPA_KEY`
+
+---
+
+### 7.4 HTTP 403 — key valid but access denied (RLS)
+Row Level Security is blocking the request even though the key is correct.
+
+**Fix:**
+1. Supabase dashboard → Authentication → Policies → find `progress` table
+2. Click **"Disable RLS"** (safe for this private app — no user auth is needed)
+
+---
+
+### 7.5 "API DISABLED" — table not exposed to REST
+The `progress` table exists but is not reachable via the REST API.
+
+**Symptom:** Policies page shows `API DISABLED` badge next to the `progress` table.
+
+**Fix:**
+1. Supabase dashboard → Integrations → Data API → **Settings** tab
+2. Click **"Exposed tables"** dropdown → toggle `progress` **on**
+3. Click **Save** → confirm "Successfully saved settings"
+
+**Note:** This can happen when a new project is created or after certain Supabase dashboard migrations. Always verify after any Supabase project reset.
+
+---
+
+### 7.6 Supabase dashboard diagnostic checklist
+Run through this list whenever cloud sync fails:
+
+| Check | Where | Expected |
+|---|---|---|
+| Project status | Dashboard home | **Healthy** (green dots) |
+| API key type | Settings → API Keys → Legacy tab | `eyJ...` JWT anon key in `SUPA_KEY` |
+| RLS status | Authentication → Policies | `progress` table shows **RLS DISABLED** |
+| Table exposed | Integrations → Data API → Settings | **1 of 1 tables exposed** |
+| Data API enabled | Integrations → Data API → Overview | Toggle is **ON** |
+| CORS origin | Settings → API | `mapaoschool.github.io` allowed |
+
+---
+
+## 8. Recent Fixes — June 2026
+
+| Fix | Date | Notes |
+|---|---|---|
+| **Edge mic `interimResults` disabled** | June 2026 | Edge fires interim results with empty transcripts causing "Didn't catch that". Fix: `recognition.interimResults = !IS_IOS && !IS_EDGE_CHROMIUM` |
+| **Supabase key updated to legacy JWT** | June 2026 | New `sb_publishable_` format incompatible with REST header auth. Switched to legacy `eyJ...` anon key. |
+| **Supabase Data API table exposed** | June 2026 | `progress` table was toggled off in Data API settings. Re-enabled under Integrations → Data API → Settings → Exposed tables. |
+| **Dashboard manual progress edit** | June 2026 | Added inline edit per subject row (✏️ button) — edits Last Lesson, Sessions, Done today; saves to localStorage + Supabase. |
+
+---
+
+## 9. Commit Reference
+
+
+**Branch:** `fix/edge-tts-silent-fail`  
+**Files changed:** `index.html` (2 locations)  
 **Commit message:**
 ```
-fix(tts): fix 3 Edge bugs — .pending mask, gesture window, watchdog double-fire
+fix(tts): add Edge silent-fail watchdog + capability-detect IS_EDGE_CHROMIUM
 
-Bug 1: Watchdog .pending guard prevented retries entirely.
-  Edge keeps .pending=true even after silently dropping speak().
-  Guard removed — watchdog now fires correctly.
+Edge (Chromium) silently drops speechSynthesis.speak() with no error.
+Detected via navigator.userAgentData.brands (no UA sniffing).
+800ms watchdog after speak(): if still not speaking, cancel + retry once.
+Also adds IS_EDGE_CHROMIUM constant using UA Client Hints API.
 
-Bug 2: 120 ms setTimeout in startReadAloud() exceeded Edge Mobile
-  gesture window (~100 ms), causing silent autoplay-block on every
-  fresh tap. Fresh-tap path (hasPending) now calls doSpeak() synchronously.
-
-Bug 3: watchdogFired flag added to prevent both 800 ms and 1500 ms
-  probes calling speakChunk() simultaneously when retry is needed.
-
-No behaviour changes on Chrome, Firefox, or Safari.
-All five async buttons remain managed together per race-condition fix.
-
-Closes: Edge Read / Tap to Listen not working (desktop + mobile)
+Closes: Edge Read button not working (desktop + mobile)
 ```
 
 **PR description:**
-> **Root cause (3 bugs):**
-> 1. `if(window.speechSynthesis.pending) return` inside the watchdog. Edge leaves `.pending=true` after silently dropping an utterance, so the watchdog never retried.
-> 2. `setTimeout(doSpeak, 120)` on fresh tap exceeded Edge Mobile's ~100 ms autoplay-gesture window.
-> 3. Both watchdog probes (800 ms + 1500 ms) could call `speakChunk()` concurrently if both fired before the retry resolved.
+> **Problem:** On Microsoft Edge (desktop and mobile), clicking ▶ Read produces no audio and no error. `speak()` is called but `onstart` never fires and `speechSynthesis.speaking` stays `false`.
 >
-> **Files changed:** `index.html` — 3 targeted edits in `speakChunk()` and `startReadAloud()`.
+> **Fix:** After `speak()`, a 800 ms watchdog checks if synthesis actually started. If not, it cancels and retries the chunk once. Applies only when `IS_EDGE_CHROMIUM` is true (detected via `navigator.userAgentData.brands`, not UA string).
 >
-> **Test evidence needed:** Click ▶ Read in Edge desktop and mobile immediately after page load. Audio should start within 1.5 s. Console should show `[TTS Edge] onstart fired` or `[TTS Edge] silent-fail watchdog fired (attempt 1)` followed by audio.
+> **No behaviour changes** on Chrome, Firefox, or Safari. All five async buttons remain managed together per the existing race-condition fix.
