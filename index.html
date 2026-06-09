@@ -2748,7 +2748,9 @@ function initMic() {
   recognition = new SpeechRecognition();
   // continuous=true: don't stop on short pauses; we use a grace-period timer instead.
   recognition.continuous = true;
-  recognition.interimResults = !IS_IOS;
+  // Edge fires interimResults with empty/garbage transcripts causing "Didn't catch that".
+  // iOS also can't use interim results. Disable on both.
+  recognition.interimResults = !IS_IOS && !IS_EDGE_CHROMIUM;
 
   recognition.onstart = () => {
     isListening = true;
