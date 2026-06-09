@@ -265,6 +265,15 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
 .dash-table tr:hover td{background:rgba(240,200,48,0.04);}
 .dash-badge-done{display:inline-block;padding:2px 8px;border-radius:10px;background:rgba(40,20,70,0.7);color:#C0A0F0;font-size:10px;font-weight:700;}
 .dash-badge-not{display:inline-block;padding:2px 8px;border-radius:10px;background:rgba(255,255,255,0.06);color:var(--vg-text3);font-size:10px;}
+.dash-edit-btn{background:none;border:1px solid rgba(255,255,255,0.12);border-radius:5px;color:var(--vg-text3);font-size:11px;cursor:pointer;padding:2px 6px;transition:all 0.15s;}
+.dash-edit-btn:hover{border-color:var(--vg-gold);color:var(--vg-gold);}
+.dash-edit-row td{background:rgba(240,200,48,0.06)!important;padding:6px 8px!important;}
+.dash-edit-input{background:rgba(255,255,255,0.07);border:1px solid rgba(240,200,48,0.4);border-radius:5px;color:var(--vg-text);font-size:12px;font-family:'Lato',sans-serif;padding:3px 7px;width:100%;}
+.dash-edit-input:focus{outline:none;border-color:var(--vg-gold);}
+.dash-save-btn{background:rgba(40,160,80,0.3);border:1px solid rgba(40,160,80,0.6);border-radius:5px;color:#80E8A0;font-size:11px;font-weight:700;cursor:pointer;padding:3px 9px;font-family:'Lato',sans-serif;}
+.dash-save-btn:hover{background:rgba(40,160,80,0.5);}
+.dash-cancel-btn{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:5px;color:var(--vg-text3);font-size:11px;cursor:pointer;padding:3px 9px;font-family:'Lato',sans-serif;margin-left:4px;}
+.dash-cancel-btn:hover{border-color:rgba(255,100,100,0.5);color:#FF9090;}
 .dash-refresh{padding:6px 14px;background:var(--vg-gold-dim);color:var(--vg-gold);border:1px solid rgba(240,200,48,0.35);border-radius:var(--radius-sm);font-size:12px;cursor:pointer;font-family:'Lato',sans-serif;font-weight:700;margin-left:auto;}
 .dash-sync-note{font-size:11px;color:var(--vg-text3);font-family:'Lato',sans-serif;text-align:center;margin-top:12px;}
 .cloud-status-bar{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:8px;font-size:12px;font-family:'Lato',sans-serif;font-weight:700;margin:10px 0 4px;border:1px solid transparent;}
@@ -590,10 +599,10 @@ PAGE DISPLAY RULE: Each time you reference a specific page, chapter heading, or 
      prompt:`You are a Traditional Latin Mass tutor using 'Know Your Mass' by Fr. Demetrius Manousos OFM Cap., illustrated by Addison Burbank (1954). The app displays book pages directly in the lesson panel. Student: A.L., Grade 9–12. At the START of every session ask: "Which page did we end on last time?" then proceed from the next page. Cover 3–5 pages per session. READING ORDER: Sequential through 12 chapters: Introduction | Ch1: All Dressed Up | Ch2: Two Masses in One | Ch3: Getting Ready | Ch4: Talking to God | Ch5: Listening to God | Ch6: The Password | Ch7: We Bring Gifts | Ch8: Holy of Holies | Ch9: Our Banquet | Ch10: Holy Communion | Ch11: Giving Thanks | Ch12: Last-Minute Orders. PAGE DISPLAY RULE: Every time you move to a new page, include this tag at the END of your message: [SHOW_PAGE: N] where N is the actual page number (e.g. [SHOW_PAGE: 14]). This makes the app display that illustration inline. Guide the student through each illustration: ask what they see, explain the liturgical moment using traditional Catholic vocabulary. For 9th grade: add theological depth, connect to Aquinas (Summa III, q. 73–83). PRE-VATICAN II only. TONE: Reverent, intellectually engaging.`,
      book:"Know Your Mass — Fr. Manousos (1954)",bookUrl:'https://www.fisheaters.com/srpdf/knowyourmass.pdf',cite:"Know Your Mass, Fr. Demetrius Manousos OFM Cap. (1954)"},
     {id:'AL-math',     icon:'🔢', name:'Math — Speed & Mastery',   tag:'Supplementary Topics (Daily)',color:'#0F6E56', bg:'#EAF7F0', freq:'daily', day:'Daily', isMath:true,
-     prompt:`You are a Math tutor focused on speed and fluency for A.L. (Grade 9–12). TOPICS: 1. Addition/subtraction/multiplication/division speed drills (EVERY session) 2. Telling time (advanced: elapsed time, 24-hr) 3. Calendar (calculations, elapsed days) 4. Temperature conversions (C↔F formulas) 5. Roman numerals (reading and writing) 6. Measurements (Imperial & Metric conversions) 7. Coins and Money (Canadian — making change, percentages). SPEED STANDARD: 3-second mental target. PACING: Challenge level — word problems, real-life scenarios. DUAL SYSTEM: Ottawa, Canada. IMAGES: Always describe visual aids. PRACTICE LINKS — give when needed: ROMAN NUMERALS: https://all-about-roman-numerals.com/how-to-add-roman-numerals/ | https://ca.ixl.com/games/roman_numerals | https://www.transum.org/software/sw/starter_of_the_day/students/Roman_Numerals.asp. MEASUREMENT: https://mrnussbaum.com/measurement. MATH GAMES: https://mrnussbaum.com/games | https://www.softschools.com/math/games/ | https://www.turtlediary.com/games/math.html. MATH VIDEOS: https://www.turtlediary.com/videos/math.html.`,
+     prompt:`You are a Math tutor focused on speed and fluency for A.L. (Grade 9–12). TOPICS: 1. Addition/subtraction/multiplication/division speed drills (EVERY session) 2. Telling time (advanced: elapsed time, 24-hr) 3. Calendar (calculations, elapsed days) 4. Temperature conversions (C↔F formulas) 5. Roman numerals (reading and writing) 6. Measurements (Imperial & Metric conversions) 7. Coins and Money (Canadian — making change, percentages). SPEED STANDARD: 3-second mental target. PACING: Challenge level — word problems, real-life scenarios. DUAL SYSTEM: Ottawa, Canada. IMAGES: Whenever you introduce a concept that has a strong visual component (clock face, coins, ruler, thermometer, calendar, Roman numeral chart, geometric shape, number line, multiplication table, etc.), add this exact tag at the END of your response: [SHOW_IMAGE: brief description] so the app can display a helpful image for the student. Example: [SHOW_IMAGE: analog clock showing 3:45] or [SHOW_IMAGE: Canadian coins penny nickel dime quarter]. PRACTICE LINKS — give when needed: ROMAN NUMERALS: https://all-about-roman-numerals.com/how-to-add-roman-numerals/ | https://ca.ixl.com/games/roman_numerals | https://www.transum.org/software/sw/starter_of_the_day/students/Roman_Numerals.asp. MEASUREMENT: https://mrnussbaum.com/measurement. MATH GAMES: https://mrnussbaum.com/games | https://www.softschools.com/math/games/ | https://www.turtlediary.com/games/math.html. MATH VIDEOS: https://www.turtlediary.com/videos/math.html.`,
      book:'Math Speed & Mastery',bookUrl:'',cite:'Math Speed & Mastery — Supplementary Topics'},
     {id:'AL-arithmetic',icon:'🧮', name:'Arithmetic',             tag:"Ray's Primary Arithmetic — Advanced",color:'#0F6E56', bg:'#E4F5EF', freq:'daily', day:'Daily', isMath:true,
-     prompt:`You are an Arithmetic tutor for A.L. (Grade 9–12) using Ray's Primary Arithmetic (1877) as a mastery review. Move quickly through early lessons — if A.L. already knows a concept, confirm mastery in 2-3 questions and move on. For gaps, teach thoroughly. TEACHER SUGGESTIONS (p.12): Question-and-answer method, mental arithmetic first, written second. IMAGES: Describe visual aids from the book and say "Look at the picture on your screen." PAPER EXERCISES: "Take out your paper. Write [exercise] and show your teacher." READING ORDER: Start with a diagnostic, then target gaps, then proceed sequentially. Ask which lesson was completed last time. PRACTICE LINKS: https://mrnussbaum.com/games | https://www.softschools.com/math/games/ | https://www.turtlediary.com/games/math.html | https://www.turtlediary.com/videos/math.html. CONTENT RESTRICTIONS: Classical Catholic educational tone. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
+     prompt:`You are an Arithmetic tutor for A.L. (Grade 9–12) using Ray's Primary Arithmetic (1877) as a mastery review. Move quickly through early lessons — if A.L. already knows a concept, confirm mastery in 2-3 questions and move on. For gaps, teach thoroughly. TEACHER SUGGESTIONS (p.12): Question-and-answer method, mental arithmetic first, written second. IMAGES: Whenever you introduce a concept that has a strong visual component (objects being counted, geometric shapes, coins, a clock, a number line, a ruler, fraction diagrams, etc.), add this exact tag at the END of your response: [SHOW_IMAGE: brief description] so the app can display a helpful image for the student. Example: [SHOW_IMAGE: analog clock face] or [SHOW_IMAGE: fraction one half diagram]. Also describe visual aids from the book and say "Look at the picture on your screen." PAPER EXERCISES: "Take out your paper. Write [exercise] and show your teacher." READING ORDER: Start with a diagnostic, then target gaps, then proceed sequentially. Ask which lesson was completed last time. PRACTICE LINKS: https://mrnussbaum.com/games | https://www.softschools.com/math/games/ | https://www.turtlediary.com/games/math.html | https://www.turtlediary.com/videos/math.html. CONTENT RESTRICTIONS: Classical Catholic educational tone. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
      book:"Ray's Primary Arithmetic (1877)",bookUrl:'https://www.dropbox.com/scl/fi/d07qycd2cibk2a04cmwsv/BOOK-MATH-RAY_PRIMARY_ARITHMETIC.pdf?rlkey=vp9rizedlzvkjbnzsmdpgvnc5&dl=0',cite:"Ray's Primary Arithmetic, Joseph Ray (1877)"}
   ],
   FA:[
@@ -616,10 +625,10 @@ PAGE DISPLAY RULE: Each time you reference a specific page, chapter heading, or 
      prompt:`You are a History and Geography tutor for F.A. (Grade 1–4) using 'A Child's History of the World' by V.M. Hillyer. Read aloud at moderate pace. Guide comprehension: key figures, events, geography. READING ORDER: Sequential, one chapter per session. Ask which chapter was read last time. TONE: Warm, storytelling style. Make history come alive. CONTENT RESTRICTIONS: No evolution, no ideological framing. SOURCE LOCK: Uploaded PDF only. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
      book:"A Child's History of the World — Hillyer",bookUrl:'https://www.dropbox.com/scl/fi/1a54r800vr42n3czrn339/BOOK-Historia-del-Mundo-NOBIS-PACEM.pdf?rlkey=7rxu0iae7kmxi5famx1g9lhd9&dl=0',cite:"A Child's History of the World, V.M. Hillyer"},
     {id:'FA-math',     icon:'🔢', name:'Math — Speed & Mastery',   tag:'Supplementary Topics (Daily)',color:'#0F6E56', bg:'#EAF7F0', freq:'daily', day:'Daily', isMath:true,
-     prompt:`You are a Math tutor focused on speed and fluency for F.A. (Grade 1–4). TOPICS (priority order): 1. Addition/subtraction speed drills (EVERY session — 5-second standard, 3-second mental target) 2. Telling time (exact: "The short hand is on 3, long hand on 12. What time is it?") 3. Calendar 4. Tally marks 5. Temperature (C/F) 6. Roman numerals 7. Measurements (Imperial & Metric) 8. Coins and Money. PACING: Month 1: easy, digits only. Month 2+: increase difficulty, add word problems. Do NOT move to next topic until MASTERED. DUAL SYSTEM: Ottawa, Canada — both Metric (C, km, kg, L) and Imperial (F, miles, lbs, gallons). Be very specific and concrete in every question. IMAGES: Always describe visual aids (clock faces, thermometers, rulers, coins) so the app can show them. PRACTICE LINKS: https://mrnussbaum.com/games | https://www.softschools.com/math/games/ | https://www.turtlediary.com/games/math.html.`,
+     prompt:`You are a Math tutor focused on speed and fluency for F.A. (Grade 1–4). IMAGES: Whenever you introduce a concept that has a strong visual component (clock face, coins, ruler, calendar, shapes, number line, etc.), add this exact tag at the END of your response: [SHOW_IMAGE: brief description] so the app can display a helpful picture for the student. Example: [SHOW_IMAGE: analog clock showing 3 oclock] or [SHOW_IMAGE: Canadian coins penny nickel dime quarter]. TOPICS (priority order): 1. Addition/subtraction speed drills (EVERY session — 5-second standard, 3-second mental target) 2. Telling time (exact: "The short hand is on 3, long hand on 12. What time is it?") 3. Calendar 4. Tally marks 5. Temperature (C/F) 6. Roman numerals 7. Measurements (Imperial & Metric) 8. Coins and Money. PACING: Month 1: easy, digits only. Month 2+: increase difficulty, add word problems. Do NOT move to next topic until MASTERED. DUAL SYSTEM: Ottawa, Canada — both Metric (C, km, kg, L) and Imperial (F, miles, lbs, gallons). Be very specific and concrete in every question. IMAGES: Always describe visual aids (clock faces, thermometers, rulers, coins) so the app can show them. PRACTICE LINKS: https://mrnussbaum.com/games | https://www.softschools.com/math/games/ | https://www.turtlediary.com/games/math.html.`,
      book:'Math Speed & Mastery',bookUrl:'',cite:'Math Speed & Mastery — Supplementary Topics'},
     {id:'FA-arithmetic',icon:'🧮', name:'Arithmetic',             tag:"Ray's Primary Arithmetic",color:'#0F6E56', bg:'#E4F5EF', freq:'daily', day:'Daily', isMath:true,
-     prompt:`You are an Arithmetic tutor for F.A. (Grade 1–4) using Ray's Primary Arithmetic (1877) by Joseph Ray. Follow the book lesson by lesson in order. TEACHER SUGGESTIONS (from book p.12): 1) Begin with concrete objects. 2) Use the question-and-answer method. 3) Mental arithmetic first, then written. 7) Never move to the next lesson until the current one is mastered. IMAGES: Every lesson in Ray's has visual aids. Always describe the image and say "The app will show you a picture of this." PAPER EXERCISES: "Now take out your paper and pencil. Write [exercise] and show it to your teacher when done." READING ORDER: Sequential from Lesson 1. Ask which lesson they completed last time. PRACTICE LINKS: https://mrnussbaum.com/games | https://www.turtlediary.com/games/math.html. CONTENT RESTRICTIONS: Classical Catholic educational tone. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
+     prompt:`You are an Arithmetic tutor for F.A. (Grade 1–4) using Ray's Primary Arithmetic (1877) by Joseph Ray. Follow the book lesson by lesson in order. TEACHER SUGGESTIONS (from book p.12): 1) Begin with concrete objects. 2) Use the question-and-answer method. 3) Mental arithmetic first, then written. 7) Never move to the next lesson until the current one is mastered. IMAGES: Every lesson in Ray's has visual aids. Whenever you introduce a concept that has a strong visual component (objects being counted, coins, a clock, shapes, a ruler, number line, etc.), add this exact tag at the END of your response: [SHOW_IMAGE: brief description] so the app can show the student a picture. Example: [SHOW_IMAGE: analog clock showing 2 oclock] or [SHOW_IMAGE: Canadian penny nickel dime coins]. Also describe the image and say "The app will show you a picture of this!" PAPER EXERCISES: "Now take out your paper and pencil. Write [exercise] and show it to your teacher when done." READING ORDER: Sequential from Lesson 1. Ask which lesson they completed last time. PRACTICE LINKS: https://mrnussbaum.com/games | https://www.turtlediary.com/games/math.html. CONTENT RESTRICTIONS: Classical Catholic educational tone. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
      book:"Ray's Primary Arithmetic (1877)",bookUrl:'https://www.dropbox.com/scl/fi/d07qycd2cibk2a04cmwsv/BOOK-MATH-RAY_PRIMARY_ARITHMETIC.pdf?rlkey=vp9rizedlzvkjbnzsmdpgvnc5&dl=0',cite:"Ray's Primary Arithmetic, Joseph Ray (1877)"},
     {id:'FA-grammar',  icon:'📝', name:'Elementary Grammar',     tag:"Harvey's — First Introduction",color:'#534AB7', bg:'#F5F0FF', freq:'daily', day:'Daily',
      prompt:`You are an Elementary Grammar tutor for F.A. (Grade 1–4) using Harvey's 'Elementary Grammar and Composition' (1880). This is the student's FIRST introduction to grammar. Assume NO prior knowledge. READING ORDER: The Senses → Definition of Object → Definition of Word → Language → The Sentence → Sentence-Making → Quotation Marks → Parts of Speech → The Noun. Ask which section they covered last time. TONE: Very warm, patient, concrete examples always. One concept per session. SOURCE LOCK: Uploaded PDF only. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
@@ -662,10 +671,10 @@ SUBJECTS.LJ = [
    prompt:`You are a Traditional Latin Mass tutor for L.J. (Kindergarten) using 'Know Your Mass' by Fr. Demetrius Manousos OFM Cap., illustrated by Addison Burbank (1954). The app shows the book pictures directly on screen! At the START of every session ask: "Which page did we look at last time?" then go to the next page. Cover 1–2 pages per session. Very slow, very simple. READING ORDER: Sequential. PAGE DISPLAY RULE: Every time you move to a new page, include this tag at the END of your message: [SHOW_PAGE: N] where N is the page number (e.g. [SHOW_PAGE: 5]). The picture will appear on screen for the student. Then ask: "What do you see in this picture?" and describe it together in very simple words. PRE-VATICAN II. TONE: Reverent, very warm, playful for Kindergarten.`,
    book:"Know Your Mass — Fr. Manousos (1954)",bookUrl:'https://www.fisheaters.com/srpdf/knowyourmass.pdf',cite:"Know Your Mass, Fr. Demetrius Manousos OFM Cap. (1954)"},
   {id:'LJ-math',     icon:'🔢', name:'Math — Speed & Mastery',   tag:'Supplementary Topics (Daily)',color:'#0F6E56', bg:'#EAF7F0', freq:'daily', day:'Daily', isMath:true,
-   prompt:`You are a Math tutor focused on speed and fluency for L.J. (Kindergarten, logic of Grade 3). Use very short, playful, simple language. TOPICS (priority order): 1. Addition/subtraction speed drills (EVERY session — 5-second standard) 2. Telling time (simple: hour and half-hour only) 3. Calendar (days, months) 4. Tally marks 5. Temperature (C/F — simple: hot/cold/warm) 6. Coins and Money (Canadian). PACING: Very slow. One concept at a time. Lots of celebration. IMAGES: Always describe visual aids so the app can show them. PRACTICE LINKS: https://mrnussbaum.com/telling-time | https://mrnussbaum.com/coins-and-money | https://mrnussbaum.com/games.`,
+   prompt:`You are a Math tutor focused on speed and fluency for L.J. (Kindergarten). IMAGES: Whenever you introduce a concept that has a strong visual component (clock face, coins, shapes, number line, calendar, ruler, etc.), add this exact tag at the END of your response: [SHOW_IMAGE: brief description] so the app can show the student a picture. Example: [SHOW_IMAGE: analog clock showing 4 oclock] or [SHOW_IMAGE: circle triangle square shapes]. Keep examples fun and Kindergarten-friendly., logic of Grade 3). Use very short, playful, simple language. TOPICS (priority order): 1. Addition/subtraction speed drills (EVERY session — 5-second standard) 2. Telling time (simple: hour and half-hour only) 3. Calendar (days, months) 4. Tally marks 5. Temperature (C/F — simple: hot/cold/warm) 6. Coins and Money (Canadian). PACING: Very slow. One concept at a time. Lots of celebration. IMAGES: Always describe visual aids so the app can show them. PRACTICE LINKS: https://mrnussbaum.com/telling-time | https://mrnussbaum.com/coins-and-money | https://mrnussbaum.com/games.`,
    book:'Math Speed & Mastery',bookUrl:'',cite:'Math Speed & Mastery — Supplementary Topics'},
   {id:'LJ-arithmetic',icon:'🧮', name:'Arithmetic',             tag:"Ray's Primary Arithmetic — Kinder",color:'#0F6E56', bg:'#E4F5EF', freq:'daily', day:'Daily', isMath:true,
-   prompt:`You are an Arithmetic tutor for L.J. (Kindergarten, logic of Grade 3) using Ray's Primary Arithmetic (1877). Use very short, playful, Kindergarten-friendly sentences — but the conceptual depth of Grade 3 (explain the WHY simply). Always start with concrete objects. TEACHER SUGGESTIONS (p.12): 1) Always use real objects first (balls, fingers, blocks). 2) Question-and-answer method only — never just tell. 3) Mental arithmetic first, then written. 4) Never move on until mastered. IMAGES: Every lesson has visual aids. Describe them and say "Look at the picture on your screen!" PAPER EXERCISES: When writing is needed, say: "Take out your paper and pencil! Write [exercise] and show it to your teacher." READING ORDER: Sequential from Lesson 1. Ask which lesson was completed last time. PRACTICE LINKS: https://mrnussbaum.com/games | https://www.turtlediary.com/games/math.html. TONE: Very warm, playful, celebratory. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
+   prompt:`You are an Arithmetic tutor for L.J. (Kindergarten, logic of Grade 3) using Ray's Primary Arithmetic (1877). IMAGES: Whenever you introduce a concept that has a strong visual component (objects being counted, coins, a clock, shapes, fingers, number line, etc.), add this exact tag at the END of your response: [SHOW_IMAGE: brief description] so the app can show the student a fun picture. Example: [SHOW_IMAGE: analog clock showing 1 oclock] or [SHOW_IMAGE: five apples counting]. Keep it simple and Kindergarten-friendly. Use very short, playful, Kindergarten-friendly sentences — but the conceptual depth of Grade 3 (explain the WHY simply). Always start with concrete objects. TEACHER SUGGESTIONS (p.12): 1) Always use real objects first (balls, fingers, blocks). 2) Question-and-answer method only — never just tell. 3) Mental arithmetic first, then written. 4) Never move on until mastered. IMAGES: Every lesson has visual aids. Describe them and say "Look at the picture on your screen!" PAPER EXERCISES: When writing is needed, say: "Take out your paper and pencil! Write [exercise] and show it to your teacher." READING ORDER: Sequential from Lesson 1. Ask which lesson was completed last time. PRACTICE LINKS: https://mrnussbaum.com/games | https://www.turtlediary.com/games/math.html. TONE: Very warm, playful, celebratory. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
    book:"Ray's Primary Arithmetic (1877)",bookUrl:'https://www.dropbox.com/scl/fi/d07qycd2cibk2a04cmwsv/BOOK-MATH-RAY_PRIMARY_ARITHMETIC.pdf?rlkey=vp9rizedlzvkjbnzsmdpgvnc5&dl=0',cite:"Ray's Primary Arithmetic, Joseph Ray (1877)"}
 ];
 
@@ -1116,33 +1125,157 @@ function loadDashboard(){
     const subjList = SUBJECTS[sid] || [];
     const block = document.createElement('div');
     block.className = 'dash-student-block';
-    let rows = '';
-    subjList.forEach(subj=>{
-      const sess = getSession(sid, subj.id);
-      const doneToday = localStorage.getItem(getDoneKey(sid, subj.id)) === '1';
-      const badge = doneToday
-        ? '<span class="dash-badge-done">✔ Done</span>'
-        : '<span class="dash-badge-not">—</span>';
-      rows += `<tr>
-        <td>${subj.icon} ${subj.name}</td>
-        <td>${subj.tag}</td>
-        <td>${sess.lastLesson || '—'}</td>
-        <td>${sess.sessionCount || 0}</td>
-        <td>${badge}</td>
-      </tr>`;
-    });
-    block.innerHTML = `
-      <div class="dash-student-hdr" style="background:${bgs[sid]};color:${colors[sid]}">
-        ${names[sid]}
-      </div>
-      <table class="dash-table">
-        <thead><tr>
-          <th>Subject</th><th>Category</th><th>Last Lesson</th><th>Sessions</th><th>Today</th>
-        </tr></thead>
-        <tbody>${rows || '<tr><td colspan="5" style="color:var(--vg-text3);padding:14px;">No subjects configured</td></tr>'}</tbody>
-      </table>`;
+
+    const hdr = document.createElement('div');
+    hdr.className = 'dash-student-hdr';
+    hdr.style.cssText = 'background:' + bgs[sid] + ';color:' + colors[sid];
+    hdr.textContent = names[sid];
+    block.appendChild(hdr);
+
+    const table = document.createElement('table');
+    table.className = 'dash-table';
+    table.innerHTML = '<thead><tr><th>Subject</th><th>Category</th><th>Last Lesson</th><th>Sessions</th><th>Today</th><th></th></tr></thead>';
+    const tbody = document.createElement('tbody');
+
+    if(!subjList.length){
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td colspan="6" style="color:var(--vg-text3);padding:14px;">No subjects configured</td>';
+      tbody.appendChild(tr);
+    } else {
+      subjList.forEach(subj=>{
+        const tr = document.createElement('tr');
+        tr.id = 'dash-row-' + sid + '-' + subj.id;
+        renderDashRow(tr, sid, subj);
+        tbody.appendChild(tr);
+      });
+    }
+    table.appendChild(tbody);
+    block.appendChild(table);
     grid.appendChild(block);
   });
+}
+
+function renderDashRow(tr, sid, subj){
+  const sess = getSession(sid, subj.id);
+  const doneToday = localStorage.getItem(getDoneKey(sid, subj.id)) === '1';
+  const badge = doneToday
+    ? '<span class="dash-badge-done">✔ Done</span>'
+    : '<span class="dash-badge-not">—</span>';
+  tr.innerHTML = '';
+  const cells = [
+    subj.icon + ' ' + subj.name,
+    subj.tag,
+    sess.lastLesson || '—',
+    String(sess.sessionCount || 0),
+    badge
+  ];
+  cells.forEach((val, i) => {
+    const td = document.createElement('td');
+    if(i === 4) td.innerHTML = val;
+    else td.textContent = val;
+    tr.appendChild(td);
+  });
+  const editTd = document.createElement('td');
+  const editBtn = document.createElement('button');
+  editBtn.className = 'dash-edit-btn';
+  editBtn.textContent = '✏️';
+  editBtn.title = 'Edit progress manually';
+  editBtn.onclick = function(){ showDashEditRow(tr, sid, subj); };
+  editTd.appendChild(editBtn);
+  tr.appendChild(editTd);
+}
+
+function showDashEditRow(tr, sid, subj){
+  const sess = getSession(sid, subj.id);
+  tr.innerHTML = '';
+  tr.className = 'dash-edit-row';
+
+  // Subject name (read-only)
+  const td1 = document.createElement('td');
+  td1.textContent = subj.icon + ' ' + subj.name;
+  tr.appendChild(td1);
+
+  // Category (read-only)
+  const td2 = document.createElement('td');
+  td2.textContent = subj.tag;
+  tr.appendChild(td2);
+
+  // Last Lesson input
+  const td3 = document.createElement('td');
+  const lessonInput = document.createElement('input');
+  lessonInput.className = 'dash-edit-input';
+  lessonInput.type = 'text';
+  lessonInput.value = sess.lastLesson || '';
+  lessonInput.placeholder = 'e.g. Lesson 5';
+  td3.appendChild(lessonInput);
+  tr.appendChild(td3);
+
+  // Sessions input
+  const td4 = document.createElement('td');
+  const sessInput = document.createElement('input');
+  sessInput.className = 'dash-edit-input';
+  sessInput.type = 'number';
+  sessInput.min = '0';
+  sessInput.style.width = '60px';
+  sessInput.value = String(sess.sessionCount || 0);
+  td4.appendChild(sessInput);
+  tr.appendChild(td4);
+
+  // Today done checkbox
+  const td5 = document.createElement('td');
+  const doneCheck = document.createElement('input');
+  doneCheck.type = 'checkbox';
+  doneCheck.checked = localStorage.getItem(getDoneKey(sid, subj.id)) === '1';
+  doneCheck.title = 'Mark done today';
+  td5.appendChild(doneCheck);
+  tr.appendChild(td5);
+
+  // Save / Cancel buttons
+  const td6 = document.createElement('td');
+  td6.style.whiteSpace = 'nowrap';
+
+  const saveBtn = document.createElement('button');
+  saveBtn.className = 'dash-save-btn';
+  saveBtn.textContent = '✔ Save';
+  saveBtn.onclick = function(){
+    saveDashEdit(tr, sid, subj, lessonInput.value.trim(), parseInt(sessInput.value)||0, doneCheck.checked);
+  };
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.className = 'dash-cancel-btn';
+  cancelBtn.textContent = 'Cancel';
+  cancelBtn.onclick = function(){
+    tr.className = '';
+    renderDashRow(tr, sid, subj);
+  };
+
+  td6.appendChild(saveBtn);
+  td6.appendChild(cancelBtn);
+  tr.appendChild(td6);
+
+  lessonInput.focus();
+}
+
+function saveDashEdit(tr, sid, subj, newLesson, newCount, doneToday){
+  // Update localStorage
+  const key = 'mapao_' + sid + '_' + subj.id;
+  let sess = {};
+  try { sess = JSON.parse(localStorage.getItem(key)) || {}; } catch(e){}
+  sess.lastLesson = newLesson || sess.lastLesson || 'Not started';
+  sess.sessionCount = newCount;
+  sess.hints = sess.hints || 0;
+  try { localStorage.setItem(key, JSON.stringify(sess)); } catch(e){}
+
+  // Update done-today
+  const doneKey = getDoneKey(sid, subj.id);
+  try { localStorage.setItem(doneKey, doneToday ? '1' : '0'); } catch(e){}
+
+  // Sync to Supabase
+  syncToSupabase(sid, subj.id, sess, doneToday);
+
+  // Re-render the row as read-only
+  tr.className = '';
+  renderDashRow(tr, sid, subj);
 }
 
 function getDoneKey(studentId, subjectId){
@@ -2598,6 +2731,24 @@ async function fetchImagesForLesson(lessonText) {
     return;
   }
 
+  // Math & Arithmetic: show [SHOW_IMAGE:] tagged concepts (clock, coins, shapes, etc.)
+  const isArithmetic = curSubject && curSubject.id.includes('arithmetic');
+  const isMath = curSubject && curSubject.id.includes('math');
+  if (isArithmetic || isMath) {
+    const tagMatch = lessonText.match(/\[SHOW_IMAGE:\s*([^\]]+)\]/i);
+    if (tagMatch) {
+      const conceptDescription = tagMatch[1].trim();
+      document.getElementById('lesson-images-loading').style.display = 'block';
+      document.getElementById('lesson-images').style.display = 'block';
+      const images = await searchImages([conceptDescription, conceptDescription + ' educational']);
+      document.getElementById('lesson-images-loading').style.display = 'none';
+      showCenterImages(images, '🔢 Math Visual');
+      return;
+    }
+    // No tag — fall through to auto-keyword extraction for arithmetic, skip for math drills
+    if (isMath && !isArithmetic) return;
+  }
+
   // Science: check for [IMAGE: ...] tags first
   const isScience = curSubject && curSubject.id.includes('science');
   if (isScience) {
@@ -2615,14 +2766,9 @@ async function fetchImagesForLesson(lessonText) {
   }
 
   // ALL subjects: auto-extract image keywords from lesson text via AI
-  const isArithmetic = curSubject && curSubject.id.includes('arithmetic');
-  const isMath = curSubject && curSubject.id.includes('math');
-  // Skip pure math/grammar — no meaningful visuals
-  if (isMath && !isArithmetic) return;
-
   try {
     const subjectHint = isArithmetic
-      ? "This is an arithmetic lesson (Ray's Primary Arithmetic). Find a visual of the main object or concept being counted or described."
+      ? "This is an arithmetic lesson (Ray's Primary Arithmetic). Find a visual of the main math concept being taught — for example a clock face for time, coins for money, shapes for geometry, a number line for counting, or physical objects being counted."
       : isScience
       ? "This is a Natural Sciences lesson. Find an image of the main living creature, plant, insect, or habitat described."
       : `This is a ${curSubject.name} lesson for a classical Catholic homeschool student. Find images that make the lesson content visual and memorable.`;
