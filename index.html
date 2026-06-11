@@ -1379,6 +1379,7 @@ function openSubject(subjectId){
   // Reset class timer
   classTimerTotal = (curSubject.isMath || curSubject.isAesop || curSubject.isBible) ? 10*60 : 15*60;
   sessionCountedThisOpen = false; // reset per subject open
+  isEvaluating = false;           // reset double-submit guard on subject open
   classTimerSeconds = classTimerTotal;
   updateClassTimerDisplay();
 
@@ -2462,6 +2463,10 @@ function extractLastQuestion(text){
 // AI RESPOND TO STUDENT ANSWER
 // ══════════════════════════════════════════════
 async function respondToAnswer(studentAnswer){
+  // Guard against double-submission (e.g. typed submit + mic onend both firing)
+  if(isEvaluating) return;
+  isEvaluating = true;
+
   // Snapshot lastQuestion NOW before any async operation so that if nextQuestion()
   // or a new PDF question fires before this resolves, we still evaluate against the
   // correct question (fixes PDF question mapping race condition).
@@ -2540,6 +2545,7 @@ Never say the student is jumping ahead. Stay within Catholic classical content. 
   ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint'].forEach(id=>{
     const el = document.getElementById(id); if(el) el.disabled = false;
   });
+  isEvaluating = false;
 }
 
 function clearTranscript() {
@@ -2870,6 +2876,7 @@ const MAX_RETRIES = 3;
 const MIC_SILENCE_GRACE_MS = 1200;
 let micSilenceTimer = null;   // clearTimeout handle
 let micAccumulated = '';      // running transcript across interim events
+let isEvaluating = false;     // guard: prevents double-submission from mic onend + typed submit
 
 // Pre-check microphone permission and surface a clear error early
 function checkMicPermission(){
