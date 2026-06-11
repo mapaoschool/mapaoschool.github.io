@@ -1939,7 +1939,7 @@ function _doReadAloud(text, targetEl, startChunk, preservePaused){
   // Do NOT cancel() again here — already cancelled with delay in readAloud().
   // A second cancel() at this point kills queued speech on Windows/Chrome.
 
-  const chunks = splitIntoChunks(text, 200);
+  const chunks = splitIntoChunks(text, 20); // 20-word chunks for precise pause/resume
   let chunkIndex = (startChunk != null && startChunk > 0) ? startChunk : 0;
 
   function speakChunk(){
@@ -2030,7 +2030,7 @@ function _doReadAloud(text, targetEl, startChunk, preservePaused){
 
     utt.onerror = (e)=>{
       if(timedHlInterval){ clearInterval(timedHlInterval); timedHlInterval=null; }
-      if(myGen !== readGeneration){ clearInterval(resumeHack); return; } // stale utterance — ignore
+      if(myGen !== readGeneration){ clearInterval(resumeHack); return; } // stale utterance
       if(isPaused){ clearInterval(resumeHack); return; } // paused — cancel() was called by pauseReadAloud(); preserve state for resume
       if(readingStopped){ clearInterval(resumeHack); finishRead(); return; }
       // Edge uses 'canceled'; Chrome uses 'interrupted' — both are non-fatal mid-chunk stops.
@@ -2205,7 +2205,7 @@ function pauseReadAloud(){
   if(!isReading && !window.speechSynthesis.speaking && !window.speechSynthesis.pending) return; // nothing playing
   isPaused = true;
   isReading = false;
-  readGeneration++; // invalidate stale utterance closures so their onerror/onend don't fire speakChunk
+  readGeneration++; // invalidate stale utterance closures
   window.speechSynthesis.cancel();
   // pausedChunkIndex and pausedWordIndex already kept in sync by speakChunk()
   document.getElementById('btn-read').style.display = 'none';
@@ -2216,8 +2216,7 @@ function resumeReadAloud(){
   if(!isPaused) return;
   isPaused = false;
   readingStopped = false;
-  readGeneration++; // new generation so resumed utterances aren't killed by stale closures
-  console.log('[TTS] resumeReadAloud: chunk=', pausedChunkIndex, 'text length=', pausedFullText ? pausedFullText.length : 0);
+  readGeneration++; // new generation for resumed utterances
   // Restore word index so highlighting continues from where we paused
   currentWordIndex = pausedWordIndex;
   document.getElementById('btn-read').style.display = 'none';
