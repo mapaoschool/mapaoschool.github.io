@@ -793,6 +793,7 @@ async function syncToSupabase(student, subjectId, data, doneToday){
       last_lesson: data.lastLesson || 'Not started',
       hints: data.hints || 0,
       done_today: doneToday || false,
+      last_accessed: data.lastAccessed || null,
       last_updated: new Date().toISOString()
     };
     await fetch(`${SUPA_URL}/rest/v1/progress`, {
@@ -814,7 +815,7 @@ async function syncToSupabase(student, subjectId, data, doneToday){
 async function loadSessionsFromSupabase(){
   try {
     const res = await fetch(
-      `${SUPA_URL}/rest/v1/progress?select=student,subject_id,session_count,last_lesson,hints,done_today,last_updated`,
+      `${SUPA_URL}/rest/v1/progress?select=student,subject_id,session_count,last_lesson,hints,done_today,last_accessed,last_updated`,
       { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` } }
     );
     if(!res.ok){ window._cloudSyncStatus = 'fail'; window._cloudSyncMsg = `Cloud error: HTTP ${res.status}`; return; }
@@ -831,7 +832,8 @@ async function loadSessionsFromSupabase(){
         const merged = {
           sessionCount: cloudCount,
           lastLesson: row.last_lesson || 'Not started',
-          hints: row.hints || 0
+          hints: row.hints || 0,
+          lastAccessed: row.last_accessed || null
         };
         try { localStorage.setItem(key, JSON.stringify(merged)); } catch(e){}
       }
@@ -897,8 +899,8 @@ function clearProgress(student, subjectId){
   try{ localStorage.removeItem(progressKey(student,subjectId)); } catch(e){}
 }
 function getSession(student, subjectId){
-  try{ return JSON.parse(localStorage.getItem(storageKey(student,subjectId))) || {lastLesson:'Not started',sessionCount:0,hints:0}; }
-  catch(e){ return {lastLesson:'Not started',sessionCount:0,hints:0}; }
+  try{ return JSON.parse(localStorage.getItem(storageKey(student,subjectId))) || {lastLesson:'Not started',sessionCount:0,hints:0,lastAccessed:null}; }
+  catch(e){ return {lastLesson:'Not started',sessionCount:0,hints:0,lastAccessed:null}; }
 }
 function saveSession(student, subjectId, data){
   try{ localStorage.setItem(storageKey(student,subjectId), JSON.stringify(data)); } catch(e){}
@@ -952,6 +954,7 @@ async function endSessionByTimer(){
     const sess = getSession(curStudent, curSubject.id);
     if(!sessionCountedThisOpen){ sess.sessionCount++; sessionCountedThisOpen = true; }
     sess.lastLesson = `Session ${sess.sessionCount} — ${curSubject.name}`;
+    sess.lastAccessed = new Date().toISOString();
     saveSession(curStudent, curSubject.id, sess);
     syncToSupabase(curStudent, curSubject.id, sess, true);
     clearProgress(curStudent, curSubject.id); // Session complete — clear resume point
@@ -1155,6 +1158,21 @@ function loadDashboard(){
   });
 }
 
+function formatLastAccessed(iso){
+  if(!iso) return '';
+  try {
+    const d = new Date(iso);
+    const today = new Date();
+    const isToday = d.toDateString() === today.toDateString();
+    const yesterday = new Date(today); yesterday.setDate(today.getDate()-1);
+    const isYesterday = d.toDateString() === yesterday.toDateString();
+    const timeStr = d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    if(isToday) return `Today ${timeStr}`;
+    if(isYesterday) return `Yesterday ${timeStr}`;
+    return d.toLocaleDateString([], {month:'short', day:'numeric'}) + ' ' + timeStr;
+  } catch(e){ return ''; }
+}
+
 function renderDashRow(tr, sid, subj){
   const sess = getSession(sid, subj.id);
   const doneToday = localStorage.getItem(getDoneKey(sid, subj.id)) === '1';
@@ -1162,16 +1180,20 @@ function renderDashRow(tr, sid, subj){
     ? '<span class="dash-badge-done">✔ Done</span>'
     : '<span class="dash-badge-not">—</span>';
   tr.innerHTML = '';
+  const accessedStr = formatLastAccessed(sess.lastAccessed);
+  const lastLessonHtml = (sess.lastLesson && sess.lastLesson !== 'Not started')
+    ? `${sess.lastLesson}${accessedStr ? `<br><span style="font-size:10px;color:#7aabaa;opacity:0.85">${accessedStr}</span>` : ''}`
+    : `<span style="color:#666">Not started</span>${accessedStr ? `<br><span style="font-size:10px;color:#7aabaa;opacity:0.85">${accessedStr}</span>` : ''}`;
   const cells = [
     subj.icon + ' ' + subj.name,
     subj.tag,
-    sess.lastLesson || '—',
+    lastLessonHtml,
     String(sess.sessionCount || 0),
     badge
   ];
   cells.forEach((val, i) => {
     const td = document.createElement('td');
-    if(i === 4) td.innerHTML = val;
+    if(i === 2 || i === 4) td.innerHTML = val;
     else td.textContent = val;
     tr.appendChild(td);
   });
@@ -1379,7 +1401,6 @@ function openSubject(subjectId){
   // Reset class timer
   classTimerTotal = (curSubject.isMath || curSubject.isAesop || curSubject.isBible) ? 10*60 : 15*60;
   sessionCountedThisOpen = false; // reset per subject open
-  isEvaluating = false;           // reset double-submit guard on subject open
   classTimerSeconds = classTimerTotal;
   updateClassTimerDisplay();
 
@@ -1612,6 +1633,7 @@ Respond in plain, natural tutor voice — no markdown, no bullet symbols.`;
     const sess = getSession(curStudent, curSubject.id);
     if(!sessionCountedThisOpen){ sess.sessionCount++; sessionCountedThisOpen = true; }
     sess.lastLesson = lessonTitle.trim().substring(0, 120);
+    sess.lastAccessed = new Date().toISOString();
     saveSession(curStudent, curSubject.id, sess);
     const t = `Last: ${sess.lastLesson} · Sessions: ${sess.sessionCount}`;
     document.getElementById('tracker-text') && (document.getElementById('tracker-text').textContent = t);
@@ -2251,6 +2273,7 @@ function markResponse(type){
     document.getElementById('fb-area').innerHTML = `<div class="feedback" style="background:${msg.bg};color:${msg.tc}">${msg.text}</div>`;
     if(!sessionCountedThisOpen){ sess.sessionCount++; sessionCountedThisOpen = true; }
     sess.lastLesson = `Session ${sess.sessionCount} — ${curSubject.name}`;
+    sess.lastAccessed = new Date().toISOString();
     saveSession(curStudent, curSubject.id, sess);
     const t = `Last: ${sess.lastLesson} · Sessions: ${sess.sessionCount}`;
     document.getElementById('tracker-text') && (document.getElementById('tracker-text').textContent = t);
@@ -2463,10 +2486,6 @@ function extractLastQuestion(text){
 // AI RESPOND TO STUDENT ANSWER
 // ══════════════════════════════════════════════
 async function respondToAnswer(studentAnswer){
-  // Guard against double-submission (e.g. typed submit + mic onend both firing)
-  if(isEvaluating) return;
-  isEvaluating = true;
-
   // Snapshot lastQuestion NOW before any async operation so that if nextQuestion()
   // or a new PDF question fires before this resolves, we still evaluate against the
   // correct question (fixes PDF question mapping race condition).
@@ -2545,7 +2564,6 @@ Never say the student is jumping ahead. Stay within Catholic classical content. 
   ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint'].forEach(id=>{
     const el = document.getElementById(id); if(el) el.disabled = false;
   });
-  isEvaluating = false;
 }
 
 function clearTranscript() {
@@ -2876,7 +2894,6 @@ const MAX_RETRIES = 3;
 const MIC_SILENCE_GRACE_MS = 1200;
 let micSilenceTimer = null;   // clearTimeout handle
 let micAccumulated = '';      // running transcript across interim events
-let isEvaluating = false;     // guard: prevents double-submission from mic onend + typed submit
 
 // Pre-check microphone permission and surface a clear error early
 function checkMicPermission(){
