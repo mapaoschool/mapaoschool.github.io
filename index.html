@@ -1676,7 +1676,9 @@ function safeReadAloud(text){
   if(NEEDS_GESTURE_FOR_TTS && !ttsGestureUnlocked){
     promptTapToListen(text);
   } else {
-    readAloud(text);
+    // preservePaused=true: feedback/hint reads must not overwrite the saved lesson
+    // text in pausedFullText, so that Resume after Pause always restores the lesson.
+    readAloud(text, null, true);
   }
 }
 
@@ -1807,7 +1809,7 @@ function pickVoice(profile){
 // ══════════════════════════════════════════════
 // READ ALOUD — FIXED with word highlighting & proper stop
 // ══════════════════════════════════════════════
-function readAloud(text, targetEl){
+function readAloud(text, targetEl, preservePaused){
   if(!window.speechSynthesis) return;
   if(!text || text.includes('Tap "Begin')) return;
   // Cancel any current speech
@@ -1823,7 +1825,7 @@ function readAloud(text, targetEl){
     // overwrite the newer content already rendered in ai-response.
     if(myGen !== readGeneration) return;
     readingStopped = false;
-    ensureVoices(()=>_doReadAloud(text, targetEl));
+    ensureVoices(()=>_doReadAloud(text, targetEl, null, preservePaused));
   }, 400);
 }
 
@@ -1858,10 +1860,13 @@ function sanitizeForTTS(text){
     .trim();
 }
 
-function _doReadAloud(text, targetEl, startChunk){
+function _doReadAloud(text, targetEl, startChunk, preservePaused){
   if(readingStopped) return;
   text = sanitizeForTTS(text);   // fix symbols/abbreviations before TTS
-  pausedFullText = text;   // save for pause/resume restart
+  // Only save pausedFullText for the main lesson read.
+  // Feedback/hint reads (preservePaused=true) must not overwrite it or Resume
+  // will restart from the short feedback reply instead of the lesson.
+  if(!preservePaused) pausedFullText = text;
   isPaused = false;
 
   // Prepare word highlight spans — skip rebuild if resuming (startChunk set, spans already exist)
@@ -2213,7 +2218,7 @@ function resumeReadAloud(){
   document.getElementById('btn-pause-read').style.display = '';
   document.getElementById('btn-resume-read').style.display = 'none';
   // Restart from the saved chunk position
-  ensureVoices(()=>_doReadAloud(pausedFullText, null, pausedChunkIndex));
+  ensureVoices(()=>_doReadAloud(pausedFullText, null, pausedChunkIndex, true));
 }
 
 // FIX: Stop now sets readingStopped flag so chunks don't restart
@@ -2423,7 +2428,7 @@ async function nextQuestion(){
     saveProgress(curStudent, curSubject.id, sessionQuestionIndex, lastQuestion);
     // Read aloud from the question box element (not the lesson text)
     const qBox = document.getElementById('ai-question-box');
-    readAloud(text, qBox);
+    readAloud(text, qBox, true);
   } catch(e){ document.getElementById('ai-question-box').innerHTML='<span style="color:var(--vg-text3)">Connection error. Please try again.</span>'; }
   ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint','btn-next'].forEach(id=>{
     const el = document.getElementById(id); if(el) el.disabled=false;
