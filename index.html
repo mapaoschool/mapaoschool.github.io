@@ -982,7 +982,7 @@ async function endSessionByTimer(){
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
-        model:'claude-sonnet-4-6', max_tokens:200,
+        model:'claude-sonnet-4-5', max_tokens:200,
         messages:[{role:'user', content:`You are a tutor for a ${gradeCtx[curStudent]||'student'} in subject: ${curSubject ? curSubject.name : 'class'}. The ${limitLabel} session timer has ended. The lesson so far was about: "${lessonText}". Give a warm, brief (3–4 sentences) closing message. Tell the student that class time is up for today. Summarize in one sentence what was learned. Encourage them and say goodbye until next time. Do not ask any new questions. Do not start with "I".`}]
       })
     });
@@ -1502,6 +1502,7 @@ async function beginSession(){
   document.getElementById('fb-area').innerHTML = '';
 
   const sess = getSession(curStudent, curSubject.id);
+  const isMathFirst = curSubject && curSubject.isMath && sess.sessionCount === 0;
   // Increment session count immediately so the bot never reports "session 1" on every open
   if(curSubject.isMath && sess.sessionCount === 0 && !isMathFirst){
     // Only bump past 0 if the diagnostic has already been completed (isMathFirst would handle that)
@@ -1512,7 +1513,6 @@ async function beginSession(){
   const studentNames = {AL:'A.L. (Grade 9–12)',FA:'F.A. (Grade 1–4)',FC:'F.C. (Grade 1–4)',LJ:'L.J. (Kindergarten, logic Grade 3)'};
 
   const isNarnia = curSubject && curSubject.id.includes('narnia');
-  const isMathFirst = curSubject && curSubject.isMath && sess.sessionCount === 0;
 
   const isArt = curSubject && curSubject.id.includes('art');
   const isAesop = curSubject && curSubject.isAesop;
@@ -1573,7 +1573,7 @@ Respond in plain, natural tutor voice — no markdown, no bullet symbols.`;
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-6',
+        model:'claude-sonnet-4-5',
         max_tokens: isLiterature ? 2000 : 1000,
         messages:[{role:'user',content:prompt}]
       })
@@ -2285,7 +2285,7 @@ async function reteachConcept(){
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-6', max_tokens:300,
+        model:'claude-sonnet-4-5', max_tokens:300,
         messages:[{role:'user',content:`A student (${gradeCtx[curStudent]}) said "${studentAnswer}" when asked about this lesson:\n\n"${lessonText}"\n\nRule 15 applies: the student does not know the answer. Do ALL of the following in one response:\n1. Acknowledge kindly (1 sentence, do NOT say "I").\n2. Explain the concept in a COMPLETELY DIFFERENT way — use an analogy, story, or vivid example appropriate for the grade level. Be specific and clear (3–5 sentences).\n3. Ask the EXACT SAME question again.\n\nDo not give away the answer directly. Stay within Catholic classical content. Subject: ${curSubject.name}.`}]
       })
     });
@@ -2326,7 +2326,7 @@ async function giveHint(){
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-6',max_tokens:150,
+        model:'claude-sonnet-4-5',max_tokens:150,
         messages:[{role:'user',content:`Give ONE short, gentle hint (1–2 sentences) for a ${gradeCtx[curStudent]} student who is stuck on this lesson content: "${lessonText}". Nudge toward the answer without giving it away. Be warm and encouraging. Do not start with "I". Subject: ${curSubject.name}.`}]
       })
     });
@@ -2369,7 +2369,7 @@ async function nextQuestion(){
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-6',max_tokens:400,
+        model:'claude-sonnet-4-5',max_tokens:400,
         messages:[{role:'user',content:`${UNIVERSAL_RULES}\n${curSubject.prompt}\nSTUDENT: ${studentNames[curStudent]}\n${alreadyAsked}\nContinue the session with the NEXT question or activity. Ask a DIFFERENT question — never repeat any question already asked. Be specific, cite the source, never give away the answer. Subject: ${curSubject.name}.`}]
       })
     });
@@ -2493,7 +2493,7 @@ async function respondToAnswer(studentAnswer){
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-6', max_tokens:400,
+        model:'claude-sonnet-4-5', max_tokens:400,
         messages:[{role:'user',content:`You are a tutor for a ${gradeCtx[curStudent]} student. Subject: ${curSubject.name}.
 
 The lesson content was:
@@ -2781,7 +2781,7 @@ async function fetchImagesForLesson(lessonText) {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
+        model: 'claude-sonnet-4-5',
         max_tokens: 100,
         messages: [{role: 'user', content: `${subjectHint}\n\nLesson text: "${lessonText.substring(0,500)}"\n\nExtract 2 short Wikipedia-friendly image search queries (3-5 words each) that would show a student the main visual subject of this lesson. Focus on concrete nouns — animals, objects, people, places. Reply with ONLY a JSON array of 2 strings, no other text. Example: ["garden spider web","spider anatomy diagram"]`}]
       })
