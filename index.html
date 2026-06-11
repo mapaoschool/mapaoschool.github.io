@@ -139,7 +139,7 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
 .img-section-left{margin-top:4px;}
 .img-grid-left{display:flex;flex-direction:column;gap:5px;}
 .img-card-left{border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--vg-border2);}
-.img-card-left img{width:100%;height:80px;object-fit:cover;display:block;}
+.img-card-left img{width:100%;height:160px;object-fit:cover;display:block;}
 .img-card{border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--vg-border2);width:100%;max-width:100%;}
 .img-card img{width:100%;height:90px;object-fit:cover;display:block;}
 .img-card canvas{width:100%!important;height:auto!important;max-width:100%;display:block;}
@@ -382,13 +382,6 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
     <!-- ══ LEFT SIDEBAR ══ -->
     <div class="tutor-left" id="tutor-left">
 
-      <!-- Images related to lesson -->
-      <div class="left-section img-section-left" id="img-section" style="display:none">
-        <div class="left-label" id="img-section-label">🖼️ Images</div>
-        <div id="img-loading" class="img-loading" style="display:none"><span class="spinner"></span> Loading...</div>
-        <div class="img-grid-left" id="img-grid"></div>
-      </div>
-
       <!-- Book cover -->
       <div class="left-section">
         <div class="left-label">📖 Book</div>
@@ -419,6 +412,13 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
           <button class="btn" id="speed-timer-pause" onclick="pauseTimer()" style="display:none">⏸</button>
           <button class="btn" onclick="resetTimer()">↺</button>
         </div>
+      </div>
+
+      <!-- Images related to lesson -->
+      <div class="left-section img-section-left" id="img-section" style="display:none">
+        <div class="left-label" id="img-section-label">🖼️ Images</div>
+        <div id="img-loading" class="img-loading" style="display:none"><span class="spinner"></span> Loading...</div>
+        <div class="img-grid-left" id="img-grid"></div>
       </div>
 
       <!-- Book page ref -->
@@ -2752,6 +2752,14 @@ async function fetchImagesForLesson(lessonText) {
     document.getElementById('img-grid').innerHTML = images.slice(0,1).map(img => `
       <div class="img-card-left"><img src="${img.url}" alt="${img.label}" onerror="this.parentElement.style.display='none'" loading="lazy"></div>
     `).join('');
+    // Show lesson image in the prominent book-cover-img slot at top of sidebar
+    const bookCoverEl = document.getElementById('book-cover-img');
+    if (bookCoverEl && images[0]) {
+      bookCoverEl.textContent = '';
+      bookCoverEl.style.backgroundImage = `url('${images[0].url}')`;
+      bookCoverEl.style.backgroundSize = 'cover';
+      bookCoverEl.style.backgroundPosition = 'center';
+    }
   }
 
   // UNIVERSAL: any subject can show a book page with [SHOW_PAGE: N]
@@ -2803,10 +2811,19 @@ async function fetchImagesForLesson(lessonText) {
       document.getElementById('lesson-images').style.display = 'block';
       const images = await searchImages(queries);
       document.getElementById('lesson-images-loading').style.display = 'none';
-      showCenterImages(images, '🔬 Science Images');
+      showCenterImages(images, '\U0001f52c Science Images');
       return;
     }
-    // Fall through to auto-keyword extraction below
+    // No [IMAGE:] tag — fire immediate search using first capitalized noun from lesson text
+    // so the student sees something right away while AI keyword extraction runs in parallel
+    const firstNounMatch = lessonText.match(/(?:about|the|a)\s+([A-Z][a-z]+(?:\s+[a-z]+)?)/);
+    const quickQuery = firstNounMatch ? firstNounMatch[1] : (curSubject.name || 'insect');
+    document.getElementById('lesson-images-loading').style.display = 'block';
+    document.getElementById('lesson-images').style.display = 'block';
+    searchImages([quickQuery]).then(quickImgs => {
+      if (quickImgs.length > 0) showCenterImages(quickImgs, '\U0001f52c Science Images');
+    });
+    // Fall through to auto-keyword extraction below for better/more specific results
   }
 
   // ALL subjects: auto-extract image keywords from lesson text via AI
