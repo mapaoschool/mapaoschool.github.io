@@ -2202,7 +2202,6 @@ function pauseReadAloud(){
   // Try native pause first; if unsupported (Edge + offline voices), fall back to cancel + save position
   isPaused = true;
   isReading = false;
-  readingStopped = true;
   window.speechSynthesis.cancel();
   // pausedChunkIndex and pausedWordIndex already kept in sync by speakChunk()
   document.getElementById('btn-read').style.display = 'none';
