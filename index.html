@@ -1827,8 +1827,40 @@ function readAloud(text, targetEl){
   }, 400);
 }
 
+function sanitizeForTTS(text){
+  return text
+    // Currency symbols → words
+    .replace(/¢/g, ' cents ')
+    .replace(/\$(\d)/g, '$1 dollars ')
+    .replace(/£(\d)/g, '$1 pounds ')
+    // Abbreviations the TTS spells out
+    .replace(/\bct\.?\b/gi, 'cents')
+    .replace(/\bc\b(?=\s*[\d,])/g, 'cents')   // lone "c" before a number
+    .replace(/\bft\.?\b/gi, 'feet')
+    .replace(/\bin\.?\b/gi, 'inches')
+    .replace(/\byd\.?\b/gi, 'yards')
+    .replace(/\boz\.?\b/gi, 'ounces')
+    .replace(/\blb\.?\b/gi, 'pounds')
+    .replace(/\bst\.?\b(?!\s*[A-Z])/g, 'Saint') // St. before lowercase = street; before uppercase = Saint — handled by next line
+    .replace(/\bSt\.\s+(?=[A-Z])/g, 'Saint ')
+    .replace(/\bvs\.?\b/gi, 'versus')
+    .replace(/\betc\.?\b/gi, 'and so on')
+    // Remove markdown symbols that get read literally
+    .replace(/\*\*/g, '')
+    .replace(/\*/g, '')
+    .replace(/__/g, '')
+    .replace(/#+\s/g, '')
+    // Remove bracket tags (already parsed by the app)
+    .replace(/\[SHOW_PAGE:\s*\d+\]/gi, '')
+    .replace(/\[SHOW_IMAGE:[^\]]*\]/gi, '')
+    .replace(/\[KEY\]|\[\/KEY\]/gi, '')
+    .replace(/\[EXAMPLE:[^\]]*\]|\[\/EXAMPLE\]/gi, '')
+    .trim();
+}
+
 function _doReadAloud(text, targetEl, startChunk){
   if(readingStopped) return;
+  text = sanitizeForTTS(text);   // fix symbols/abbreviations before TTS
   pausedFullText = text;   // save for pause/resume restart
   isPaused = false;
 
@@ -1991,6 +2023,8 @@ function _doReadAloud(text, targetEl, startChunk){
       if(readingStopped){ clearInterval(resumeHack); finishRead(); return; }
       // Edge uses 'canceled'; Chrome uses 'interrupted' — both are non-fatal mid-chunk stops.
       const nonFatal = e.error === 'interrupted' || e.error === 'canceled';
+      // 'canceled' fires when pause calls speechSynthesis.cancel() — don't restart
+      if(e.error === 'canceled' && isPaused){ finishRead(); return; }
       if(!nonFatal) chunkIndex++;
       setTimeout(speakChunk, 50);
     };
@@ -2768,7 +2802,7 @@ async function fetchImagesForLesson(lessonText) {
   // ALL subjects: auto-extract image keywords from lesson text via AI
   try {
     const subjectHint = isArithmetic
-      ? "This is an arithmetic lesson (Ray's Primary Arithmetic). Find a visual of the main math concept being taught — for example a clock face for time, coins for money, shapes for geometry, a number line for counting, or physical objects being counted. IMPORTANT: Use specific, unambiguous search terms. If the lesson mentions fruit (apple, orange, banana), add 'fruit' to the query (e.g. 'apple fruit counting'). Never use brand names or technology terms."
+      ? "This is an arithmetic lesson (Ray's Primary Arithmetic). Find a visual of the main math concept being taught — for example a clock face for time, coins for money, shapes for geometry, a number line for counting, or physical objects being counted."
       : isScience
       ? "This is a Natural Sciences lesson. Find an image of the main living creature, plant, insect, or habitat described."
       : `This is a ${curSubject.name} lesson for a classical Catholic homeschool student. Find images that make the lesson content visual and memorable.`;
@@ -2783,7 +2817,7 @@ async function fetchImagesForLesson(lessonText) {
       body: JSON.stringify({
         model: 'claude-sonnet-4-5',
         max_tokens: 100,
-        messages: [{role: 'user', content: `${subjectHint}\n\nLesson text: "${lessonText.substring(0,500)}"\n\nExtract 2 short Wikipedia-friendly image search queries (3-5 words each) that would show a student the main visual subject of this lesson. Focus on concrete nouns — animals, objects, people, places. IMPORTANT: Avoid ambiguous terms that could match technology companies or brands. If a word could be a brand (e.g. "apple", "amazon", "windows"), add a clarifying word (e.g. "apple fruit", "amazon river", "window glass"). Reply with ONLY a JSON array of 2 strings, no other text. Example: ["garden spider web","spider anatomy diagram"]`}]
+        messages: [{role: 'user', content: `${subjectHint}\n\nLesson text: "${lessonText.substring(0,500)}"\n\nExtract 2 short Wikipedia-friendly image search queries (3-5 words each) that would show a student the main visual subject of this lesson. Focus on concrete nouns — animals, objects, people, places. Reply with ONLY a JSON array of 2 strings, no other text. Example: ["garden spider web","spider anatomy diagram"]`}]
       })
     });
     const kwData = await kwRes.json();
@@ -2821,12 +2855,7 @@ async function searchImages(keywords) {
       const d = await r.json();
       const pages = d.query?.pages;
       if (pages) {
-        // Filter out technology company / brand Wikipedia pages that clash with
-        // everyday words (e.g. "Apple" → Apple Inc., "Amazon" → Amazon.com)
-        const techBrandPattern = /\b(Inc\.|Corp\.|Ltd\.|LLC|company|companies|corporation|software|hardware|computer|computers|technology|technologies|brand|brands|operating system|smartphone|phone|tablet|laptop|startup|founder|CEO|stock|nasdaq|app store|iphone|ipad|macintosh|windows|android|google|amazon|microsoft|samsung|intel|nvidia|meta|facebook|twitter|instagram|youtube|netflix|tesla|uber|spotify)\b/i;
         for (const page of Object.values(pages)) {
-          const pageTitle = page?.title || '';
-          if (techBrandPattern.test(pageTitle)) continue; // skip tech/brand pages
           const imgUrl = page?.thumbnail?.source;
           if (imgUrl && !imgUrl.includes('Icon') && !imgUrl.includes('placeholder')) {
             images.push({url: imgUrl, label: kw});
