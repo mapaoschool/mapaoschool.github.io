@@ -2025,11 +2025,11 @@ function _doReadAloud(text, targetEl, startChunk, preservePaused){
 
     utt.onerror = (e)=>{
       if(timedHlInterval){ clearInterval(timedHlInterval); timedHlInterval=null; }
+      // If paused: cancel() was called by pauseReadAloud() — do nothing, preserve state for resume
+      if(isPaused){ clearInterval(resumeHack); return; }
       if(readingStopped){ clearInterval(resumeHack); finishRead(); return; }
       // Edge uses 'canceled'; Chrome uses 'interrupted' — both are non-fatal mid-chunk stops.
       const nonFatal = e.error === 'interrupted' || e.error === 'canceled';
-      // 'canceled' fires when pause calls speechSynthesis.cancel() — don't restart
-      if(e.error === 'canceled' && isPaused){ finishRead(); return; }
       if(!nonFatal) chunkIndex++;
       setTimeout(speakChunk, 50);
     };
