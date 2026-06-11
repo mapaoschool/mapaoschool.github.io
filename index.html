@@ -793,7 +793,6 @@ async function syncToSupabase(student, subjectId, data, doneToday){
       last_lesson: data.lastLesson || 'Not started',
       hints: data.hints || 0,
       done_today: doneToday || false,
-      last_accessed: data.lastAccessed || null,
       last_updated: new Date().toISOString()
     };
     await fetch(`${SUPA_URL}/rest/v1/progress`, {
@@ -815,7 +814,7 @@ async function syncToSupabase(student, subjectId, data, doneToday){
 async function loadSessionsFromSupabase(){
   try {
     const res = await fetch(
-      `${SUPA_URL}/rest/v1/progress?select=student,subject_id,session_count,last_lesson,hints,done_today,last_accessed,last_updated`,
+      `${SUPA_URL}/rest/v1/progress?select=student,subject_id,session_count,last_lesson,hints,done_today,last_updated`,
       { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` } }
     );
     if(!res.ok){ window._cloudSyncStatus = 'fail'; window._cloudSyncMsg = `Cloud error: HTTP ${res.status}`; return; }
@@ -832,8 +831,7 @@ async function loadSessionsFromSupabase(){
         const merged = {
           sessionCount: cloudCount,
           lastLesson: row.last_lesson || 'Not started',
-          hints: row.hints || 0,
-          lastAccessed: row.last_accessed || null
+          hints: row.hints || 0
         };
         try { localStorage.setItem(key, JSON.stringify(merged)); } catch(e){}
       }
@@ -899,8 +897,8 @@ function clearProgress(student, subjectId){
   try{ localStorage.removeItem(progressKey(student,subjectId)); } catch(e){}
 }
 function getSession(student, subjectId){
-  try{ return JSON.parse(localStorage.getItem(storageKey(student,subjectId))) || {lastLesson:'Not started',sessionCount:0,hints:0,lastAccessed:null}; }
-  catch(e){ return {lastLesson:'Not started',sessionCount:0,hints:0,lastAccessed:null}; }
+  try{ return JSON.parse(localStorage.getItem(storageKey(student,subjectId))) || {lastLesson:'Not started',sessionCount:0,hints:0}; }
+  catch(e){ return {lastLesson:'Not started',sessionCount:0,hints:0}; }
 }
 function saveSession(student, subjectId, data){
   try{ localStorage.setItem(storageKey(student,subjectId), JSON.stringify(data)); } catch(e){}
@@ -954,7 +952,6 @@ async function endSessionByTimer(){
     const sess = getSession(curStudent, curSubject.id);
     if(!sessionCountedThisOpen){ sess.sessionCount++; sessionCountedThisOpen = true; }
     sess.lastLesson = `Session ${sess.sessionCount} — ${curSubject.name}`;
-    sess.lastAccessed = new Date().toISOString();
     saveSession(curStudent, curSubject.id, sess);
     syncToSupabase(curStudent, curSubject.id, sess, true);
     clearProgress(curStudent, curSubject.id); // Session complete — clear resume point
@@ -985,7 +982,7 @@ async function endSessionByTimer(){
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
-        model:'claude-sonnet-4-5', max_tokens:200,
+        model:'claude-sonnet-4-6', max_tokens:200,
         messages:[{role:'user', content:`You are a tutor for a ${gradeCtx[curStudent]||'student'} in subject: ${curSubject ? curSubject.name : 'class'}. The ${limitLabel} session timer has ended. The lesson so far was about: "${lessonText}". Give a warm, brief (3–4 sentences) closing message. Tell the student that class time is up for today. Summarize in one sentence what was learned. Encourage them and say goodbye until next time. Do not ask any new questions. Do not start with "I".`}]
       })
     });
@@ -1158,21 +1155,6 @@ function loadDashboard(){
   });
 }
 
-function formatLastAccessed(iso){
-  if(!iso) return '';
-  try {
-    const d = new Date(iso);
-    const today = new Date();
-    const isToday = d.toDateString() === today.toDateString();
-    const yesterday = new Date(today); yesterday.setDate(today.getDate()-1);
-    const isYesterday = d.toDateString() === yesterday.toDateString();
-    const timeStr = d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-    if(isToday) return `Today ${timeStr}`;
-    if(isYesterday) return `Yesterday ${timeStr}`;
-    return d.toLocaleDateString([], {month:'short', day:'numeric'}) + ' ' + timeStr;
-  } catch(e){ return ''; }
-}
-
 function renderDashRow(tr, sid, subj){
   const sess = getSession(sid, subj.id);
   const doneToday = localStorage.getItem(getDoneKey(sid, subj.id)) === '1';
@@ -1180,20 +1162,16 @@ function renderDashRow(tr, sid, subj){
     ? '<span class="dash-badge-done">✔ Done</span>'
     : '<span class="dash-badge-not">—</span>';
   tr.innerHTML = '';
-  const accessedStr = formatLastAccessed(sess.lastAccessed);
-  const lastLessonHtml = (sess.lastLesson && sess.lastLesson !== 'Not started')
-    ? `${sess.lastLesson}${accessedStr ? `<br><span style="font-size:10px;color:#7aabaa;opacity:0.85">${accessedStr}</span>` : ''}`
-    : `<span style="color:#666">Not started</span>${accessedStr ? `<br><span style="font-size:10px;color:#7aabaa;opacity:0.85">${accessedStr}</span>` : ''}`;
   const cells = [
     subj.icon + ' ' + subj.name,
     subj.tag,
-    lastLessonHtml,
+    sess.lastLesson || '—',
     String(sess.sessionCount || 0),
     badge
   ];
   cells.forEach((val, i) => {
     const td = document.createElement('td');
-    if(i === 2 || i === 4) td.innerHTML = val;
+    if(i === 4) td.innerHTML = val;
     else td.textContent = val;
     tr.appendChild(td);
   });
@@ -1595,7 +1573,7 @@ Respond in plain, natural tutor voice — no markdown, no bullet symbols.`;
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-5',
+        model:'claude-sonnet-4-6',
         max_tokens: isLiterature ? 2000 : 1000,
         messages:[{role:'user',content:prompt}]
       })
@@ -1633,7 +1611,6 @@ Respond in plain, natural tutor voice — no markdown, no bullet symbols.`;
     const sess = getSession(curStudent, curSubject.id);
     if(!sessionCountedThisOpen){ sess.sessionCount++; sessionCountedThisOpen = true; }
     sess.lastLesson = lessonTitle.trim().substring(0, 120);
-    sess.lastAccessed = new Date().toISOString();
     saveSession(curStudent, curSubject.id, sess);
     const t = `Last: ${sess.lastLesson} · Sessions: ${sess.sessionCount}`;
     document.getElementById('tracker-text') && (document.getElementById('tracker-text').textContent = t);
@@ -2273,7 +2250,6 @@ function markResponse(type){
     document.getElementById('fb-area').innerHTML = `<div class="feedback" style="background:${msg.bg};color:${msg.tc}">${msg.text}</div>`;
     if(!sessionCountedThisOpen){ sess.sessionCount++; sessionCountedThisOpen = true; }
     sess.lastLesson = `Session ${sess.sessionCount} — ${curSubject.name}`;
-    sess.lastAccessed = new Date().toISOString();
     saveSession(curStudent, curSubject.id, sess);
     const t = `Last: ${sess.lastLesson} · Sessions: ${sess.sessionCount}`;
     document.getElementById('tracker-text') && (document.getElementById('tracker-text').textContent = t);
@@ -2309,7 +2285,7 @@ async function reteachConcept(){
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-5', max_tokens:300,
+        model:'claude-sonnet-4-6', max_tokens:300,
         messages:[{role:'user',content:`A student (${gradeCtx[curStudent]}) said "${studentAnswer}" when asked about this lesson:\n\n"${lessonText}"\n\nRule 15 applies: the student does not know the answer. Do ALL of the following in one response:\n1. Acknowledge kindly (1 sentence, do NOT say "I").\n2. Explain the concept in a COMPLETELY DIFFERENT way — use an analogy, story, or vivid example appropriate for the grade level. Be specific and clear (3–5 sentences).\n3. Ask the EXACT SAME question again.\n\nDo not give away the answer directly. Stay within Catholic classical content. Subject: ${curSubject.name}.`}]
       })
     });
@@ -2350,7 +2326,7 @@ async function giveHint(){
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-5',max_tokens:150,
+        model:'claude-sonnet-4-6',max_tokens:150,
         messages:[{role:'user',content:`Give ONE short, gentle hint (1–2 sentences) for a ${gradeCtx[curStudent]} student who is stuck on this lesson content: "${lessonText}". Nudge toward the answer without giving it away. Be warm and encouraging. Do not start with "I". Subject: ${curSubject.name}.`}]
       })
     });
@@ -2393,7 +2369,7 @@ async function nextQuestion(){
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-5',max_tokens:400,
+        model:'claude-sonnet-4-6',max_tokens:400,
         messages:[{role:'user',content:`${UNIVERSAL_RULES}\n${curSubject.prompt}\nSTUDENT: ${studentNames[curStudent]}\n${alreadyAsked}\nContinue the session with the NEXT question or activity. Ask a DIFFERENT question — never repeat any question already asked. Be specific, cite the source, never give away the answer. Subject: ${curSubject.name}.`}]
       })
     });
@@ -2517,7 +2493,7 @@ async function respondToAnswer(studentAnswer){
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-5', max_tokens:400,
+        model:'claude-sonnet-4-6', max_tokens:400,
         messages:[{role:'user',content:`You are a tutor for a ${gradeCtx[curStudent]} student. Subject: ${curSubject.name}.
 
 The lesson content was:
@@ -2805,7 +2781,7 @@ async function fetchImagesForLesson(lessonText) {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
-        model: 'claude-sonnet-4-5',
+        model: 'claude-sonnet-4-6',
         max_tokens: 100,
         messages: [{role: 'user', content: `${subjectHint}\n\nLesson text: "${lessonText.substring(0,500)}"\n\nExtract 2 short Wikipedia-friendly image search queries (3-5 words each) that would show a student the main visual subject of this lesson. Focus on concrete nouns — animals, objects, people, places. Reply with ONLY a JSON array of 2 strings, no other text. Example: ["garden spider web","spider anatomy diagram"]`}]
       })
