@@ -193,6 +193,27 @@ const HAS_SPEECH_RECOGNITION = !!(window.SpeechRecognition || window.webkitSpeec
 - **Fail:** F.C. is missing the subject or flag — inheritance via object spread was broken.
 - **Code at risk:** F.C. subjects defined as `...FA_SUBJECT_OBJECT_SPREAD` at runtime. Any change that hardcodes F.C. subjects separately breaks this.
 
+### TC-19 · Begin Session button — lesson loads successfully
+- **Action:** Select any student → open any subject → tap ✦ "Tap to Begin Today's Lesson". Observe the center panel.
+- **Pass:** Button shows spinner "Starting…"; within 5–10 s the lesson text appears in the center panel; the class timer starts counting down; the ▶ Read button or "Tap to listen" prompt appears; teacher buttons (✓ Correct, ✗ Wrong, etc.) become enabled.
+- **Fail:** Button stays on "Starting…" indefinitely with no lesson text; lesson text is "The tutor is preparing today's lesson…" and never changes; or a JS error appears in the browser console (right-click → Inspect → Console).
+- **Common causes of failure:**
+  - `isMathFirst` or another variable used before it is declared (ReferenceError in console) — check variable declaration order in `beginSession()`.
+  - Cloudflare Worker returning an error — open Network tab in DevTools, look for a failed POST to `divine-sunset-f2ee.panicovillegas.workers.dev`.
+  - Deprecated model string in Worker or `index.html` — check that both use `claude-sonnet-4-6` (or current model).
+- **Code at risk:** `beginSession()` function; Cloudflare Worker script; model string in all `fetch()` calls.
+
+### TC-20 · Pause / Resume — no restart on Aesop or long lessons
+- **Action:** Open Aesop's Fables (or any subject with a long lesson). Tap ▶ Read. Wait until at least 2–3 sentences have been spoken. Tap ⏸ Pause. Wait 2 seconds. Tap ▶ Resume.
+- **Pass:** Audio pauses immediately; ▶ Resume button appears; on Resume, audio continues from approximately where it paused (within the same chunk, ±1–2 sentences); does NOT restart from the beginning.
+- **Fail:** Tapping Pause causes the lesson to restart from the beginning; or Pause has no effect and audio continues; or Resume is silent.
+- **Known edge case:** The chunk-restart approach means resume starts at the beginning of the current chunk (up to ~200 words back), not the exact word. This is expected and acceptable — it should never restart from the very beginning of the lesson.
+- **Common causes of failure:**
+  - `onerror` with `e.error === 'canceled'` calling `speakChunk()` again after pause — check that the `isPaused` guard is present in `utt.onerror`.
+  - `pausedChunkIndex` not being saved correctly in `speakChunk()` before `speechSynthesis.cancel()` is called.
+  - `readingStopped` being set to `true` and never reset before `resumeReadAloud()` calls `_doReadAloud()`.
+- **Code at risk:** `pauseReadAloud()`, `resumeReadAloud()`, `utt.onerror` handler inside `speakChunk()`, `pausedChunkIndex` / `pausedWordIndex` tracking.
+
 ---
 
 ---
@@ -301,6 +322,15 @@ Run through this list whenever cloud sync fails:
 | **Supabase key updated to legacy JWT** | June 2026 | New `sb_publishable_` format incompatible with REST header auth. Switched to legacy `eyJ...` anon key. |
 | **Supabase Data API table exposed** | June 2026 | `progress` table was toggled off in Data API settings. Re-enabled under Integrations → Data API → Settings → Exposed tables. |
 | **Dashboard manual progress edit** | June 2026 | Added inline edit per subject row (✏️ button) — edits Last Lesson, Sessions, Done today; saves to localStorage + Supabase. |
+| **Model string updated to `claude-sonnet-4-6`** | June 2026 | `claude-sonnet-4-5` retired April 20, 2026. All 7 fetch() calls in index.html updated. Cloudflare Worker script also replaced (was corrupted). See TC-19. |
+| **Cloudflare Worker script replaced** | June 2026 | Worker had a SyntaxError (truncated JSON) causing all AI calls to fail silently. Replaced with clean CORS-aware proxy script. |
+| **`isMathFirst` declaration order fix** | June 2026 | Variable used before declaration in `beginSession()` caused ReferenceError on lesson start. Moved `const isMathFirst` above its first use. See TC-19. |
+| **Pause restart fix (Aesop + long lessons)** | June 2026 | `utt.onerror` with `e.error === 'canceled'` was restarting `speakChunk()` after pause called `cancel()`. Added `isPaused` guard to bail out instead. See TC-20. |
+| **TTS text sanitizer added** | June 2026 | `sanitizeForTTS()` runs on all text before TTS. Converts `¢`, `$`, `ct.`, `ft.`, `in.`, `lb.`, `vs.`, `etc.` to spoken words; strips markdown and app tags. Fixes "cent" being spelled out letter by letter. |
+| **Double-submission guard (`isEvaluating`)** | June 2026 | Mic `onend` + typed submit could both call `respondToAnswer()` simultaneously. `isEvaluating` flag prevents second call. See TC-10. |
+| **Dashboard last-accessed timestamp** | June 2026 | `lastAccessed` ISO timestamp saved to localStorage and Supabase on every session start/end. Displayed in dashboard "Last Lesson" column as "Today 1:29 PM" etc. |
+| **Math speed timer reset confirmation** | June 2026 | ↺ reset button now shows `confirm('Reset timer?')` dialog to prevent accidental taps (reported by F.A.). |
+| **Image search tech-brand filter** | June 2026 | Wikipedia results with titles matching tech company keywords (Inc., software, iPhone, etc.) are now skipped. Keyword extraction prompt also instructs AI to disambiguate (e.g. "apple fruit" not "apple"). |
 
 ---
 
