@@ -382,6 +382,13 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
     <!-- ══ LEFT SIDEBAR ══ -->
     <div class="tutor-left" id="tutor-left">
 
+      <!-- Images related to lesson -->
+      <div class="left-section img-section-left" id="img-section" style="display:none">
+        <div class="left-label" id="img-section-label">🖼️ Images</div>
+        <div id="img-loading" class="img-loading" style="display:none"><span class="spinner"></span> Loading...</div>
+        <div class="img-grid-left" id="img-grid"></div>
+      </div>
+
       <!-- Book cover -->
       <div class="left-section">
         <div class="left-label">📖 Book</div>
@@ -412,13 +419,6 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
           <button class="btn" id="speed-timer-pause" onclick="pauseTimer()" style="display:none">⏸</button>
           <button class="btn" onclick="resetTimer()">↺</button>
         </div>
-      </div>
-
-      <!-- Images related to lesson -->
-      <div class="left-section img-section-left" id="img-section" style="display:none">
-        <div class="left-label" id="img-section-label">🖼️ Images</div>
-        <div id="img-loading" class="img-loading" style="display:none"><span class="spinner"></span> Loading...</div>
-        <div class="img-grid-left" id="img-grid"></div>
       </div>
 
       <!-- Book page ref -->
