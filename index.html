@@ -1955,7 +1955,7 @@ function _doReadAloud(text, targetEl, startChunk, preservePaused){
     utt.lang = isSpanish ? 'es-MX' : 'en-US';
     if(chosenVoice) utt.voice = chosenVoice;
 
-    const myGen = readGeneration; // capture — stale closures abort if generation changed
+    const myGen = readGeneration; // stale closures abort when readGeneration changes
     let timedHlInterval = null; // Edge timed-highlight fallback handle
     utt.onstart = ()=>{
       if(myGen !== readGeneration){ window.speechSynthesis.cancel(); return; }
@@ -2021,7 +2021,7 @@ function _doReadAloud(text, targetEl, startChunk, preservePaused){
 
     utt.onend = ()=>{
       if(timedHlInterval){ clearInterval(timedHlInterval); timedHlInterval=null; }
-      if(myGen !== readGeneration){ clearInterval(resumeHack); return; } // stale — new read started
+      if(myGen !== readGeneration){ clearInterval(resumeHack); return; } // stale utterance
       if(isPaused){ clearInterval(resumeHack); return; } // paused — don't advance chunk
       if(readingStopped){ clearInterval(resumeHack); finishRead(); return; }
       chunkIndex++;
@@ -2030,7 +2030,7 @@ function _doReadAloud(text, targetEl, startChunk, preservePaused){
 
     utt.onerror = (e)=>{
       if(timedHlInterval){ clearInterval(timedHlInterval); timedHlInterval=null; }
-      if(myGen !== readGeneration){ clearInterval(resumeHack); return; } // stale — new read started
+      if(myGen !== readGeneration){ clearInterval(resumeHack); return; } // stale utterance — ignore
       if(isPaused){ clearInterval(resumeHack); return; } // paused — cancel() was called by pauseReadAloud(); preserve state for resume
       if(readingStopped){ clearInterval(resumeHack); finishRead(); return; }
       // Edge uses 'canceled'; Chrome uses 'interrupted' — both are non-fatal mid-chunk stops.
@@ -2205,7 +2205,7 @@ function pauseReadAloud(){
   if(!isReading && !window.speechSynthesis.speaking && !window.speechSynthesis.pending) return; // nothing playing
   isPaused = true;
   isReading = false;
-  readGeneration++; // invalidate any in-flight utterance closures
+  readGeneration++; // invalidate stale utterance closures so their onerror/onend don't fire speakChunk
   window.speechSynthesis.cancel();
   // pausedChunkIndex and pausedWordIndex already kept in sync by speakChunk()
   document.getElementById('btn-read').style.display = 'none';
@@ -2216,7 +2216,8 @@ function resumeReadAloud(){
   if(!isPaused) return;
   isPaused = false;
   readingStopped = false;
-  readGeneration++; // new generation for resumed utterances
+  readGeneration++; // new generation so resumed utterances aren't killed by stale closures
+  console.log('[TTS] resumeReadAloud: chunk=', pausedChunkIndex, 'text length=', pausedFullText ? pausedFullText.length : 0);
   // Restore word index so highlighting continues from where we paused
   currentWordIndex = pausedWordIndex;
   document.getElementById('btn-read').style.display = 'none';
