@@ -1945,6 +1945,7 @@ function _doReadAloud(text, targetEl, startChunk, preservePaused){
   function speakChunk(){
     pausedChunkIndex = chunkIndex;   // keep module-scope in sync for pause
     pausedWordIndex = currentWordIndex;
+    if(isPaused){ clearInterval(resumeHack); return; } // paused — don't finishRead, preserve state
     if(readingStopped){ clearInterval(resumeHack); finishRead(); return; }
     if(chunkIndex >= chunks.length){ clearInterval(resumeHack); finishRead(); return; }
 
@@ -2018,6 +2019,7 @@ function _doReadAloud(text, targetEl, startChunk, preservePaused){
 
     utt.onend = ()=>{
       if(timedHlInterval){ clearInterval(timedHlInterval); timedHlInterval=null; }
+      if(isPaused){ clearInterval(resumeHack); return; } // paused — don't advance chunk
       if(readingStopped){ clearInterval(resumeHack); finishRead(); return; }
       chunkIndex++;
       setTimeout(speakChunk, 50);
@@ -2025,8 +2027,7 @@ function _doReadAloud(text, targetEl, startChunk, preservePaused){
 
     utt.onerror = (e)=>{
       if(timedHlInterval){ clearInterval(timedHlInterval); timedHlInterval=null; }
-      // If paused: cancel() was called by pauseReadAloud() — do nothing, preserve state for resume
-      if(isPaused){ clearInterval(resumeHack); return; }
+      if(isPaused){ clearInterval(resumeHack); return; } // paused — cancel() was called by pauseReadAloud(); preserve state for resume
       if(readingStopped){ clearInterval(resumeHack); finishRead(); return; }
       // Edge uses 'canceled'; Chrome uses 'interrupted' — both are non-fatal mid-chunk stops.
       const nonFatal = e.error === 'interrupted' || e.error === 'canceled';
