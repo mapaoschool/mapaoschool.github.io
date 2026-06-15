@@ -236,6 +236,8 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
 .mg-title{font-family:'Playfair Display',serif;font-size:17px;color:var(--vg-gold2);}
 .mg-close{background:rgba(255,255,255,0.06);border:1px solid var(--vg-border2);border-radius:50%;width:30px;height:30px;color:var(--vg-text2);font-size:15px;cursor:pointer;flex-shrink:0;}
 .mg-close:hover{border-color:var(--vg-gold);color:var(--vg-gold);}
+.mg-speak-btn{background:rgba(240,200,48,0.12);border:1px solid rgba(240,200,48,0.35);border-radius:50%;width:30px;height:30px;color:var(--vg-gold);font-size:14px;cursor:pointer;flex-shrink:0;margin-right:6px;}
+.mg-speak-btn:hover{background:rgba(240,200,48,0.25);}
 .mg-tabs{display:flex;gap:6px;margin-bottom:12px;}
 .mg-tab{flex:1;padding:8px 4px;border-radius:var(--radius-sm);border:1px solid var(--vg-border2);background:rgba(255,255,255,0.04);color:var(--vg-text2);font-size:11px;font-weight:700;cursor:pointer;text-align:center;font-family:'Lato',sans-serif;}
 .mg-tab.active{background:var(--vg-gold-dim);color:var(--vg-gold);border-color:rgba(240,200,48,0.4);}
@@ -585,7 +587,10 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
     <div class="mg-modal">
       <div class="mg-header">
         <div class="mg-title">🎮 Multiplication Games</div>
-        <button class="mg-close" onclick="closeMathGames()">✕</button>
+        <div style="display:flex;gap:0;">
+          <button class="mg-speak-btn" id="mg-speak-btn" onclick="mgReadCurrent()" onpointerdown="ttsGestureUnlocked=true" title="Read this aloud">🔊</button>
+          <button class="mg-close" onclick="closeMathGames()">✕</button>
+        </div>
       </div>
 
       <div class="mg-tabs">
@@ -779,6 +784,20 @@ const IS_MOBILE = IS_IOS || /Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test
 // Always require a tap — this is reliable on Windows, Mac, Android, and iOS.
 const NEEDS_GESTURE_FOR_TTS = true;
 const HAS_SPEECH_RECOGNITION = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+
+// Wraps fetch() with a timeout so a hung AI-worker request always resolves
+// into the existing catch/error-handling instead of leaving "Thinking..."
+// (and disabled buttons) on screen forever — fixes "bot does not react".
+async function fetchWithTimeout(url, options, timeoutMs){
+  timeoutMs = timeoutMs || 25000;
+  const controller = new AbortController();
+  const timer = setTimeout(()=>controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, Object.assign({}, options, {signal: controller.signal}));
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 // Linux detection — used to enable TTS workarounds for Linux Chromium/Chrome.
 const IS_LINUX = (()=>{
@@ -1101,7 +1120,7 @@ async function endSessionByTimer(){
 
   try {
     const lessonText = document.getElementById('ai-response').textContent.substring(0, 400);
-    const res = await fetch('https://divine-sunset-f2ee.panicovillegas.workers.dev', {
+    const res = await fetchWithTimeout('https://divine-sunset-f2ee.panicovillegas.workers.dev', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
@@ -1744,7 +1763,7 @@ Respond in plain, natural tutor voice — no markdown, no bullet symbols.`;
 
   try {
     const isLiterature = curSubject && ['narnia','aesop','bible','history','science'].some(k => curSubject.id.includes(k));
-    const res = await fetch('https://divine-sunset-f2ee.panicovillegas.workers.dev',{
+    const res = await fetchWithTimeout('https://divine-sunset-f2ee.panicovillegas.workers.dev',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
@@ -1762,10 +1781,14 @@ Respond in plain, natural tutor voice — no markdown, no bullet symbols.`;
       return;
     }
     const text = data.content?.find(b=>b.type==='text')?.text || 'Could not load lesson. Please check your connection and try again.';
+    // Strip [SHOW_PAGE:]/[SHOW_IMAGE:]/markdown for ON-SCREEN text so it matches
+    // what's spoken (sanitizeForTTS strips the same tags). fetchImagesForLesson()
+    // below still gets the RAW `text` since it needs these tags.
+    const cleanText = stripDirectiveTags(text);
     // Always build highlight spans so text is visible AND highlightable on all platforms
     {
       const sessionBody = document.getElementById('ai-response');
-      const words = text.split(/(\s+)/);
+      const words = cleanText.split(/(\s+)/);
       let html = '';
       let wordIdx = 0;
       for(const part of words){
@@ -1780,9 +1803,9 @@ Respond in plain, natural tutor voice — no markdown, no bullet symbols.`;
     }
     // Save lesson topic immediately so the next session knows what was covered.
     // Extract the first meaningful sentence (after the greeting) as the lesson title.
-    const sentences = text.replace(/\n+/g,' ').match(/[^.!?]{15,}[.!?]/g) || [];
+    const sentences = cleanText.replace(/\n+/g,' ').match(/[^.!?]{15,}[.!?]/g) || [];
     const lessonTitle = sentences.find(s => !/\b(hello|hi|good morning|good afternoon|welcome|great to see|nice to see|let's|let us begin|today we)\b/i.test(s))
-      || sentences[1] || sentences[0] || text.substring(0, 80);
+      || sentences[1] || sentences[0] || cleanText.substring(0, 80);
     const sess = getSession(curStudent, curSubject.id);
     if(!sessionCountedThisOpen){ sess.sessionCount++; sessionCountedThisOpen = true; }
     sess.lastLesson = lessonTitle.trim().substring(0, 120);
@@ -1793,12 +1816,12 @@ Respond in plain, natural tutor voice — no markdown, no bullet symbols.`;
     // Also save question-level progress so student can resume mid-session
     saveProgress(curStudent, curSubject.id, sessionQuestionIndex, lastQuestion);
     // Extract questions for right panel
-    lastQuestion = extractLastQuestion(text);
+    lastQuestion = extractLastQuestion(cleanText);
     if(lastQuestion) sessionAskedQuestions.push(lastQuestion);
-    const questions = text.match(/[^.!?]*\?[^?]*/g) || [];
+    const questions = cleanText.match(/[^.!?]*\?[^?]*/g) || [];
     document.getElementById('ai-question-box').innerHTML = questions.length
       ? questions.map(q=>`<div style="background:rgba(60,120,240,0.12);border:1px solid rgba(80,140,240,0.25);border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:13px;color:#1A1A1A;line-height:1.7;font-family:'Lato',sans-serif;font-weight:400;">${q.trim()}</div>`).join('')
-      : `<div style="font-size:13px;color:#1A1A1A;line-height:1.8;font-weight:400;">${text.substring(0,300)}...</div>`;
+      : `<div style="font-size:13px;color:#1A1A1A;line-height:1.8;font-weight:400;">${cleanText.substring(0,300)}...</div>`;
     document.getElementById('ai-cite').textContent = 'Source: ' + curSubject.cite;
     ['btn-correct','btn-partial','btn-wrong','btn-hint','btn-next'].forEach(id=>{
       document.getElementById(id).disabled = false;
@@ -1813,9 +1836,9 @@ Respond in plain, natural tutor voice — no markdown, no bullet symbols.`;
     startClassTimer();
     // Auto read aloud
     if(!NEEDS_GESTURE_FOR_TTS){
-      readAloud(text);
+      readAloud(cleanText);
     } else {
-      promptTapToListen(text);
+      promptTapToListen(cleanText);
     }
     // Focus the text input so caret is visible immediately after lesson loads
     setTimeout(()=>{ const inp = document.getElementById('student-input'); if(inp) inp.focus(); }, 600);
@@ -2034,6 +2057,26 @@ function sanitizeForTTS(text){
     .replace(/\[EXAMPLE:[^\]]*\]|\[\/EXAMPLE\]/gi, '')
     .trim();
 }
+
+// Strips the same directive tags/markdown that sanitizeForTTS strips for
+// speech (SHOW_PAGE/SHOW_IMAGE/KEY/EXAMPLE tags, **bold**, etc.) — used for
+// on-screen text (feedback box, question box, initial lesson display) so
+// what's SHOWN matches what's SPOKEN/highlighted. Does NOT touch the raw
+// text passed to fetchImagesForLesson(), which still needs these tags.
+function stripDirectiveTags(text){
+  return text
+    .replace(/\*\*/g, '')
+    .replace(/\*/g, '')
+    .replace(/__/g, '')
+    .replace(/#+\s/g, '')
+    .replace(/\[SHOW_PAGE:\s*\d+\]/gi, '')
+    .replace(/\[SHOW_IMAGE:[^\]]*\]/gi, '')
+    .replace(/\[KEY\]|\[\/KEY\]/gi, '')
+    .replace(/\[EXAMPLE:[^\]]*\]|\[\/EXAMPLE\]/gi, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 
 function _doReadAloud(text, targetEl, startChunk, preservePaused){
   if(readingStopped) return;
@@ -2500,7 +2543,7 @@ async function reteachConcept(){
   const gradeCtx = {AL:'Grade 9–12 — mature, analytical, use Thomistic vocabulary',FA:'Grade 1–4 — simple language, warm, concrete examples',FC:'Grade 1–4 — simple language, warm, concrete examples',LJ:'Kindergarten with Grade 3 logic — very short sentences, playful, use objects and comparisons'};
 
   try {
-    const res = await fetch('https://divine-sunset-f2ee.panicovillegas.workers.dev',{
+    const res = await fetchWithTimeout('https://divine-sunset-f2ee.panicovillegas.workers.dev',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
@@ -2510,8 +2553,9 @@ async function reteachConcept(){
     });
     const data = await res.json();
     const text = data.content?.find(b=>b.type==='text')?.text || "That's okay! Let's think about this differently.";
-    fbArea.innerHTML = `<div class="feedback" style="background:#2A0A08;color:#FFBBB0;border:1px solid #8B3A30"><strong>📖 Let me explain it another way:</strong><br><br>${text}</div>`;
-    safeReadAloud(text);
+    const cleanText = stripDirectiveTags(text);
+    fbArea.innerHTML = `<div class="feedback" style="background:#2A0A08;color:#FFBBB0;border:1px solid #8B3A30"><strong>📖 Let me explain it another way:</strong><br><br>${cleanText}</div>`;
+    safeReadAloud(cleanText);
   } catch(e){
     fbArea.innerHTML = `<div class="feedback" style="background:#2A0A08;color:#FFBBB0">That's okay! Let's think about it differently. Look back at what we just read — what was the main thing that happened?</div>`;
   }
@@ -2541,7 +2585,7 @@ async function giveHint(){
   const lessonText = document.getElementById('ai-response').textContent.substring(0,400);
   const gradeCtx = {AL:'Grade 9–12 — mature, precise',FA:'Grade 1–4 — simple, warm',FC:'Grade 1–4 — simple, warm',LJ:'Kindergarten with Grade 3 logic — playful, short sentences'};
   try {
-    const res = await fetch('https://divine-sunset-f2ee.panicovillegas.workers.dev',{
+    const res = await fetchWithTimeout('https://divine-sunset-f2ee.panicovillegas.workers.dev',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
@@ -2551,8 +2595,9 @@ async function giveHint(){
     });
     const data = await res.json();
     const hint = data.content?.find(b=>b.type==='text')?.text||'Think about what you know — take your time!';
-    document.getElementById('fb-area').innerHTML = `<div class="feedback" style="background:#0D2040;color:#A8D0FF"><strong>Hint ${sessionHints}:</strong> ${hint}</div>`;
-    safeReadAloud(hint);
+    const cleanHint = stripDirectiveTags(hint);
+    document.getElementById('fb-area').innerHTML = `<div class="feedback" style="background:#0D2040;color:#A8D0FF"><strong>Hint ${sessionHints}:</strong> ${cleanHint}</div>`;
+    safeReadAloud(cleanHint);
   } catch(e){
     document.getElementById('fb-area').innerHTML = `<div class="feedback" style="background:#0D2040;color:#A8D0FF"><strong>Hint:</strong> Think about what you remember from last time — the answer is closer than you think!</div>`;
   }
@@ -2584,7 +2629,7 @@ async function nextQuestion(){
     ? `\nQUESTIONS ALREADY ASKED THIS SESSION (do NOT repeat these):\n${sessionAskedQuestions.map((q,i)=>`${i+1}. ${q}`).join('\n')}\n`
     : '';
   try {
-    const res = await fetch('https://divine-sunset-f2ee.panicovillegas.workers.dev',{
+    const res = await fetchWithTimeout('https://divine-sunset-f2ee.panicovillegas.workers.dev',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
@@ -2594,21 +2639,27 @@ async function nextQuestion(){
     });
     const data = await res.json();
     const text = data.content?.find(b=>b.type==='text')?.text||'Could not generate next question.';
+    // Strip [SHOW_PAGE:]/[SHOW_IMAGE:]/markdown so what's shown matches what's
+    // spoken (sanitizeForTTS strips the same tags in safeReadAloud below).
+    const cleanText = stripDirectiveTags(text);
     // Update right-panel question box with the new question — do NOT touch ai-response (lesson text)
-    const newQs = text.match(/[^.!?]*\?[^?]*/g) || [];
+    const newQs = cleanText.match(/[^.!?]*\?[^?]*/g) || [];
     document.getElementById('ai-question-box').innerHTML = newQs.length
       ? newQs.map(q=>`<div style="background:rgba(60,120,240,0.12);border:1px solid rgba(80,140,240,0.25);border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:13px;color:#1A1A1A;line-height:1.7;font-family:'Lato',sans-serif;font-weight:400;">${q.trim()}</div>`).join('')
-      : `<div style="font-size:13px;color:#1A1A1A;line-height:1.8;font-weight:400;">${text.substring(0,300)}</div>`;
+      : `<div style="font-size:13px;color:#1A1A1A;line-height:1.8;font-weight:400;">${cleanText.substring(0,300)}</div>`;
     // Track this question to avoid repeating it
-    const newQ = extractLastQuestion(text);
+    const newQ = extractLastQuestion(cleanText);
     if(newQ) sessionAskedQuestions.push(newQ);
     lastQuestion = newQ || lastQuestion;
     fetchImagesForLesson(text);
     sessionQuestionIndex++;
     saveProgress(curStudent, curSubject.id, sessionQuestionIndex, lastQuestion);
-    // Read aloud from the question box element (not the lesson text)
-    const qBox = document.getElementById('ai-question-box');
-    readAloud(text, qBox, true);
+    // Read this aloud WITHOUT rebuilding ai-question-box's formatted divs —
+    // safeReadAloud() targets ai-response (center panel), the same pattern
+    // respondToAnswer() uses, so the right-panel question box keeps its
+    // nicely-formatted blue boxes instead of being replaced by raw highlight
+    // spans of the full response text.
+    safeReadAloud(cleanText);
   } catch(e){ document.getElementById('ai-question-box').innerHTML='<span style="color:var(--vg-text3)">Connection error. Please try again.</span>'; }
   ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint','btn-next'].forEach(id=>{
     const el = document.getElementById(id); if(el) el.disabled=false;
@@ -2708,7 +2759,7 @@ async function respondToAnswer(studentAnswer){
     : '';
 
   try {
-    const res = await fetch('https://divine-sunset-f2ee.panicovillegas.workers.dev',{
+    const res = await fetchWithTimeout('https://divine-sunset-f2ee.panicovillegas.workers.dev',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
@@ -2735,12 +2786,15 @@ Never say the student is jumping ahead. Stay within Catholic classical content. 
     const data = await res.json();
     if(data.error) throw new Error(data.error.message);
     const reply = data.content?.find(b=>b.type==='text')?.text || "Good try! Let's keep going.";
-    const newQ = extractLastQuestion(reply);
+    // Strip [SHOW_PAGE:]/[SHOW_IMAGE:]/markdown so what's shown matches what's
+    // spoken (sanitizeForTTS strips the same tags in safeReadAloud below).
+    const cleanReply = stripDirectiveTags(reply);
+    const newQ = extractLastQuestion(cleanReply);
     if(newQ){ sessionAskedQuestions.push(newQ); lastQuestion = newQ; }
-    else { lastQuestion = extractLastQuestion(reply) || lastQuestion; }
-    fbArea.innerHTML = `<div class="feedback" style="background:#0D2040;color:#A8D0FF;line-height:1.7">${reply}</div>`;
+    else { lastQuestion = extractLastQuestion(cleanReply) || lastQuestion; }
+    fbArea.innerHTML = `<div class="feedback" style="background:#0D2040;color:#A8D0FF;line-height:1.7">${cleanReply}</div>`;
     // Also update right panel question box with new question
-    const newQs = reply.match(/[^.!?]*\?[^?]*/g) || [];
+    const newQs = cleanReply.match(/[^.!?]*\?[^?]*/g) || [];
     if(newQs.length){
       document.getElementById('ai-question-box').innerHTML = newQs.map(q=>`<div style="background:rgba(240,200,48,0.12);border:1px solid #E8C870;border-radius:6px;padding:10px 12px;margin-bottom:8px;font-size:14px;color:#1A1A1A;line-height:1.6;">${q.trim()}</div>`).join('');
     }
@@ -2748,7 +2802,7 @@ Never say the student is jumping ahead. Stay within Catholic classical content. 
     // formatted HTML in the feedback div — passing feedbackEl as target causes
     // _doReadAloud to overwrite its innerHTML with plain word spans, stripping
     // all styling, bold markers, and emoji.
-    safeReadAloud(reply);
+    safeReadAloud(cleanReply);
     // Save lesson progress only on successful AI response
     sessionQuestionIndex++;
     saveProgress(curStudent, curSubject.id, sessionQuestionIndex, lastQuestion);
@@ -3013,7 +3067,7 @@ async function fetchImagesForLesson(lessonText) {
     document.getElementById('lesson-images').style.display = 'block';
     document.getElementById('lesson-images-loading').style.display = 'block';
 
-    const kwRes = await fetch('https://divine-sunset-f2ee.panicovillegas.workers.dev', {
+    const kwRes = await fetchWithTimeout('https://divine-sunset-f2ee.panicovillegas.workers.dev', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
@@ -3438,6 +3492,7 @@ function mgNewQuestion(){
     <div class="mg-choices" id="mg-choices"></div>
     <div class="mg-feedback-line" id="mg-feedback"></div>`;
   mgRenderChoices(choices, correct);
+  mgMaybeAutoRead();
 }
 
 // ── Skip Counting mode (multiples of 2,3,4,5,6,10) ──
@@ -3476,6 +3531,7 @@ function mgNewSkipQuestion(){
     <div class="mg-choices" id="mg-choices"></div>
     <div class="mg-feedback-line" id="mg-feedback"></div>`;
   mgRenderChoices(choices, correct);
+  mgMaybeAutoRead();
 }
 
 // ── Speed Quiz mode ─────────────────────────────
@@ -3489,6 +3545,7 @@ function mgRenderQuizStart(){
       <div class="mg-quiz-intro">10 questions · ${label}<br>5 seconds per question</div>
     </div>
     <button class="mg-replay-btn" onclick="mgStartQuiz()">▶ Start Quiz</button>`;
+  mgMaybeAutoRead();
 }
 
 function mgStartQuiz(){
@@ -3519,6 +3576,7 @@ function mgQuizNext(){
     <div class="mg-choices" id="mg-choices"></div>
     <div class="mg-feedback-line" id="mg-feedback"></div>`;
   mgRenderChoices(choices, correct);
+  mgMaybeAutoRead();
   mgQuizTimeLeft = 5.0;
   mgQuizTimer = setInterval(()=>{
     mgQuizTimeLeft -= 0.1;
@@ -3549,6 +3607,87 @@ function mgQuizEnd(){
       <div style="color:var(--vg-text2);font-size:13px;">${msg}</div>
       <button class="mg-replay-btn" onclick="mgRenderQuizStart()">↺ Try Again</button>
     </div>`;
+  mgMaybeAutoRead();
+}
+
+// ── Read aloud (Math Games) ─────────────────────
+// Self-contained: uses the same voice profile/picker as the lesson reader,
+// but never touches readGeneration/pausedFullText/chunking — it cleanly
+// pauses the lesson reader first (so "Resume" still works afterward) and
+// speaks its own short utterance.
+const MG_EMOJI_RE = /[\u{1F1E6}-\u{1FAFF}\u{2190}-\u{27BF}\u{2B00}-\u{2BFF}\uFE0F\u200D]/gu;
+
+function mgSpeak(text){
+  if(!window.speechSynthesis || !text) return;
+  const clean = sanitizeForTTS(text).replace(MG_EMOJI_RE, '').replace(/\s+/g, ' ').trim();
+  if(!clean) return;
+  if(typeof pauseReadAloud === 'function') pauseReadAloud(); // pause lesson cleanly (no-op if nothing playing)
+  window.speechSynthesis.cancel();
+  setTimeout(()=>{
+    ensureVoices(()=>{
+      let chosenVoice = null;
+      if(manualVoiceOverride) chosenVoice = allVoices.find(v=>v.name===manualVoiceOverride) || null;
+      if(!chosenVoice) chosenVoice = pickVoice(VOICE_PROFILES.math);
+      if(!chosenVoice && allVoices.length) chosenVoice = allVoices.find(v=>v.lang.startsWith('en')) || allVoices[0];
+      const utt = new SpeechSynthesisUtterance(clean);
+      const speedEl = document.getElementById('voice-speed');
+      utt.rate = speedEl ? (parseFloat(speedEl.value) || 0.9) : 0.9;
+      let pitch = VOICE_PROFILES.math.pitch;
+      if(curStudent === 'LJ') pitch = Math.min(pitch + LJ_PITCH_BOOST, 1.2);
+      utt.pitch = pitch;
+      utt.lang = 'en-US';
+      if(chosenVoice) utt.voice = chosenVoice;
+      window.speechSynthesis.speak(utt);
+    });
+  }, 200);
+}
+
+// Builds the spoken version of whatever is currently shown in #mg-game-area
+function mgSpokenText(){
+  const area = document.getElementById('mg-game-area');
+  if(!area) return '';
+  if(mgMode === 'tables'){
+    const qEl = area.querySelector('.mg-question-text');
+    if(!qEl) return '';
+    const m = qEl.textContent.match(/(\d+)\s*\u00d7\s*(\d+)/);
+    return m ? `${m[1]} times ${m[2]} equals what?` : qEl.textContent;
+  }
+  if(mgMode === 'skip'){
+    const seqEl = area.querySelector('.mg-seq-text');
+    if(!seqEl) return '';
+    const parts = seqEl.textContent.split(',').map(s=>s.trim()).filter(Boolean);
+    const spoken = parts.map(p => p === '?' ? 'blank' : p).join(', ');
+    return `What number is missing? ${spoken}.`;
+  }
+  if(mgMode === 'quiz'){
+    const resultEl = area.querySelector('.mg-quiz-result .big');
+    if(resultEl){
+      const msgEl = area.querySelector('.mg-quiz-result div[style]');
+      const score = resultEl.textContent.replace('/', ' out of ');
+      return `You got ${score}.` + (msgEl ? ' ' + msgEl.textContent : '');
+    }
+    const qEl = area.querySelector('.mg-question-text');
+    if(qEl){
+      const m = qEl.textContent.match(/(\d+)\s*\u00d7\s*(\d+)/);
+      if(m) return `Question ${mgQuizQ+1} of ${mgQuizTotal}. ${m[1]} times ${m[2]} equals what?`;
+    }
+    const label = (mgNumber==='mixed') ? 'mixed, zero to thirteen' : `the ${mgNumber} times table`;
+    return `Speed Quiz. Ten questions, ${label}. Five seconds per question.`;
+  }
+  return '';
+}
+
+// Manual 🔊 button — always reads, regardless of gesture-unlock state
+// (tapping the button IS the gesture).
+function mgReadCurrent(){
+  ttsGestureUnlocked = true;
+  mgSpeak(mgSpokenText());
+}
+
+// Called after rendering a new question/screen — auto-reads only if speech
+// has already been unlocked by a gesture earlier in this session.
+function mgMaybeAutoRead(){
+  if(ttsGestureUnlocked) mgSpeak(mgSpokenText());
 }
 
 // ── Answer checking (shared by all modes) ───────
