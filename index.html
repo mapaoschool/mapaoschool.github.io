@@ -225,6 +225,47 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
 .tracker{background:#1a3a22;border:1px solid #2d6b3a;border-radius:var(--radius-sm);padding:7px 10px;font-size:11px;color:#d4f0dc;font-family:'Lato',sans-serif;display:flex;align-items:center;gap:6px;margin:0 10px 6px;font-weight:400;}
 .tracker-icon{font-size:12px;}
 
+/* MATH GAMES — Multiplication Practice */
+.math-games-fab{display:none;align-items:center;gap:4px;padding:3px 10px;border-radius:14px;border:1px solid rgba(240,200,48,0.4);background:var(--vg-gold-dim);color:var(--vg-gold);font-size:11px;font-weight:700;cursor:pointer;font-family:'Lato',sans-serif;white-space:nowrap;}
+.math-games-fab:hover{background:rgba(240,200,48,0.2);}
+.math-games-fab:active{transform:scale(0.96);}
+.mg-overlay{position:fixed;top:0;right:0;bottom:0;left:0;inset:0;background:rgba(10,6,20,0.78);z-index:1000;display:none;align-items:center;justify-content:center;padding:14px;}
+.mg-overlay.active{display:flex;}
+.mg-modal{background:var(--vg-bg2);border:1px solid var(--vg-border2);border-radius:var(--radius);width:100%;max-width:460px;max-height:92vh;overflow-y:auto;padding:16px;font-family:'Lato',sans-serif;}
+.mg-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.mg-title{font-family:'Playfair Display',serif;font-size:17px;color:var(--vg-gold2);}
+.mg-close{background:rgba(255,255,255,0.06);border:1px solid var(--vg-border2);border-radius:50%;width:30px;height:30px;color:var(--vg-text2);font-size:15px;cursor:pointer;flex-shrink:0;}
+.mg-close:hover{border-color:var(--vg-gold);color:var(--vg-gold);}
+.mg-tabs{display:flex;gap:6px;margin-bottom:12px;}
+.mg-tab{flex:1;padding:8px 4px;border-radius:var(--radius-sm);border:1px solid var(--vg-border2);background:rgba(255,255,255,0.04);color:var(--vg-text2);font-size:11px;font-weight:700;cursor:pointer;text-align:center;font-family:'Lato',sans-serif;}
+.mg-tab.active{background:var(--vg-gold-dim);color:var(--vg-gold);border-color:rgba(240,200,48,0.4);}
+.mg-section-label{font-size:9px;font-weight:700;color:#8a90b8;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;}
+.mg-number-grid{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+.mg-num-chip{min-width:38px;height:38px;padding:0 4px;border-radius:19px;border:1px solid var(--vg-border2);background:rgba(255,255,255,0.04);color:var(--vg-text);font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:'Lato',sans-serif;}
+.mg-num-chip.active{background:var(--vg-gold);color:#1A1228;border-color:var(--vg-gold);}
+.mg-num-chip.mixed{padding:0 12px;font-size:11px;}
+.mg-score-row{display:flex;gap:8px;margin-bottom:12px;}
+.mg-score-pill{flex:1;background:rgba(255,255,255,0.04);border:1px solid var(--vg-border2);border-radius:var(--radius-sm);padding:6px 4px;text-align:center;}
+.mg-score-pill .n{font-size:18px;font-weight:700;color:var(--vg-gold);font-family:monospace;}
+.mg-score-pill .l{font-size:9px;color:var(--vg-text3);text-transform:uppercase;letter-spacing:0.07em;}
+.mg-question-box{background:rgba(255,255,255,0.04);border:1px solid var(--vg-border2);border-radius:var(--radius);padding:22px 12px;text-align:center;margin-bottom:14px;}
+.mg-question-text{font-family:'Playfair Display',serif;font-size:30px;color:var(--vg-text);letter-spacing:0.02em;}
+.mg-seq-text{font-family:monospace;font-size:23px;color:var(--vg-text);letter-spacing:0.05em;line-height:1.7;word-spacing:4px;}
+.mg-seq-blank{color:var(--vg-gold);font-weight:700;}
+.mg-choices{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.mg-choice-btn{padding:14px 8px;font-size:18px;font-weight:700;border-radius:var(--radius-sm);border:1px solid var(--vg-border2);background:rgba(255,255,255,0.05);color:var(--vg-text);cursor:pointer;font-family:'Lato',sans-serif;}
+.mg-choice-btn.correct{background:rgba(20,140,40,0.5);border-color:#40C860;color:#C0FFD0;}
+.mg-choice-btn.wrong{background:rgba(160,30,30,0.6);border-color:#E06060;color:#FFD0D0;}
+.mg-choice-btn:disabled{opacity:0.65;cursor:default;}
+.mg-feedback-line{text-align:center;font-size:13px;margin-top:10px;min-height:18px;font-weight:700;color:var(--vg-gold2);}
+.mg-timer-track{height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;margin:10px auto 0;max-width:200px;}
+.mg-timer-fill{height:100%;background:var(--vg-gold2);transition:width 0.1s linear;}
+.mg-timer-fill.urgent{background:#E06060;}
+.mg-quiz-result{text-align:center;padding:18px 6px;}
+.mg-quiz-result .big{font-family:'Playfair Display',serif;font-size:34px;color:var(--vg-gold);margin-bottom:6px;}
+.mg-replay-btn{display:block;width:100%;margin-top:12px;padding:11px;border-radius:var(--radius-sm);border:1px solid rgba(240,200,48,0.4);background:var(--vg-gold-dim);color:var(--vg-gold);font-weight:700;cursor:pointer;font-family:'Lato',sans-serif;font-size:13px;}
+.mg-quiz-intro{color:var(--vg-text2);font-size:13px;line-height:1.6;margin-top:6px;}
+
 /* Book page ref */
 .book-page-ref{background:rgba(255,255,255,0.04);border:1px solid var(--vg-border2);border-radius:var(--radius-sm);padding:6px 9px;font-family:'Lato',sans-serif;font-size:10px;color:var(--vg-text3);display:flex;align-items:center;gap:6px;margin:0 10px 6px;}
 
@@ -439,6 +480,7 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
       <div class="read-bar" id="read-bar">
         🔊
         <div class="read-bar-btns">
+          <button class="math-games-fab" id="math-games-fab" onclick="openMathGames()" title="Multiplication Games">🎮 Games</button>
           <button class="rbtn" id="btn-read" onclick="startReadAloud()" onpointerdown="ttsGestureUnlocked=true">▶ Read</button>
           <button class="rbtn" id="btn-pause-read" onclick="pauseReadAloud()" style="display:none">⏸ Pause</button>
           <button class="rbtn" id="btn-resume-read" onclick="resumeReadAloud()" style="display:none">▶ Resume</button>
@@ -538,6 +580,32 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
     </div><!-- end tutor-right -->
 
   </div><!-- end tutor-body -->
+
+  <div class="mg-overlay" id="mg-overlay">
+    <div class="mg-modal">
+      <div class="mg-header">
+        <div class="mg-title">🎮 Multiplication Games</div>
+        <button class="mg-close" onclick="closeMathGames()">✕</button>
+      </div>
+
+      <div class="mg-tabs">
+        <button class="mg-tab" id="mg-tab-tables" onclick="mgSelectMode('tables')">🔢 Times Tables</button>
+        <button class="mg-tab" id="mg-tab-skip" onclick="mgSelectMode('skip')">📈 Skip Counting</button>
+        <button class="mg-tab" id="mg-tab-quiz" onclick="mgSelectMode('quiz')">⚡ Speed Quiz</button>
+      </div>
+
+      <div class="mg-section-label" id="mg-number-label">Pick a times table</div>
+      <div class="mg-number-grid" id="mg-number-grid"></div>
+
+      <div class="mg-score-row">
+        <div class="mg-score-pill"><div class="n" id="mg-score-correct">0</div><div class="l">Correct</div></div>
+        <div class="mg-score-pill"><div class="n" id="mg-score-streak">0</div><div class="l">Streak</div></div>
+        <div class="mg-score-pill"><div class="n" id="mg-score-best">0</div><div class="l">Best Streak</div></div>
+      </div>
+
+      <div id="mg-game-area"></div>
+    </div>
+  </div>
 </div><!-- end tutor screen -->
 
 <script>
@@ -793,7 +861,7 @@ async function syncToSupabase(student, subjectId, data, doneToday){
       last_lesson: data.lastLesson || 'Not started',
       hints: data.hints || 0,
       done_today: doneToday || false,
-      last_updated: new Date().toISOString()
+      last_updated: data.lastUpdated || new Date().toISOString()
     };
     await fetch(`${SUPA_URL}/rest/v1/progress`, {
       method: 'POST',
@@ -826,14 +894,24 @@ async function loadSessionsFromSupabase(){
       try { local = JSON.parse(localStorage.getItem(key)); } catch(e){}
       const localCount = (local && local.sessionCount) ? local.sessionCount : 0;
       const cloudCount = row.session_count || 0;
+      const localUpdated = (local && local.lastUpdated) ? new Date(local.lastUpdated).getTime() : 0;
+      const cloudUpdated = row.last_updated ? new Date(row.last_updated).getTime() : 0;
       // Only overwrite local if cloud has more sessions (cloud wins on higher count)
       if(cloudCount > localCount){
         const merged = {
           sessionCount: cloudCount,
           lastLesson: row.last_lesson || 'Not started',
-          hints: row.hints || 0
+          hints: row.hints || 0,
+          lastUpdated: row.last_updated || (local && local.lastUpdated) || null
         };
         try { localStorage.setItem(key, JSON.stringify(merged)); } catch(e){}
+      } else if(cloudUpdated > localUpdated){
+        // Session counts match (or local is ahead), but cloud has a more recent
+        // "last used" timestamp — e.g. existing history, or another device used
+        // the app more recently. Adopt that date for the dashboard.
+        const updated = local || { lastLesson: row.last_lesson || 'Not started', sessionCount: localCount, hints: (local && local.hints) || 0 };
+        updated.lastUpdated = row.last_updated;
+        try { localStorage.setItem(key, JSON.stringify(updated)); } catch(e){}
       }
       // Restore done_today from Supabase only if it was today
       // (done_today in Supabase reflects last sync — only trust it on same calendar day)
@@ -859,6 +937,50 @@ async function loadSessionsFromSupabase(){
     window._cloudSyncMsg = `Cannot reach cloud: ${e.message}`;
     console.log('[Ma Pao] Could not sync from cloud (offline?):', e.message);
   }
+}
+
+// ══════════════════════════════════════════════
+// MATH GAMES — best-streak sync (separate table, separate try/catch so a
+// missing/misconfigured "math_scores" table can NEVER break the main
+// session-progress sync above).
+// Requires a Supabase table named "math_scores" with columns:
+//   student text, game_key text, best_streak int, updated_at timestamptz
+//   (primary key on student+game_key, anon read/write policies like "progress")
+// ══════════════════════════════════════════════
+async function syncMathBestToSupabase(student, gameKey, bestStreak){
+  try {
+    await fetch(`${SUPA_URL}/rest/v1/math_scores`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPA_KEY,
+        'Authorization': `Bearer ${SUPA_KEY}`,
+        'Prefer': 'resolution=merge-duplicates'
+      },
+      body: JSON.stringify({ student, game_key: gameKey, best_streak: bestStreak, updated_at: new Date().toISOString() })
+    });
+  } catch(e){ /* silent fail — localStorage always works */ }
+}
+
+async function loadMathBestFromSupabase(){
+  try {
+    const res = await fetch(
+      `${SUPA_URL}/rest/v1/math_scores?select=student,game_key,best_streak`,
+      { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` } }
+    );
+    if(!res.ok) return; // table not created yet, or offline — local best streaks still work
+    const rows = await res.json();
+    if(!Array.isArray(rows)) return;
+    rows.forEach(row => {
+      const key = `mg-best-${row.student}-${row.game_key}`;
+      let local = 0;
+      try { local = parseInt(localStorage.getItem(key)||'0',10) || 0; } catch(e){}
+      const cloud = row.best_streak || 0;
+      if(cloud > local){
+        try { localStorage.setItem(key, String(cloud)); } catch(e){}
+      }
+    });
+  } catch(e){ /* offline — local best streaks still work */ }
 }
 
 // ══════════════════════════════════════════════
@@ -901,6 +1023,7 @@ function getSession(student, subjectId){
   catch(e){ return {lastLesson:'Not started',sessionCount:0,hints:0}; }
 }
 function saveSession(student, subjectId, data){
+  data.lastUpdated = new Date().toISOString(); // for "Last Used" column on Teacher Dashboard
   try{ localStorage.setItem(storageKey(student,subjectId), JSON.stringify(data)); } catch(e){}
   syncToSupabase(student, subjectId, data, isDone(student, subjectId));
 }
@@ -1069,8 +1192,8 @@ function resetSubjColors(){
   const topbar = document.querySelector('.tutor-topbar');
   if(topbar) topbar.style.borderBottomColor = '';
 }
-function goHome(){ stopRead(); clearInterval(classTimerInterval); classTimerInterval=null; resetSubjColors(); showScreen('home'); }
-function goSubjects(){ stopRead(); resetSubjColors(); showScreen('subjects'); }
+function goHome(){ stopRead(); clearInterval(classTimerInterval); classTimerInterval=null; resetSubjColors(); closeMathGames(); const mgFab=document.getElementById('math-games-fab'); if(mgFab) mgFab.style.display='none'; showScreen('home'); }
+function goSubjects(){ stopRead(); resetSubjColors(); closeMathGames(); const mgFab=document.getElementById('math-games-fab'); if(mgFab) mgFab.style.display='none'; showScreen('subjects'); }
 
 // ── TEACHER DASHBOARD ──
 const DASH_PASSWORD = 'mapao2024';
@@ -1134,7 +1257,7 @@ function loadDashboard(){
 
     const table = document.createElement('table');
     table.className = 'dash-table';
-    table.innerHTML = '<thead><tr><th>Subject</th><th>Category</th><th>Last Lesson</th><th>Sessions</th><th>Today</th><th></th></tr></thead>';
+    table.innerHTML = '<thead><tr><th>Subject</th><th>Category</th><th>Last Lesson</th><th>Sessions</th><th>Last Used</th><th>Today</th><th></th></tr></thead>';
     const tbody = document.createElement('tbody');
 
     if(!subjList.length){
@@ -1167,12 +1290,14 @@ function renderDashRow(tr, sid, subj){
     subj.tag,
     sess.lastLesson || '—',
     String(sess.sessionCount || 0),
+    formatLastUsed(sess.lastUpdated),
     badge
   ];
   cells.forEach((val, i) => {
     const td = document.createElement('td');
-    if(i === 4) td.innerHTML = val;
+    if(i === 5) td.innerHTML = val;
     else td.textContent = val;
+    if(i === 4) td.style.cssText = 'font-size:11px;color:var(--vg-text3);white-space:nowrap;';
     tr.appendChild(td);
   });
   const editTd = document.createElement('td');
@@ -1220,6 +1345,12 @@ function showDashEditRow(tr, sid, subj){
   sessInput.value = String(sess.sessionCount || 0);
   td4.appendChild(sessInput);
   tr.appendChild(td4);
+
+  // Last Used (read-only)
+  const td4b = document.createElement('td');
+  td4b.textContent = formatLastUsed(sess.lastUpdated);
+  td4b.style.cssText = 'font-size:11px;color:var(--vg-text3);white-space:nowrap;';
+  tr.appendChild(td4b);
 
   // Today done checkbox
   const td5 = document.createElement('td');
@@ -1285,6 +1416,21 @@ function getDoneKey(studentId, subjectId){
 }
 function isDone(studentId, subjectId){
   try { return localStorage.getItem(getDoneKey(studentId, subjectId)) === '1'; } catch(e){ return false; }
+}
+
+// Human-readable "Last Used" date for the Teacher Dashboard
+function formatLastUsed(iso){
+  if(!iso) return '—';
+  const d = new Date(iso);
+  if(isNaN(d.getTime())) return '—';
+  const now = new Date();
+  const startOfDay = dt => new Date(dt.getFullYear(), dt.getMonth(), dt.getDate()).getTime();
+  const diffDays = Math.round((startOfDay(now) - startOfDay(d)) / 86400000);
+  const timeStr = d.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
+  if(diffDays === 0) return `Today, ${timeStr}`;
+  if(diffDays === 1) return `Yesterday, ${timeStr}`;
+  if(diffDays > 1 && diffDays < 7) return `${diffDays} days ago`;
+  return d.toLocaleDateString([], {month:'short', day:'numeric', year:'numeric'});
 }
 function toggleDone(event, studentId, subjectId){
   event.stopPropagation();
@@ -1387,6 +1533,8 @@ function openSubject(subjectId){
 
   // Math timer + diagnostic banner
   document.getElementById('timer-bar').style.display = curSubject.isMath ? 'block' : 'none';
+  const mgFab = document.getElementById('math-games-fab');
+  if(mgFab) mgFab.style.display = (curSubject.id.includes('math') || curSubject.id.includes('arithmetic')) ? 'inline-flex' : 'none';
   if(curSubject.isMath){
     const sess = getSession(curStudent, subjectId);
     document.getElementById('diag-banner').style.display = sess.sessionCount === 0 ? 'block' : 'none';
@@ -1402,6 +1550,18 @@ function openSubject(subjectId){
   const trackerText = `Last: ${sess.lastLesson} · Sessions: ${sess.sessionCount}`;
   document.getElementById('tracker-text') && (document.getElementById('tracker-text').textContent = trackerText);
   document.getElementById('tracker-text-right') && (document.getElementById('tracker-text-right').textContent = trackerText);
+  // Re-sync tracker once cloud progress finishes loading (covers race on slow/mobile connections
+  // where a returning student's saved session count hasn't loaded into localStorage yet)
+  if(window._cloudSyncPromise){
+    window._cloudSyncPromise.then(()=>{
+      if(curSubject && curSubject.id === subjectId){
+        const freshSess = getSession(curStudent, subjectId);
+        const freshText = `Last: ${freshSess.lastLesson} · Sessions: ${freshSess.sessionCount}`;
+        document.getElementById('tracker-text') && (document.getElementById('tracker-text').textContent = freshText);
+        document.getElementById('tracker-text-right') && (document.getElementById('tracker-text-right').textContent = freshText);
+      }
+    });
+  }
 
   // Reset UI
   document.getElementById('ai-response').textContent = 'Tap "Begin Today\'s Lesson" to start.';
@@ -1478,6 +1638,11 @@ function showBookCover(){
 // BEGIN SESSION — AI CALL
 // ══════════════════════════════════════════════
 async function beginSession(){
+  // Make sure this student's cloud progress (session count, last lesson) has finished
+  // loading before we calculate the session number — prevents a returning student
+  // being treated as "session 1" due to a Supabase sync race on slow/mobile connections.
+  if(window._cloudSyncPromise){ try{ await window._cloudSyncPromise; } catch(e){} }
+
   const btn = document.getElementById('btn-begin-top');
 
   // Check for saved lesson progress and restore question index
@@ -1545,13 +1710,23 @@ TIME LIMIT: This is a 10-minute session. Keep the reading brisk, vocabulary brie
   const vocabStep = aesopVocabStep || bibleVocabStep;
   const hasVocab = isAesop || isBible;
 
+  // If the session count shows prior sessions but no lesson detail was ever
+  // recorded (e.g. the count was set/corrected manually on the Teacher Dashboard
+  // and "Last Lesson" was left blank), do NOT tell the AI "Not started" —
+  // that makes it treat a returning student as a brand-new student.
+  // Instead, tell it how many sessions have happened and to ask the student
+  // where they left off.
+  const lastLessonInfo = (sess.lastLesson === 'Not started' && sess.sessionCount > 0)
+    ? `Not recorded in the system — but this student has already completed ${sess.sessionCount} previous session(s) of this subject. Do NOT treat this as the student's first lesson and do NOT restart from the very beginning. Briefly ask the student what they covered last time (which fable/chapter/lesson) and continue sequentially from there based on their answer.`
+    : sess.lastLesson;
+
   const prompt = `${UNIVERSAL_RULES}
 
 ${curSubject.prompt}
 ${mathDiagInstruction}
 
 STUDENT: ${studentNames[curStudent]}
-LAST LESSON COMPLETED: ${sess.lastLesson}
+LAST LESSON COMPLETED: ${lastLessonInfo}
 SESSION NUMBER: ${sessionNumber}
 ${hasVocab ? 'SESSION TIME LIMIT: 10 minutes total. Move quickly through each section.' : ''}
 
@@ -3109,8 +3284,307 @@ function toggleMic() {
   }
 }
 // Start cloud sync on load — restores session history on any device/browser
-loadSessionsFromSupabase();
+window._cloudSyncPromise = Promise.all([loadSessionsFromSupabase(), loadMathBestFromSupabase()]);
 supabaseKeepAlive(); // keep Supabase free tier from pausing
+
+// ══════════════════════════════════════════════
+// MATH GAMES — Multiplication tables (0–13) & skip-counting multiples
+// ══════════════════════════════════════════════
+const MG_TABLE_NUMS = [0,1,2,3,4,5,6,7,8,9,10,11,12,13];
+const MG_MULTIPLE_NUMS = [2,3,4,5,6,10];
+const MG_TIMEOUT = -99999;
+let mgMode = 'tables';
+let mgNumber = 2;
+let mgCorrect = 0, mgStreak = 0, mgBestStreak = 0, mgAnswered = false;
+let mgQuizActive = false, mgQuizQ = 0, mgQuizTotal = 10, mgQuizScore = 0, mgQuizTimer = null, mgQuizTimeLeft = 0;
+
+function openMathGames(){
+  document.getElementById('mg-overlay').classList.add('active');
+  mgSelectMode(mgMode || 'tables');
+}
+function closeMathGames(){
+  document.getElementById('mg-overlay').classList.remove('active');
+  mgStopQuizTimer();
+}
+
+function mgSelectMode(mode){
+  mgMode = mode;
+  mgStopQuizTimer();
+  mgQuizActive = false;
+  ['tables','skip','quiz'].forEach(m=>{
+    const t = document.getElementById('mg-tab-'+m);
+    if(t) t.classList.toggle('active', m===mode);
+  });
+  const nums = (mode==='skip') ? MG_MULTIPLE_NUMS : MG_TABLE_NUMS;
+  if(mgNumber==='mixed' && mode!=='quiz') mgNumber = nums[0];
+  if(mgNumber!=='mixed' && !nums.includes(mgNumber)) mgNumber = nums[0];
+  const lbl = document.getElementById('mg-number-label');
+  lbl.textContent = mode==='skip' ? 'Pick a number to skip-count by'
+                   : mode==='quiz' ? 'Pick a times table (or Mixed)'
+                   : 'Pick a times table';
+  mgRenderNumberGrid();
+  mgLoadBest();
+  mgResetSession();
+}
+
+function mgRenderNumberGrid(){
+  const nums = (mgMode==='skip') ? MG_MULTIPLE_NUMS : MG_TABLE_NUMS;
+  const grid = document.getElementById('mg-number-grid');
+  let html = nums.map(n=>`<button class="mg-num-chip ${n===mgNumber?'active':''}" onclick="mgSelectNumber(${n})">${n}</button>`).join('');
+  if(mgMode==='quiz') html += `<button class="mg-num-chip mixed ${mgNumber==='mixed'?'active':''}" onclick="mgSelectNumber('mixed')">Mixed 0–13</button>`;
+  grid.innerHTML = html;
+}
+
+function mgSelectNumber(n){
+  mgNumber = n;
+  mgRenderNumberGrid();
+  mgLoadBest();
+  mgResetSession();
+}
+
+function mgResetSession(){
+  mgCorrect = 0; mgStreak = 0;
+  document.getElementById('mg-score-correct').textContent = '0';
+  document.getElementById('mg-score-streak').textContent = '0';
+  mgStopQuizTimer();
+  mgQuizActive = false;
+  if(mgMode==='quiz') mgRenderQuizStart();
+  else mgNewQuestionForMode();
+}
+
+function mgNewQuestionForMode(){
+  if(mgMode==='skip') mgNewSkipQuestion();
+  else mgNewQuestion();
+}
+
+// Best streak (per student / mode / number) — stored locally on this device
+function mgBestKey(){ return 'mg-best-'+(curStudent||'X')+'-'+mgMode+'-'+mgNumber; }
+function mgLoadBest(){
+  try{ mgBestStreak = parseInt(localStorage.getItem(mgBestKey())||'0',10) || 0; }catch(e){ mgBestStreak = 0; }
+  const el = document.getElementById('mg-score-best');
+  if(el) el.textContent = mgBestStreak;
+  // If the cloud best-streak hasn't finished loading yet (e.g. opened Math
+  // Games right after the app loaded), refresh once it does.
+  if(window._cloudSyncPromise){
+    const modeAtRequest = mgMode, numberAtRequest = mgNumber;
+    window._cloudSyncPromise.then(()=>{
+      if(mgMode !== modeAtRequest || mgNumber !== numberAtRequest) return; // user already moved on
+      let cloudBest = 0;
+      try{ cloudBest = parseInt(localStorage.getItem(mgBestKey())||'0',10) || 0; }catch(e){}
+      if(cloudBest > mgBestStreak){
+        mgBestStreak = cloudBest;
+        const el2 = document.getElementById('mg-score-best');
+        if(el2) el2.textContent = mgBestStreak;
+      }
+    });
+  }
+}
+function mgSaveBestIfNeeded(){
+  if(mgStreak > mgBestStreak){
+    mgBestStreak = mgStreak;
+    const el = document.getElementById('mg-score-best');
+    if(el) el.textContent = mgBestStreak;
+    try{ localStorage.setItem(mgBestKey(), mgBestStreak); }catch(e){}
+    syncMathBestToSupabase(curStudent, mgMode + '-' + mgNumber, mgBestStreak);
+  }
+}
+
+function mgShuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function mgPraise(){
+  const arr = ['Great job! ⭐','Correct! 🎉','Well done! ✨','Excellent! 👏','You got it! 🙌','Perfect! 💫'];
+  return arr[Math.floor(Math.random()*arr.length)];
+}
+
+function mgRenderChoices(choices, correct){
+  const cont = document.getElementById('mg-choices');
+  cont.innerHTML = choices.map(c=>`<button class="mg-choice-btn" onclick="mgCheckAnswer(${c},${correct},this)">${c}</button>`).join('');
+}
+
+// ── Times Tables mode ──────────────────────────
+function mgGenChoices(correct, a, b){
+  const set = new Set([correct]);
+  const candidates = mgShuffle([correct+a, correct-a, correct+b, correct-b, correct+1, correct-1, correct+2, correct-2, correct+a+b, correct-(a+b)]);
+  for(const c of candidates){
+    if(set.size>=4) break;
+    if(c>=0 && !set.has(c)) set.add(c);
+  }
+  let guard=0;
+  while(set.size<4 && guard<30){
+    const c = correct + Math.floor(Math.random()*14) - 7;
+    if(c>=0 && !set.has(c)) set.add(c);
+    guard++;
+  }
+  return mgShuffle(Array.from(set));
+}
+
+function mgNewQuestion(){
+  mgAnswered = false;
+  const a = mgNumber;
+  const b = Math.floor(Math.random()*13);
+  const correct = a*b;
+  const choices = mgGenChoices(correct, a, b);
+  const area = document.getElementById('mg-game-area');
+  area.innerHTML = `
+    <div class="mg-question-box">
+      <div class="mg-question-text">${a} × ${b} = ?</div>
+    </div>
+    <div class="mg-choices" id="mg-choices"></div>
+    <div class="mg-feedback-line" id="mg-feedback"></div>`;
+  mgRenderChoices(choices, correct);
+}
+
+// ── Skip Counting mode (multiples of 2,3,4,5,6,10) ──
+function mgGenSkipChoices(correct, n){
+  const set = new Set([correct]);
+  const half = Math.max(1, Math.floor(n/2));
+  const candidates = mgShuffle([correct+n, correct-n, correct+2*n, correct-2*n, correct+1, correct-1, correct+half, correct-half]);
+  for(const c of candidates){
+    if(set.size>=4) break;
+    if(c>0 && !set.has(c)) set.add(c);
+  }
+  let guard=0;
+  while(set.size<4 && guard<30){
+    const c = correct + Math.floor(Math.random()*(2*n+1)) - n;
+    if(c>0 && !set.has(c)) set.add(c);
+    guard++;
+  }
+  return mgShuffle(Array.from(set));
+}
+
+function mgNewSkipQuestion(){
+  mgAnswered = false;
+  const n = mgNumber;
+  const startK = Math.floor(Math.random()*8) + 1;
+  const seq = [];
+  for(let i=0;i<6;i++) seq.push(n*(startK+i));
+  const blankIdx = Math.floor(Math.random()*6);
+  const correct = seq[blankIdx];
+  const display = seq.map((v,i)=> i===blankIdx ? '<span class="mg-seq-blank">?</span>' : v).join(',  ');
+  const choices = mgGenSkipChoices(correct, n);
+  const area = document.getElementById('mg-game-area');
+  area.innerHTML = `
+    <div class="mg-question-box">
+      <div class="mg-seq-text">${display}</div>
+    </div>
+    <div class="mg-choices" id="mg-choices"></div>
+    <div class="mg-feedback-line" id="mg-feedback"></div>`;
+  mgRenderChoices(choices, correct);
+}
+
+// ── Speed Quiz mode ─────────────────────────────
+function mgRenderQuizStart(){
+  mgStopQuizTimer();
+  const label = (mgNumber==='mixed') ? 'Mixed (0–13)' : `the ${mgNumber}× table`;
+  const area = document.getElementById('mg-game-area');
+  area.innerHTML = `
+    <div class="mg-question-box">
+      <div class="mg-question-text" style="font-size:18px;">⚡ Speed Quiz</div>
+      <div class="mg-quiz-intro">10 questions · ${label}<br>5 seconds per question</div>
+    </div>
+    <button class="mg-replay-btn" onclick="mgStartQuiz()">▶ Start Quiz</button>`;
+}
+
+function mgStartQuiz(){
+  mgQuizActive = true;
+  mgQuizQ = 0;
+  mgQuizScore = 0;
+  mgCorrect = 0; mgStreak = 0;
+  document.getElementById('mg-score-correct').textContent = '0';
+  document.getElementById('mg-score-streak').textContent = '0';
+  mgQuizNext();
+}
+
+function mgQuizNext(){
+  mgStopQuizTimer();
+  if(mgQuizQ >= mgQuizTotal){ mgQuizEnd(); return; }
+  mgAnswered = false;
+  const a = (mgNumber==='mixed') ? Math.floor(Math.random()*14) : mgNumber;
+  const b = Math.floor(Math.random()*13);
+  const correct = a*b;
+  const choices = mgGenChoices(correct, a, b);
+  const area = document.getElementById('mg-game-area');
+  area.innerHTML = `
+    <div class="mg-question-box">
+      <div style="font-size:11px;color:var(--vg-text3);margin-bottom:6px;">Question ${mgQuizQ+1} / ${mgQuizTotal}</div>
+      <div class="mg-question-text">${a} × ${b} = ?</div>
+      <div class="mg-timer-track"><div class="mg-timer-fill" id="mg-quiz-timer-fill" style="width:100%"></div></div>
+    </div>
+    <div class="mg-choices" id="mg-choices"></div>
+    <div class="mg-feedback-line" id="mg-feedback"></div>`;
+  mgRenderChoices(choices, correct);
+  mgQuizTimeLeft = 5.0;
+  mgQuizTimer = setInterval(()=>{
+    mgQuizTimeLeft -= 0.1;
+    const fill = document.getElementById('mg-quiz-timer-fill');
+    if(fill){
+      fill.style.width = Math.max(0, mgQuizTimeLeft/5*100)+'%';
+      fill.classList.toggle('urgent', mgQuizTimeLeft<1.5);
+    }
+    if(mgQuizTimeLeft<=0){
+      mgStopQuizTimer();
+      if(!mgAnswered) mgCheckAnswer(MG_TIMEOUT, correct, null);
+    }
+  }, 100);
+}
+
+function mgStopQuizTimer(){
+  if(mgQuizTimer){ clearInterval(mgQuizTimer); mgQuizTimer = null; }
+}
+
+function mgQuizEnd(){
+  mgQuizActive = false;
+  const pct = Math.round((mgQuizScore/mgQuizTotal)*100);
+  const msg = pct===100 ? 'Perfect score! 🏆' : pct>=80 ? 'Excellent work! ⭐' : pct>=50 ? 'Good effort — keep practicing! 💪' : "Keep practicing — you'll get faster! 🙂";
+  const area = document.getElementById('mg-game-area');
+  area.innerHTML = `
+    <div class="mg-quiz-result">
+      <div class="big">${mgQuizScore} / ${mgQuizTotal}</div>
+      <div style="color:var(--vg-text2);font-size:13px;">${msg}</div>
+      <button class="mg-replay-btn" onclick="mgRenderQuizStart()">↺ Try Again</button>
+    </div>`;
+}
+
+// ── Answer checking (shared by all modes) ───────
+function mgCheckAnswer(chosen, correct, btn){
+  if(mgAnswered) return;
+  mgAnswered = true;
+  mgStopQuizTimer();
+  const buttons = document.querySelectorAll('#mg-choices .mg-choice-btn');
+  buttons.forEach(b=>b.disabled = true);
+  const fb = document.getElementById('mg-feedback');
+  const isCorrect = (chosen === correct);
+  if(isCorrect){
+    if(btn) btn.classList.add('correct');
+    mgCorrect++; mgStreak++;
+    mgSaveBestIfNeeded();
+    fb.textContent = mgPraise();
+    fb.style.color = '#80E0A0';
+  } else {
+    if(btn) btn.classList.add('wrong');
+    buttons.forEach(b=>{ if(b.textContent.trim()===String(correct)) b.classList.add('correct'); });
+    mgStreak = 0;
+    fb.textContent = (chosen===MG_TIMEOUT) ? `Time's up — the answer is ${correct}.` : `Not quite — the answer is ${correct}.`;
+    fb.style.color = '#FF9090';
+  }
+  document.getElementById('mg-score-correct').textContent = mgCorrect;
+  document.getElementById('mg-score-streak').textContent = mgStreak;
+
+  if(mgMode==='quiz' && mgQuizActive){
+    if(isCorrect) mgQuizScore++;
+    mgQuizQ++;
+    setTimeout(mgQuizNext, 900);
+  } else {
+    setTimeout(mgNewQuestionForMode, 1100);
+  }
+}
+
 </script>
 
 <!-- ── TEACHER DASHBOARD SCREEN ── -->
