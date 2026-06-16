@@ -229,6 +229,14 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
 .math-games-fab{display:none;align-items:center;gap:4px;padding:3px 10px;border-radius:14px;border:1px solid rgba(240,200,48,0.4);background:var(--vg-gold-dim);color:var(--vg-gold);font-size:11px;font-weight:700;cursor:pointer;font-family:'Lato',sans-serif;white-space:nowrap;}
 .math-games-fab:hover{background:rgba(240,200,48,0.2);}
 .math-games-fab:active{transform:scale(0.96);}
+.ext-games-fab{display:none;align-items:center;gap:4px;padding:3px 10px;border-radius:14px;border:1px solid rgba(70,160,240,0.4);background:rgba(40,100,200,0.16);color:#6AABF0;font-size:11px;font-weight:700;cursor:pointer;font-family:'Lato',sans-serif;white-space:nowrap;}
+.ext-games-fab:hover{background:rgba(70,160,240,0.28);}
+.ext-games-fab:active{transform:scale(0.96);}
+.eg-note{font-size:11px;color:var(--vg-text3);margin-bottom:12px;line-height:1.5;}
+.eg-link-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-radius:var(--radius-sm);border:1px solid var(--vg-border2);background:rgba(255,255,255,0.04);margin-bottom:8px;text-decoration:none;font-family:'Lato',sans-serif;}
+.eg-link-item:hover{border-color:#6AABF0;background:rgba(70,160,240,0.1);}
+.eg-link-name{font-size:13px;font-weight:700;color:var(--vg-text);}
+.eg-link-go{font-size:11px;color:#6AABF0;font-weight:700;white-space:nowrap;}
 .mg-overlay{position:fixed;top:0;right:0;bottom:0;left:0;inset:0;background:rgba(10,6,20,0.78);z-index:1000;display:none;align-items:center;justify-content:center;padding:14px;}
 .mg-overlay.active{display:flex;}
 .mg-modal{background:var(--vg-bg2);border:1px solid var(--vg-border2);border-radius:var(--radius);width:100%;max-width:460px;max-height:92vh;overflow-y:auto;padding:16px;font-family:'Lato',sans-serif;}
@@ -483,6 +491,7 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
         🔊
         <div class="read-bar-btns">
           <button class="math-games-fab" id="math-games-fab" onclick="openMathGames()" title="Multiplication Games">🎮 Games</button>
+          <button class="ext-games-fab" id="ext-games-fab" onclick="openExtGames()" title="Free Online Games">🎮 Games</button>
           <button class="rbtn" id="btn-read" onclick="startReadAloud()" onpointerdown="ttsGestureUnlocked=true">▶ Read</button>
           <button class="rbtn" id="btn-pause-read" onclick="pauseReadAloud()" style="display:none">⏸ Pause</button>
           <button class="rbtn" id="btn-resume-read" onclick="resumeReadAloud()" style="display:none">▶ Resume</button>
@@ -586,7 +595,7 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
   <div class="mg-overlay" id="mg-overlay">
     <div class="mg-modal">
       <div class="mg-header">
-        <div class="mg-title">🎮 Math Games</div>
+        <div class="mg-title">🎮 Multiplication Games</div>
         <div style="display:flex;gap:0;">
           <button class="mg-speak-btn" id="mg-speak-btn" onclick="mgReadCurrent()" onpointerdown="ttsGestureUnlocked=true" title="Read this aloud">🔊</button>
           <button class="mg-close" onclick="closeMathGames()">✕</button>
@@ -596,7 +605,6 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
       <div class="mg-tabs">
         <button class="mg-tab" id="mg-tab-tables" onclick="mgSelectMode('tables')">🔢 Times Tables</button>
         <button class="mg-tab" id="mg-tab-skip" onclick="mgSelectMode('skip')">📈 Skip Counting</button>
-        <button class="mg-tab" id="mg-tab-division" onclick="mgSelectMode('division')">➗ Division</button>
         <button class="mg-tab" id="mg-tab-quiz" onclick="mgSelectMode('quiz')">⚡ Speed Quiz</button>
       </div>
 
@@ -612,12 +620,50 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
       <div id="mg-game-area"></div>
     </div>
   </div>
+
+  <div class="mg-overlay" id="eg-overlay">
+    <div class="mg-modal">
+      <div class="mg-header">
+        <div class="mg-title" id="eg-title">🎮 Games</div>
+        <button class="mg-close" onclick="closeExtGames()">✕</button>
+      </div>
+      <div class="eg-note">These are free websites outside the app. Tap one to open it in a new tab — this app will stay open behind it.</div>
+      <div id="eg-list"></div>
+    </div>
+  </div>
 </div><!-- end tutor screen -->
 
 <script>
 // ══════════════════════════════════════════════
 // SUBJECT CATALOGUE — all 26 spaces
 // ══════════════════════════════════════════════
+// ══════════════════════════════════════════════
+// FREE EXTERNAL GAME LINKS (all confirmed free to play, June 2026)
+// ══════════════════════════════════════════════
+const GRAMMAR_GAMES = [
+  {name:'Parts of Speech Asteroids (ABCya)', url:'https://www.abcya.com/games/parts_of_speech'},
+  {name:'Road to Grammar', url:'http://www.roadtogrammar.com/'},
+  {name:'Wordshark (RoomRecess)', url:'https://www.roomrecess.com/games/WordShark/play.html'},
+  {name:'Grammar Ninja', url:'https://www.kwarp.com/portfolio/grammarninja.html'},
+  {name:'Grammar Gorillas (Funbrain)', url:'https://www.funbrain.com/games/grammar-gorillas'},
+  {name:'Grammaropolis (free Noun Neighborhood)', url:'https://www.grammaropolis.com/'},
+  {name:'More Language Arts Games (ABCya)', url:'https://www.abcya.com/games/category/language-arts'}
+];
+const PHONICS_GAMES = [
+  {name:'Teach Your Monster to Read', url:'https://www.teachyourmonster.org/teach-your-monster-to-read/'},
+  {name:'Starfall — Letters & Phonics', url:'https://www.starfall.com/h/'},
+  {name:'Kindergarten Letter & Sound Games (ABCya)', url:'https://www.abcya.com/grades/k'},
+  {name:'PBS Kids Reading Games', url:'https://pbskids.org/games/reading'},
+  {name:'Funbrain', url:'https://www.funbrain.com/'}
+];
+const READING_GAMES = [
+  {name:'Teach Your Monster: Reading for Fun', url:'https://www.teachyourmonster.org/reading-for-fun/'},
+  {name:'Storyline Online (actors read books aloud)', url:'https://storylineonline.net/'},
+  {name:'Story Games (ABCya)', url:'https://www.abcya.com/games/category/story'},
+  {name:'RoomRecess Reading Games', url:'https://www.roomrecess.com/'},
+  {name:'Funbrain', url:'https://www.funbrain.com/'}
+];
+
 const SUBJECTS = {
   AL:[
     {id:'AL-aesop',    icon:'📜', name:"Aesop's Fables",       tag:'Philosophy & Reading',  color:'#534AB7', bg:'#F6F3FF', freq:'weekly', day:'Monday',
@@ -665,7 +711,7 @@ PAGE DISPLAY RULE: Each time you reference a specific page, chapter heading, or 
      book:'History of Christendom',bookUrl:'',cite:'History of Christendom (volume to be specified)'},
     {id:'AL-grammar',  icon:'📝', name:'Grammar Review',         tag:"Harvey's — Grade 9 Mastery",color:'#534AB7', bg:'#F5F0FF', freq:'daily', day:'Daily',
      prompt:`You are a Grammar review and mastery tutor for a 9th-grader using Harvey's 'Elementary Grammar and Composition' (1880). Student: A.L. Has studied grammar before but has gaps. Begin with a short diagnostic, then target specific weak sections. Once gaps are filled, proceed through Part II. READING ORDER: After diagnostic, go to specific gap sections. Ask which section they worked on last time. SOURCE LOCK: Uploaded PDF only. CONTENT RESTRICTIONS: Classical Catholic educational tone. No modernist grammatical theories. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
-     book:"Elementary Grammar & Composition — Harvey",bookUrl:'https://www.dropbox.com/scl/fi/o1kly606cr3jvgdj0hry1/BOOK-GRAMMAR-TRV-101-Elementary-Grammar-HARVEY_ENGLISH_GRAMMAR_I.pdf?rlkey=vxhc3pl9z0hohvdeeeh40zqg6&dl=0',cite:"Elementary Grammar and Composition, Harvey (1880)"},
+     book:"Elementary Grammar & Composition — Harvey",bookUrl:'https://www.dropbox.com/scl/fi/o1kly606cr3jvgdj0hry1/BOOK-GRAMMAR-TRV-101-Elementary-Grammar-HARVEY_ENGLISH_GRAMMAR_I.pdf?rlkey=vxhc3pl9z0hohvdeeeh40zqg6&dl=0',cite:"Elementary Grammar and Composition, Harvey (1880)",games:GRAMMAR_GAMES,gamesLabel:'Grammar Games'},
     {id:'AL-art',      icon:'🎨', name:'Art & Drawing',          tag:'Augsburg — Advanced',    color:'#854F0B', bg:'#FEF8E8', freq:'weekly', day:'Friday',
      prompt:`You are a High School Art tutor using Augsburg's Drawing Book I (1901) as foundational skill-builder. Student: A.L., Grade 9–12. All chapters at faster pace. Add advanced challenges for each topic: proportion, perspective, action drawing, watercolor, memory drawing. Connect to classical and Catholic art traditions (Renaissance masters). READING ORDER: All chapters sequentially at accelerated pace. Ask which chapter or topic they worked on last time. SOURCE LOCK: Uploaded PDF only. IMAGE RULE: Do NOT show web images for drawing subjects — students draw from memory and imagination only. EXCEPTION: If a lesson references an object that is obsolete, no longer in common use, or agricultural/historical (for example: a plough, a Roman oil lamp, a medieval cart, an old spinning wheel, a 19th century tool), then add this exact tag at the end of your response: [SHOW_IMAGE: describe the object here] so the app can search for a reference image. This exception exists because students cannot visualize objects they have never seen. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
      book:'Drawing, Book I — Augsburg',bookUrl:'https://www.dropbox.com/scl/fi/0skrduk36umr5pwd4as0p/BOOK-ART-AUSBURG-DRAWING-ART-1.pdf?rlkey=ud6m99k8lcmh6m8r7d3l0cdma&dl=0',cite:"Augsburg's Drawing, Book I (1901)"},
@@ -691,10 +737,10 @@ PAGE DISPLAY RULE: Each time you reference a specific page, chapter heading, or 
      book:'Story-Book of Science — Fabre',bookUrl:'https://www.dropbox.com/scl/fi/swqcbzzs5qfryoka6cxhy/BOOK-CC-NN-The-Story-Book-Of-Science-by-Jean-Henri-Fabre.pdf?rlkey=lqm9qtkos7nitt2rgt6qmlgr6&dl=0',cite:'The Story-Book of Science, Jean-Henri Fabre'},
     {id:'FA-phonics',  icon:'🔤', name:'Bilingual Phonics',      tag:'English & Spanish',      color:'#185FA5', bg:'#EBF5FF', freq:'daily', day:'Daily',
      prompt:`You are a bilingual Phonics tutor for F.A. (Grade 1–4) teaching reading and writing in English and Spanish. Students are trilingual (French, English, Spanish) — address sound confusions across all three languages kindly. SPEECH RECOGNITION TOLERANCE: Accept phonetically close answers. Up to 3 retries. "I think I heard [X] — close enough!" READING ORDER: Sequential through phonics exercises. Ask which sound or lesson they covered last time. TONE: Warm, patient, celebratory.`,
-     book:'Phonics Workbook',bookUrl:'',cite:'Phonics.com Workbooks'},
+     book:'Phonics Workbook',bookUrl:'',cite:'Phonics.com Workbooks',games:PHONICS_GAMES,gamesLabel:'Phonics Games'},
     {id:'FA-narnia',   icon:'🦁', name:'English Literature',     tag:'Narnia — Gr. 1–2',       color:'#854F0B', bg:'#FFF8E6', freq:'daily', day:'Daily',
      prompt:`You are a 2nd-grade English Literature tutor for C.S. Lewis's Narnia, starting with 'The Lion, the Witch and the Wardrobe.' Student: F.A., Grade 1–4. Read aloud at moderate pace. Guide comprehension: characters, events, Christian symbolism (age-appropriate). READING ORDER: Sequential. Ask which chapter was read last time. TONE: Enthusiastic, warm. Connect to faith gently. CONTENT RESTRICTIONS: No gender ideology, no anti-Catholic content. SOURCE LOCK: Uploaded PDF only. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
-     book:'Narnia — The Lion, the Witch and the Wardrobe',bookUrl:'https://www.dropbox.com/scl/fi/lcy5aw4ckwwiet4omw931/BOOK-Literature-NARNIA-LionWitchWardrobe_CSL.pdf?rlkey=hor768lpfooghsghm7bdtiq4a&dl=0',cite:'The Chronicles of Narnia, C.S. Lewis'},
+     book:'Narnia — The Lion, the Witch and the Wardrobe',bookUrl:'https://www.dropbox.com/scl/fi/lcy5aw4ckwwiet4omw931/BOOK-Literature-NARNIA-LionWitchWardrobe_CSL.pdf?rlkey=hor768lpfooghsghm7bdtiq4a&dl=0',cite:'The Chronicles of Narnia, C.S. Lewis',games:READING_GAMES,gamesLabel:'Reading Games'},
     {id:'FA-history',  icon:'🌍', name:'World History',          tag:"Hillyer — Gr. 1–2",      color:'#854F0B', bg:'#FBF2EC', freq:'weekly', day:'Thursday',
      prompt:`You are a History and Geography tutor for F.A. (Grade 1–4) using 'A Child's History of the World' by V.M. Hillyer. Read aloud at moderate pace. Guide comprehension: key figures, events, geography. READING ORDER: Sequential, one chapter per session. Ask which chapter was read last time. TONE: Warm, storytelling style. Make history come alive. CONTENT RESTRICTIONS: No evolution, no ideological framing. SOURCE LOCK: Uploaded PDF only. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
      book:"A Child's History of the World — Hillyer",bookUrl:'https://www.dropbox.com/scl/fi/1a54r800vr42n3czrn339/BOOK-Historia-del-Mundo-NOBIS-PACEM.pdf?rlkey=7rxu0iae7kmxi5famx1g9lhd9&dl=0',cite:"A Child's History of the World, V.M. Hillyer"},
@@ -706,7 +752,7 @@ PAGE DISPLAY RULE: Each time you reference a specific page, chapter heading, or 
      book:"Ray's Primary Arithmetic (1877)",bookUrl:'https://www.dropbox.com/scl/fi/d07qycd2cibk2a04cmwsv/BOOK-MATH-RAY_PRIMARY_ARITHMETIC.pdf?rlkey=vp9rizedlzvkjbnzsmdpgvnc5&dl=0',cite:"Ray's Primary Arithmetic, Joseph Ray (1877)"},
     {id:'FA-grammar',  icon:'📝', name:'Elementary Grammar',     tag:"Harvey's — First Introduction",color:'#534AB7', bg:'#F5F0FF', freq:'daily', day:'Daily',
      prompt:`You are an Elementary Grammar tutor for F.A. (Grade 1–4) using Harvey's 'Elementary Grammar and Composition' (1880). This is the student's FIRST introduction to grammar. Assume NO prior knowledge. READING ORDER: The Senses → Definition of Object → Definition of Word → Language → The Sentence → Sentence-Making → Quotation Marks → Parts of Speech → The Noun. Ask which section they covered last time. TONE: Very warm, patient, concrete examples always. One concept per session. SOURCE LOCK: Uploaded PDF only. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
-     book:"Elementary Grammar & Composition — Harvey",bookUrl:'https://www.dropbox.com/scl/fi/o1kly606cr3jvgdj0hry1/BOOK-GRAMMAR-TRV-101-Elementary-Grammar-HARVEY_ENGLISH_GRAMMAR_I.pdf?rlkey=vxhc3pl9z0hohvdeeeh40zqg6&dl=0',cite:"Elementary Grammar and Composition, Harvey (1880)"},
+     book:"Elementary Grammar & Composition — Harvey",bookUrl:'https://www.dropbox.com/scl/fi/o1kly606cr3jvgdj0hry1/BOOK-GRAMMAR-TRV-101-Elementary-Grammar-HARVEY_ENGLISH_GRAMMAR_I.pdf?rlkey=vxhc3pl9z0hohvdeeeh40zqg6&dl=0',cite:"Elementary Grammar and Composition, Harvey (1880)",games:GRAMMAR_GAMES,gamesLabel:'Grammar Games'},
     {id:'FA-art',      icon:'🎨', name:'Art & Drawing',          tag:'Augsburg — Gr. 1–2',     color:'#854F0B', bg:'#FEF8E8', freq:'weekly', day:'Friday',
      prompt:`You are an Art and Drawing tutor for F.A. (Grade 1–4) using Augsburg's Drawing Book I (1901). Read aloud each chapter introduction. Guide drawing from memory and imagination — never from copying. One chapter per session. RETEACH MODES: Visual (show/demonstrate), Verbal (describe and discuss), Kinetic (physical activity first). Never give the answer directly. Always cite the book. READING ORDER: Sequential through all chapters. Ask which chapter or drawing topic they worked on last time. IMAGE RULE: Do NOT show web images for drawing subjects — students draw from memory and imagination only. EXCEPTION: If a lesson references an object that is obsolete, no longer in common use, or agricultural/historical (for example: a plough, a Roman oil lamp, a medieval cart, a 19th century tool), then add this exact tag at the end of your response: [SHOW_IMAGE: describe the object here] so the app can find a reference image for the student. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
      book:'Drawing, Book I — Augsburg',bookUrl:'https://www.dropbox.com/scl/fi/0skrduk36umr5pwd4as0p/BOOK-ART-AUSBURG-DRAWING-ART-1.pdf?rlkey=ud6m99k8lcmh6m8r7d3l0cdma&dl=0',cite:"Augsburg's Drawing, Book I (1901)"},
@@ -731,13 +777,16 @@ SUBJECTS.LJ = [
    book:'Story-Book of Science — Fabre',bookUrl:'https://www.dropbox.com/scl/fi/swqcbzzs5qfryoka6cxhy/BOOK-CC-NN-The-Story-Book-Of-Science-by-Jean-Henri-Fabre.pdf?rlkey=lqm9qtkos7nitt2rgt6qmlgr6&dl=0',cite:'The Story-Book of Science, Jean-Henri Fabre'},
   {id:'LJ-narnia',  icon:'🦁', name:'English Literature',    tag:'Narnia — Kindergarten',   color:'#854F0B', bg:'#FFF8E6', freq:'daily', day:'Daily',
    prompt:`You are a Kindergarten Literature tutor for L.J. (Kindergarten, logic of Grade 3) reading Narnia. Read very slowly and clearly. Ask simple comprehension questions: "Who did we meet? What happened?" Connect to faith gently and simply. READING ORDER: Sequential. Ask what happened in the last session, then continue from the next part. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
-   book:'Narnia — The Lion, the Witch and the Wardrobe',bookUrl:'https://www.dropbox.com/scl/fi/lcy5aw4ckwwiet4omw931/BOOK-Literature-NARNIA-LionWitchWardrobe_CSL.pdf?rlkey=hor768lpfooghsghm7bdtiq4a&dl=0',cite:'The Chronicles of Narnia, C.S. Lewis'},
+   book:'Narnia — The Lion, the Witch and the Wardrobe',bookUrl:'https://www.dropbox.com/scl/fi/lcy5aw4ckwwiet4omw931/BOOK-Literature-NARNIA-LionWitchWardrobe_CSL.pdf?rlkey=hor768lpfooghsghm7bdtiq4a&dl=0',cite:'The Chronicles of Narnia, C.S. Lewis',games:READING_GAMES,gamesLabel:'Reading Games'},
   {id:'LJ-history', icon:'🌍', name:'World History',         tag:'Hillyer — Kindergarten',  color:'#854F0B', bg:'#FBF2EC', freq:'weekly', day:'Thursday',
    prompt:`You are a Kindergarten History tutor for L.J. (Kindergarten, logic of Grade 3) using Hillyer. Read aloud slowly. Make it a story. Simple questions. READING ORDER: Sequential. Ask which chapter they covered last time. CONTENT RESTRICTIONS: No evolution, no ideology. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
    book:"A Child's History of the World — Hillyer",bookUrl:'https://www.dropbox.com/scl/fi/1a54r800vr42n3czrn339/BOOK-Historia-del-Mundo-NOBIS-PACEM.pdf?rlkey=7rxu0iae7kmxi5famx1g9lhd9&dl=0',cite:"A Child's History of the World, V.M. Hillyer"},
   {id:'LJ-grammar', icon:'📝', name:'Grammar Introduction',  tag:"Harvey's — Kindergarten", color:'#534AB7', bg:'#F5F0FF', freq:'daily', day:'Daily',
    prompt:`You are a Kindergarten Grammar tutor for L.J. (Kindergarten, logic of Grade 3) using Harvey (1880). ONLY cover: The Senses (naming objects), Definition of Object, Definition of Word. Spend MULTIPLE sessions per concept. Do NOT go beyond The Sentence until very comfortable. Use games, pointing at objects in the room, simple repetition. TONE: Extremely playful and patient. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
-   book:"Elementary Grammar & Composition — Harvey",bookUrl:'https://www.dropbox.com/scl/fi/o1kly606cr3jvgdj0hry1/BOOK-GRAMMAR-TRV-101-Elementary-Grammar-HARVEY_ENGLISH_GRAMMAR_I.pdf?rlkey=vxhc3pl9z0hohvdeeeh40zqg6&dl=0',cite:"Elementary Grammar and Composition, Harvey (1880)"},
+   book:"Elementary Grammar & Composition — Harvey",bookUrl:'https://www.dropbox.com/scl/fi/o1kly606cr3jvgdj0hry1/BOOK-GRAMMAR-TRV-101-Elementary-Grammar-HARVEY_ENGLISH_GRAMMAR_I.pdf?rlkey=vxhc3pl9z0hohvdeeeh40zqg6&dl=0',cite:"Elementary Grammar and Composition, Harvey (1880)",games:GRAMMAR_GAMES,gamesLabel:'Grammar Games'},
+  {id:'LJ-phonics', icon:'🔤', name:'Bilingual Phonics',     tag:'English & Spanish — Kindergarten', color:'#185FA5', bg:'#EBF5FF', freq:'daily', day:'Daily',
+   prompt:`You are a bilingual Phonics tutor for L.J. (Kindergarten, logic of Grade 3) teaching reading and writing in English and Spanish. L.J. is trilingual (French, English, Spanish) — address sound confusions across all three languages kindly and patiently. Use very short, playful, simple sentences. Start with single letter sounds before blending. SPEECH RECOGNITION TOLERANCE: Accept phonetically close answers. Up to 3 retries. "I think I heard [X] — close enough!" READING ORDER: Sequential through phonics exercises, starting from the very first letter sounds. Ask which sound or lesson they covered last time. TONE: Very warm, patient, celebratory.`,
+   book:'Phonics Workbook',bookUrl:'',cite:'Phonics.com Workbooks',games:PHONICS_GAMES,gamesLabel:'Phonics Games'},
   {id:'LJ-art',     icon:'🎨', name:'Art & Drawing',         tag:'Augsburg — Kindergarten', color:'#854F0B', bg:'#FEF8E8', freq:'weekly', day:'Friday',
    prompt:`You are a Kindergarten Art tutor for L.J. (Kindergarten, logic of Grade 3) using Augsburg (1901). Start with Mental Image (drawing from memory), then First Years, then Chapter I. Spend many sessions on each. Jump to Color chapter anytime for variety. Use Kindergarten-friendly, playful language (short, fun, encouraging) but explain the concept clearly since L.J. is a strong logical thinker. Ask what they drew last time. RETEACH: Visual → Verbal → Kinetic (physical activity first for this age). IMAGE RULE: Do NOT show web images for drawing subjects — students draw from memory and imagination only. EXCEPTION: If a lesson references an object that is obsolete, no longer in common use, or agricultural/historical (for example: a plough, an old cart, a 19th century tool), add this exact tag at the end of your response: [SHOW_IMAGE: describe the object here] so the app can find a reference image. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
    book:'Drawing, Book I — Augsburg',bookUrl:'https://www.dropbox.com/scl/fi/0skrduk36umr5pwd4as0p/BOOK-ART-AUSBURG-DRAWING-ART-1.pdf?rlkey=ud6m99k8lcmh6m8r7d3l0cdma&dl=0',cite:"Augsburg's Drawing, Book I (1901)"},
@@ -1125,7 +1174,7 @@ async function endSessionByTimer(){
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
-        model:'claude-sonnet-4-6', max_tokens:200,
+        model:'claude-sonnet-4-5', max_tokens:200,
         messages:[{role:'user', content:`You are a tutor for a ${gradeCtx[curStudent]||'student'} in subject: ${curSubject ? curSubject.name : 'class'}. The ${limitLabel} session timer has ended. The lesson so far was about: "${lessonText}". Give a warm, brief (3–4 sentences) closing message. Tell the student that class time is up for today. Summarize in one sentence what was learned. Encourage them and say goodbye until next time. Do not ask any new questions. Do not start with "I".`}]
       })
     });
@@ -1212,8 +1261,8 @@ function resetSubjColors(){
   const topbar = document.querySelector('.tutor-topbar');
   if(topbar) topbar.style.borderBottomColor = '';
 }
-function goHome(){ stopRead(); clearInterval(classTimerInterval); classTimerInterval=null; resetSubjColors(); closeMathGames(); const mgFab=document.getElementById('math-games-fab'); if(mgFab) mgFab.style.display='none'; showScreen('home'); }
-function goSubjects(){ stopRead(); resetSubjColors(); closeMathGames(); const mgFab=document.getElementById('math-games-fab'); if(mgFab) mgFab.style.display='none'; showScreen('subjects'); }
+function goHome(){ stopRead(); clearInterval(classTimerInterval); classTimerInterval=null; resetSubjColors(); closeMathGames(); closeExtGames(); const mgFab=document.getElementById('math-games-fab'); if(mgFab) mgFab.style.display='none'; const egFab=document.getElementById('ext-games-fab'); if(egFab) egFab.style.display='none'; showScreen('home'); }
+function goSubjects(){ stopRead(); resetSubjColors(); closeMathGames(); closeExtGames(); const mgFab=document.getElementById('math-games-fab'); if(mgFab) mgFab.style.display='none'; const egFab=document.getElementById('ext-games-fab'); if(egFab) egFab.style.display='none'; showScreen('subjects'); }
 
 // ── TEACHER DASHBOARD ──
 const DASH_PASSWORD = 'mapao2024';
@@ -1555,6 +1604,15 @@ function openSubject(subjectId){
   document.getElementById('timer-bar').style.display = curSubject.isMath ? 'block' : 'none';
   const mgFab = document.getElementById('math-games-fab');
   if(mgFab) mgFab.style.display = (curSubject.id.includes('math') || curSubject.id.includes('arithmetic')) ? 'inline-flex' : 'none';
+  const egFab = document.getElementById('ext-games-fab');
+  if(egFab){
+    if(curSubject.games && curSubject.games.length){
+      egFab.style.display = 'inline-flex';
+      egFab.textContent = '🎮 ' + (curSubject.gamesLabel || 'Games');
+    } else {
+      egFab.style.display = 'none';
+    }
+  }
   if(curSubject.isMath){
     const sess = getSession(curStudent, subjectId);
     document.getElementById('diag-banner').style.display = sess.sessionCount === 0 ? 'block' : 'none';
@@ -1768,7 +1826,7 @@ Respond in plain, natural tutor voice — no markdown, no bullet symbols.`;
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-6',
+        model:'claude-sonnet-4-5',
         max_tokens: isLiterature ? 2000 : 1000,
         messages:[{role:'user',content:prompt}]
       })
@@ -2548,7 +2606,7 @@ async function reteachConcept(){
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-6', max_tokens:300,
+        model:'claude-sonnet-4-5', max_tokens:300,
         messages:[{role:'user',content:`A student (${gradeCtx[curStudent]}) said "${studentAnswer}" when asked about this lesson:\n\n"${lessonText}"\n\nRule 15 applies: the student does not know the answer. Do ALL of the following in one response:\n1. Acknowledge kindly (1 sentence, do NOT say "I").\n2. Explain the concept in a COMPLETELY DIFFERENT way — use an analogy, story, or vivid example appropriate for the grade level. Be specific and clear (3–5 sentences).\n3. Ask the EXACT SAME question again.\n\nDo not give away the answer directly. Stay within Catholic classical content. Subject: ${curSubject.name}.`}]
       })
     });
@@ -2590,7 +2648,7 @@ async function giveHint(){
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-6',max_tokens:150,
+        model:'claude-sonnet-4-5',max_tokens:150,
         messages:[{role:'user',content:`Give ONE short, gentle hint (1–2 sentences) for a ${gradeCtx[curStudent]} student who is stuck on this lesson content: "${lessonText}". Nudge toward the answer without giving it away. Be warm and encouraging. Do not start with "I". Subject: ${curSubject.name}.`}]
       })
     });
@@ -2634,7 +2692,7 @@ async function nextQuestion(){
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-6',max_tokens:400,
+        model:'claude-sonnet-4-5',max_tokens:400,
         messages:[{role:'user',content:`${UNIVERSAL_RULES}\n${curSubject.prompt}\nSTUDENT: ${studentNames[curStudent]}\n${alreadyAsked}\nContinue the session with the NEXT question or activity. Ask a DIFFERENT question — never repeat any question already asked. Be specific, cite the source, never give away the answer. Subject: ${curSubject.name}.`}]
       })
     });
@@ -2764,7 +2822,7 @@ async function respondToAnswer(studentAnswer){
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-6', max_tokens:400,
+        model:'claude-sonnet-4-5', max_tokens:400,
         messages:[{role:'user',content:`You are a tutor for a ${gradeCtx[curStudent]} student. Subject: ${curSubject.name}.
 
 The lesson content was:
@@ -3072,7 +3130,7 @@ async function fetchImagesForLesson(lessonText) {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
+        model: 'claude-sonnet-4-5',
         max_tokens: 100,
         messages: [{role: 'user', content: `${subjectHint}\n\nLesson text: "${lessonText.substring(0,500)}"\n\nExtract 2 short Wikipedia-friendly image search queries (3-5 words each) that would show a student the main visual subject of this lesson. Focus on concrete nouns — animals, objects, people, places. Reply with ONLY a JSON array of 2 strings, no other text. Example: ["garden spider web","spider anatomy diagram"]`}]
       })
@@ -3347,7 +3405,6 @@ supabaseKeepAlive(); // keep Supabase free tier from pausing
 // ══════════════════════════════════════════════
 const MG_TABLE_NUMS = [0,1,2,3,4,5,6,7,8,9,10,11,12,13];
 const MG_MULTIPLE_NUMS = [2,3,4,5,6,10];
-const MG_DIVISOR_NUMS = [1,2,3,4,5,6,7,8,9,10,11,12,13];
 const MG_TIMEOUT = -99999;
 let mgMode = 'tables';
 let mgNumber = 2;
@@ -3363,20 +3420,46 @@ function closeMathGames(){
   mgStopQuizTimer();
 }
 
+function openExtGames(){
+  if(!curSubject || !curSubject.games || !curSubject.games.length) return;
+  document.getElementById('eg-title').textContent = '🎮 ' + (curSubject.gamesLabel || 'Games');
+  const list = document.getElementById('eg-list');
+  list.innerHTML = '';
+  curSubject.games.forEach(function(g){
+    const a = document.createElement('a');
+    a.className = 'eg-link-item';
+    a.href = g.url;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'eg-link-name';
+    nameSpan.textContent = g.name;
+    const goSpan = document.createElement('span');
+    goSpan.className = 'eg-link-go';
+    goSpan.textContent = 'Open ↗';
+    a.appendChild(nameSpan);
+    a.appendChild(goSpan);
+    list.appendChild(a);
+  });
+  document.getElementById('eg-overlay').classList.add('active');
+}
+function closeExtGames(){
+  document.getElementById('eg-overlay').classList.remove('active');
+}
+
 function mgSelectMode(mode){
   mgMode = mode;
   mgStopQuizTimer();
   mgQuizActive = false;
-  ['tables','skip','division','quiz'].forEach(m=>{
+  ['tables','skip','quiz'].forEach(m=>{
     const t = document.getElementById('mg-tab-'+m);
     if(t) t.classList.toggle('active', m===mode);
   });
-  const nums = (mode==='skip') ? MG_MULTIPLE_NUMS : (mode==='division') ? MG_DIVISOR_NUMS : MG_TABLE_NUMS;
+  const nums = (mode==='skip') ? MG_MULTIPLE_NUMS : MG_TABLE_NUMS;
   if(mgNumber==='mixed' && mode!=='quiz') mgNumber = nums[0];
   if(mgNumber!=='mixed' && !nums.includes(mgNumber)) mgNumber = nums[0];
   const lbl = document.getElementById('mg-number-label');
   lbl.textContent = mode==='skip' ? 'Pick a number to skip-count by'
-                   : mode==='division' ? 'Pick a number to divide by'
                    : mode==='quiz' ? 'Pick a times table (or Mixed)'
                    : 'Pick a times table';
   mgRenderNumberGrid();
@@ -3385,7 +3468,7 @@ function mgSelectMode(mode){
 }
 
 function mgRenderNumberGrid(){
-  const nums = (mgMode==='skip') ? MG_MULTIPLE_NUMS : (mgMode==='division') ? MG_DIVISOR_NUMS : MG_TABLE_NUMS;
+  const nums = (mgMode==='skip') ? MG_MULTIPLE_NUMS : MG_TABLE_NUMS;
   const grid = document.getElementById('mg-number-grid');
   let html = nums.map(n=>`<button class="mg-num-chip ${n===mgNumber?'active':''}" onclick="mgSelectNumber(${n})">${n}</button>`).join('');
   if(mgMode==='quiz') html += `<button class="mg-num-chip mixed ${mgNumber==='mixed'?'active':''}" onclick="mgSelectNumber('mixed')">Mixed 0–13</button>`;
@@ -3411,7 +3494,6 @@ function mgResetSession(){
 
 function mgNewQuestionForMode(){
   if(mgMode==='skip') mgNewSkipQuestion();
-  else if(mgMode==='division') mgNewDivisionQuestion();
   else mgNewQuestion();
 }
 
@@ -3465,43 +3547,6 @@ function mgRenderChoices(choices, correct){
   cont.innerHTML = choices.map(c=>`<button class="mg-choice-btn" onclick="mgCheckAnswer(${c},${correct},this)">${c}</button>`).join('');
 }
 
-// Visual "groups of items" model — draws `groups` squares, each holding
-// `perGroup` small red ball counters, so a student can SEE what the numbers
-// mean (e.g. 5 × 5 = 25 → five squares, five red balls in each) instead of
-// just memorizing the fact. Shared by Times Tables and Division modes.
-function mgBallsSVG(groups, perGroup){
-  groups = Math.round(groups);
-  perGroup = Math.round(perGroup);
-  if(groups <= 0 || perGroup <= 0 || groups > 13 || perGroup > 13) return '';
-  const squareSize = 54, gap = 10;
-  const perRow = Math.min(groups, 5);
-  const rows = Math.ceil(groups / perRow);
-  const width = perRow * squareSize + (perRow - 1) * gap;
-  const height = rows * squareSize + (rows - 1) * gap;
-  const ballCols = Math.ceil(Math.sqrt(perGroup));
-  const ballRows = Math.ceil(perGroup / ballCols);
-  let body = '';
-  for(let g = 0; g < groups; g++){
-    const col = g % perRow, row = Math.floor(g / perRow);
-    const x = col * (squareSize + gap), y = row * (squareSize + gap);
-    body += `<rect x="${x}" y="${y}" width="${squareSize}" height="${squareSize}" rx="7" fill="rgba(255,255,255,0.06)" stroke="var(--vg-gold2)" stroke-width="1.5"/>`;
-    const pad = 7;
-    const cellW = (squareSize - pad*2) / ballCols;
-    const cellH = (squareSize - pad*2) / ballRows;
-    const r = Math.max(2.5, Math.min(cellW, cellH) / 2 - 1.5);
-    let placed = 0;
-    for(let br = 0; br < ballRows && placed < perGroup; br++){
-      for(let bc = 0; bc < ballCols && placed < perGroup; bc++){
-        const cx = x + pad + cellW * bc + cellW / 2;
-        const cy = y + pad + cellH * br + cellH / 2;
-        body += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#E85050"/>`;
-        placed++;
-      }
-    }
-  }
-  return `<svg viewBox="0 0 ${width} ${height}" width="100%" style="max-width:260px;display:block;margin:0 auto;">${body}</svg>`;
-}
-
 // ── Times Tables mode ──────────────────────────
 function mgGenChoices(correct, a, b){
   const set = new Set([correct]);
@@ -3526,11 +3571,9 @@ function mgNewQuestion(){
   const correct = a*b;
   const choices = mgGenChoices(correct, a, b);
   const area = document.getElementById('mg-game-area');
-  const imgSvg = mgBallsSVG(a, b);
   area.innerHTML = `
     <div class="mg-question-box">
       <div class="mg-question-text">${a} × ${b} = ?</div>
-      ${imgSvg ? `<div style="margin-top:12px;">${imgSvg}</div>` : ''}
     </div>
     <div class="mg-choices" id="mg-choices"></div>
     <div class="mg-feedback-line" id="mg-feedback"></div>`;
@@ -3574,26 +3617,6 @@ function mgNewSkipQuestion(){
     <div class="mg-choices" id="mg-choices"></div>
     <div class="mg-feedback-line" id="mg-feedback"></div>`;
   mgRenderChoices(choices, correct);
-  mgMaybeAutoRead();
-}
-
-// ── Division mode (same groups-and-balls visual, run in reverse) ──
-function mgNewDivisionQuestion(){
-  mgAnswered = false;
-  const divisor = mgNumber;
-  const quotient = Math.floor(Math.random()*12) + 1; // 1–12 — keeps the image meaningful (no empty squares)
-  const dividend = divisor * quotient;
-  const choices = mgGenChoices(quotient, divisor, quotient);
-  const area = document.getElementById('mg-game-area');
-  const imgSvg = mgBallsSVG(divisor, quotient);
-  area.innerHTML = `
-    <div class="mg-question-box">
-      <div class="mg-question-text">${dividend} ÷ ${divisor} = ?</div>
-      ${imgSvg ? `<div style="margin-top:12px;">${imgSvg}</div>` : ''}
-    </div>
-    <div class="mg-choices" id="mg-choices"></div>
-    <div class="mg-feedback-line" id="mg-feedback"></div>`;
-  mgRenderChoices(choices, quotient);
   mgMaybeAutoRead();
 }
 
@@ -3721,12 +3744,6 @@ function mgSpokenText(){
     const parts = seqEl.textContent.split(',').map(s=>s.trim()).filter(Boolean);
     const spoken = parts.map(p => p === '?' ? 'blank' : p).join(', ');
     return `What number is missing? ${spoken}.`;
-  }
-  if(mgMode === 'division'){
-    const qEl = area.querySelector('.mg-question-text');
-    if(!qEl) return '';
-    const m = qEl.textContent.match(/(\d+)\s*\u00f7\s*(\d+)/);
-    return m ? `${m[1]} divided by ${m[2]} equals what?` : qEl.textContent;
   }
   if(mgMode === 'quiz'){
     const resultEl = area.querySelector('.mg-quiz-result .big');
