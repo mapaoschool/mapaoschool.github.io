@@ -5,46 +5,46 @@
 This document lists every feature, pattern, and function that has been confirmed working.
 **Before delivering any edit, verify that nothing on this list has been touched unless the change was explicitly requested.**
 
----
+\---
 
 ## RULE 1 — ABSOLUTE: Never Remove These
 
-|Item|Location (line ~)|Why it must stay|
+|Item|Location (line \~)|Why it must stay|
 |-|-|-|
-|`supabaseKeepAlive()` function|~858|Prevents Supabase free-tier auto-pause via daily HEAD ping|
+|`supabaseKeepAlive()` function|\~858|Prevents Supabase free-tier auto-pause via daily HEAD ping|
 |`supabaseKeepAlive()` startup call|startup block|If removed, Supabase pauses and all progress sync breaks|
-|`NEEDS_GESTURE_FOR_TTS = true`|~703|Required on ALL browsers/platforms — speech must fire within a user gesture|
+|`NEEDS\_GESTURE\_FOR\_TTS = true`|\~703|Required on ALL browsers/platforms — speech must fire within a user gesture|
 
----
+\---
 
 ## RULE 2 — TTS System (Hard-Won Fixes — Do Not Touch)
 
 **Root cause resolved May 2026. Do not "simplify" or "clean up" this logic.**
 
-* `VOICE_PROFILES` — `'Zira'` must be **first** in every profile's `prefer` array.
+* `VOICE\_PROFILES` — `'Zira'` must be **first** in every profile's `prefer` array.
 Microsoft Zira (offline) is the only voice that works reliably on Edge.
 Microsoft Online voices (Aria, etc.) silently fail on Edge. Do not reorder.
 * Pause/Resume uses chunk-restart approach — `speechSynthesis.pause()` is unreliable on Edge offline voices. Do not replace with native pause/resume.
 * Always `cancel()` before `speak()` with a 120ms+ settle delay (especially Edge).
 * `readGeneration` counter — prevents stale `setTimeout` closures from firing after a new read starts. Do not remove or simplify.
 * `splitIntoChunks()` call — must use **20 words** as the max chunk size.
-  Do NOT increase this. Larger chunks (e.g. 200) cause the entire lesson to
-  fit in one chunk, making pause/resume always restart from the beginning.
-  Confirmed broken at 200 words; confirmed working at 20 words (Chrome Windows, June 2026).
+Do NOT increase this. Larger chunks (e.g. 200) cause the entire lesson to
+fit in one chunk, making pause/resume always restart from the beginning.
+Confirmed broken at 200 words; confirmed working at 20 words (Chrome Windows, June 2026).
 * `pauseReadAloud()` — must NOT set `readingStopped = true`. Must increment
-  `readGeneration` before calling `cancel()`.
-* `resumeReadAloud()` — must increment `readGeneration` before calling `_doReadAloud()`.
+`readGeneration` before calling `cancel()`.
+* `resumeReadAloud()` — must increment `readGeneration` before calling `\_doReadAloud()`.
 * `speakChunk()` — must capture `const myGen = readGeneration` per utterance,
-  and guard `onstart`, `onend`, and `onerror` with `if(myGen !== readGeneration) return`.
-  This prevents stale utterance closures from firing `speakChunk()` after a pause/resume.
+and guard `onstart`, `onend`, and `onerror` with `if(myGen !== readGeneration) return`.
+This prevents stale utterance closures from firing `speakChunk()` after a pause/resume.
 * `splitIntoChunks()` — must capture trailing non-punctuated text. The regex handles this. Do not simplify.
 * `onboundary` timed fallback — activates if no `onboundary` event fires within 600ms of `onstart`. Do not remove the fallback.
 * `ttsGestureUnlocked` flag — set to `true` on the Read button's `onpointerdown`. Do not remove this attribute from the button.
 * `safeReadAloud()` / `promptTapToListen()` — the gate for gesture-locked TTS. Do not bypass.
 
----
+\---
 
-## RULE 3 — Session & Progress Logic
+## RULE 3 — Session \& Progress Logic
 
 * `sessionQuestionIndex` — must be **restored** from `savedProgress.questionIndex` in `beginSession()`, not reset to 0 unconditionally.
 * `sessionCountedThisOpen` — resets to `false` in `openSubject()`, prevents double-incrementing `sessionCount`. Do not remove reset.
@@ -53,16 +53,16 @@ Microsoft Online voices (Aria, etc.) silently fail on Edge. Do not reorder.
 * `endSessionByTimer()` must: call AI for closing message → disable buttons → mark done in localStorage → increment `sessionCount` → update `lastLesson` → call `saveSession()` and `syncToSupabase()` → refresh tracker display. Do not shorten this sequence.
 * `sessionAskedQuestions` array — tracks all questions asked this session to prevent repeats. Must be reset in `openSubject()` and populated in `beginSession()`, `nextQuestion()`, and `respondToAnswer()`.
 
----
+\---
 
 ## RULE 4 — FC Subject Generation
 
 ```javascript
-// Line ~635-636
+// Line \~635-636
 SUBJECTS.FC = SUBJECTS.FA.map(s => ({
   ...s,
   id: s.id.replace('FA-', 'FC-'),
-  prompt: s.prompt.replace(/F\.A\./g, 'F.C.').replace(/Grade 1–4/g, 'Grade 1–4')
+  prompt: s.prompt.replace(/F\\.A\\./g, 'F.C.').replace(/Grade 1–4/g, 'Grade 1–4')
 }));
 ```
 
@@ -71,9 +71,9 @@ SUBJECTS.FC = SUBJECTS.FA.map(s => ({
 * Do **not** add a separate FC subject block.
 * Do **not** add FC-specific flag overrides — they come from FA automatically.
 
----
+\---
 
-## RULE 5 — Subject Flags & Timer Logic
+## RULE 5 — Subject Flags \& Timer Logic
 
 * `isAesop: true` and `isBible: true` — on FA subjects only (FC inherits automatically).
 * Timer is **10 minutes** for Math, Arithmetic, Aesop, Bible; **15 minutes** for all others.
@@ -81,16 +81,16 @@ This check appears in: `startClassTimer()`, `resetClassTimer()`, `openSubject()`
 All five locations must stay consistent.
 * `isMath` is detected by `curSubject.id.includes('math')` in image logic — do not change subject IDs.
 
----
+\---
 
-## RULE 6 — Answer Evaluation & Race Condition Prevention
+## RULE 6 — Answer Evaluation \& Race Condition Prevention
 
 * Buttons `btn-send`, `btn-correct`, `btn-partial`, `btn-wrong`, `btn-hint` are **disabled at the start of every async AI call** and re-enabled only after full resolution.
 * `lastQuestion` is **snapshot** at the top of `respondToAnswer()` into `questionForThisAnswer` before any `await`. This prevents mapping answers to the wrong question.
 * `micAccumulated` is cleared after a typed submit consumes it.
 * `submitTextAnswer()` stops any active mic recording before evaluating — do not reorder this.
 
----
+\---
 
 ## RULE 7 — Speech Recognition (Mic)
 
@@ -100,9 +100,9 @@ All five locations must stay consistent.
 * Both the silence timer and `onend` handler fall back to the displayed transcript text.
 * Set `recognition = null` only on real errors, not on normal `onend`.
 
----
+\---
 
-## RULE 8 — Color & CSS Rules
+## RULE 8 — Color \& CSS Rules
 
 * All tracker/progress text and backgrounds use **solid hex colors only** — never `rgba()`.
 
@@ -111,7 +111,7 @@ All five locations must stay consistent.
 * `resetSubjColors()` is called on navigation away — prevents color bleed.
 * CSS variables: `--vg-bg`, `--vg-gold`, `--vg-text`, etc. — do not rename or remove.
 
----
+\---
 
 ## RULE 9 — Tag System (AI Response Parsing)
 
@@ -119,49 +119,49 @@ These tags are parsed from AI responses and must remain supported:
 
 |Tag|Purpose|
 |-|-|
-|`[SHOW_PAGE: N]`|Triggers PDF page display for page N|
-|`[SHOW_IMAGE: description]`|Triggers Wikipedia image search (Art subject obsolete-object exception)|
-|`[EXAMPLE:LABEL]...[/EXAMPLE]`|Color-coded grammar example rendering|
-|`[KEY]word[/KEY]`|Grammar keyword highlight|
+|`\[SHOW\_PAGE: N]`|Triggers PDF page display for page N|
+|`\[SHOW\_IMAGE: description]`|Triggers Wikipedia image search (Art subject obsolete-object exception)|
+|`\[EXAMPLE:LABEL]...\[/EXAMPLE]`|Color-coded grammar example rendering|
+|`\[KEY]word\[/KEY]`|Grammar keyword highlight|
 
----
+\---
 
-## RULE 10 — Image & PDF System
+## RULE 10 — Image \& PDF System
 
 * Wikipedia `pageimages` API — current image source (replaced deprecated Unsplash). Do not reintroduce Unsplash.
 * PDF rendering: PDF.js via Mozilla hosted viewer with Dropbox `dl=1` links.
 * `pdfPageUrl()` constructs the Mozilla viewer URL — do not change the format.
 * Images are suppressed for Math subjects (`curSubject.id.includes('math')` check in `fetchImagesForLesson()`). Note: this only governs the AI lesson's Wikipedia image fetcher — it is a separate system from the Math Games visuals in RULE 12, which are self-contained SVGs and are NOT suppressed.
 
----
+\---
 
-## RULE 11 — VOICE_PROFILES Priority Order
+## RULE 11 — VOICE\_PROFILES Priority Order
 
 Every profile must keep `'Zira'` first. Current confirmed-working order per profile:
 
 ```
-aesop/narnia: ['Zira','Linda','David','Samantha','Karen','Moira','Fiona','Victoria','Serena','Aria','Jenny']
-bible/history/science: ['Zira','Linda','David','Samantha','Karen','Moira','Victoria','Serena','Aria','Jenny']
-math/arithmetic/grammar: ['Zira','Linda','David','Samantha','Karen','Aria','Jenny','Alice']
-art: ['Zira','Linda','David','Samantha','Karen','Moira','Fiona','Aria','Jenny']
+aesop/narnia: \['Zira','Linda','David','Samantha','Karen','Moira','Fiona','Victoria','Serena','Aria','Jenny']
+bible/history/science: \['Zira','Linda','David','Samantha','Karen','Moira','Victoria','Serena','Aria','Jenny']
+math/arithmetic/grammar: \['Zira','Linda','David','Samantha','Karen','Aria','Jenny','Alice']
+art: \['Zira','Linda','David','Samantha','Karen','Moira','Fiona','Aria','Jenny']
 ```
 
----
+\---
 
-## RULE 12 — Math Games: Division Mode & Groups-of-Balls Visual (added June 2026)
+## RULE 12 — Math Games: Division Mode \& Groups-of-Balls Visual (added June 2026)
 
 **Added to make multiplication and division facts visual, not just memorized. Do not strip the images out as "extra" decoration — they were explicitly requested.**
 
 * `mgBallsSVG(groups, perGroup)` — shared visual helper. Draws `groups` squares, each containing `perGroup` small red circle "balls," so a student can see the meaning behind a fact (e.g. 5 × 5 = 25 → five squares, five balls in each). Used by both Times Tables and Division modes. Do not remove.
 * Math Games now has **four** tabs: Times Tables, Skip Counting, Division, Speed Quiz. Tab toggle list and number-picker logic both branch on all four mode names (`'tables'`, `'skip'`, `'division'`, `'quiz'`) in `mgSelectMode()` and `mgRenderNumberGrid()`. If a fifth mode is ever added, update both places together.
-* `MG_DIVISOR_NUMS = [1..13]` (excludes 0) — the divisor picker for Division mode. Do not reuse `MG_TABLE_NUMS` (which includes 0) for this, since dividing by 0 is invalid.
+* `MG\_DIVISOR\_NUMS = \[1..13]` (excludes 0) — the divisor picker for Division mode. Do not reuse `MG\_TABLE\_NUMS` (which includes 0) for this, since dividing by 0 is invalid.
 * `mgNewDivisionQuestion()` — generates `divisor × quotient = dividend`, displays `"${dividend} ÷ ${divisor} = ?"`, and calls `mgBallsSVG(divisor, quotient)` so the divisor is the number of squares and the quotient is the balls per square. Reuses `mgGenChoices()` for distractor answers — do not write a separate choice generator for this.
 * `mgNewQuestion()` (Times Tables) calls `mgBallsSVG(a, b)` after computing the multiplication fact. Do not remove this call when touching multiplication logic.
 * `mgSpokenText()` has a `division` branch for the 🔊 read-aloud button (parses the `÷` symbol from `.mg-question-text`). Keep this in sync if the Division question text format ever changes.
 * `mgBallsSVG()` intentionally returns an empty string (no image) when either number is 0, or when either number is greater than 13 — this avoids a cluttered or meaningless image and is correct behavior, not a bug.
 * Skip Counting and Speed Quiz modes deliberately do **not** have images — Speed Quiz's 5-second timer makes a visual more distracting than helpful, and this was a deliberate scope decision, not an oversight.
 
----
+\---
 
 ## HOW TO USE THIS DOCUMENT
 
@@ -170,9 +170,10 @@ Before delivering any edit:
 1. Read the change you are about to make.
 2. Check each rule above — does the edit touch anything listed here?
 3. If yes and the change was NOT explicitly requested → do not make that change.
-4. After editing, run verification grep for: `supabaseKeepAlive`, `NEEDS_GESTURE_FOR_TTS`, `Zira`, `SUBJECTS.FC = SUBJECTS.FA.map`, `sessionCountedThisOpen`, `readGeneration`, `splitIntoChunks(text, 20)`, `mgBallsSVG`, `mgNewDivisionQuestion`.
+4. After editing, run verification grep for: `supabaseKeepAlive`, `NEEDS\_GESTURE\_FOR\_TTS`, `Zira`, `SUBJECTS.FC = SUBJECTS.FA.map`, `sessionCountedThisOpen`, `readGeneration`, `splitIntoChunks(text, 20)`, `mgBallsSVG`, `mgNewDivisionQuestion`.
 
----
+\---
 
 *Generated June 2026 from confirmed-working index.html.
 Update this document whenever a new fix is confirmed working.*
+

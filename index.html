@@ -260,6 +260,8 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
 .mg-score-pill .l{font-size:9px;color:var(--vg-text3);text-transform:uppercase;letter-spacing:0.07em;}
 .mg-question-box{background:rgba(255,255,255,0.04);border:1px solid var(--vg-border2);border-radius:var(--radius);padding:22px 12px;text-align:center;margin-bottom:14px;}
 .mg-question-text{font-family:'Playfair Display',serif;font-size:30px;color:var(--vg-text);letter-spacing:0.02em;}
+.mg-balls-visual{display:flex;justify-content:center;margin-top:14px;}
+.mg-balls-visual svg{max-width:100%;height:auto;}
 .mg-seq-text{font-family:monospace;font-size:23px;color:var(--vg-text);letter-spacing:0.05em;line-height:1.7;word-spacing:4px;}
 .mg-seq-blank{color:var(--vg-gold);font-weight:700;}
 .mg-choices{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
@@ -490,7 +492,7 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
       <div class="read-bar" id="read-bar">
         🔊
         <div class="read-bar-btns">
-          <button class="math-games-fab" id="math-games-fab" onclick="openMathGames()" title="Multiplication Games">🎮 Games</button>
+          <button class="math-games-fab" id="math-games-fab" onclick="openMathGames()" title="Math Games">🎮 Games</button>
           <button class="ext-games-fab" id="ext-games-fab" onclick="openExtGames()" title="Free Online Games">🎮 Games</button>
           <button class="rbtn" id="btn-read" onclick="startReadAloud()" onpointerdown="ttsGestureUnlocked=true">▶ Read</button>
           <button class="rbtn" id="btn-pause-read" onclick="pauseReadAloud()" style="display:none">⏸ Pause</button>
@@ -595,7 +597,7 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
   <div class="mg-overlay" id="mg-overlay">
     <div class="mg-modal">
       <div class="mg-header">
-        <div class="mg-title">🎮 Multiplication Games</div>
+        <div class="mg-title">🎮 Math Games</div>
         <div style="display:flex;gap:0;">
           <button class="mg-speak-btn" id="mg-speak-btn" onclick="mgReadCurrent()" onpointerdown="ttsGestureUnlocked=true" title="Read this aloud">🔊</button>
           <button class="mg-close" onclick="closeMathGames()">✕</button>
@@ -605,6 +607,7 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
       <div class="mg-tabs">
         <button class="mg-tab" id="mg-tab-tables" onclick="mgSelectMode('tables')">🔢 Times Tables</button>
         <button class="mg-tab" id="mg-tab-skip" onclick="mgSelectMode('skip')">📈 Skip Counting</button>
+        <button class="mg-tab" id="mg-tab-division" onclick="mgSelectMode('division')">➗ Division</button>
         <button class="mg-tab" id="mg-tab-quiz" onclick="mgSelectMode('quiz')">⚡ Speed Quiz</button>
       </div>
 
@@ -806,7 +809,7 @@ SUBJECTS.LJ = [
 // ══════════════════════════════════════════════
 const UNIVERSAL_RULES = `
 UNIVERSAL RULES (apply to every subject):
-1. SESSION TRACKING: At the start of every session, confirm with the student which lesson/chapter/fable they completed last time. Never repeat unless student requests review.
+1. SESSION TRACKING: At the start of every session, briefly confirm with the student (as a statement, not a question requiring their reply) which lesson/chapter/fable they completed last time, using the LAST LESSON COMPLETED info provided below. Never repeat unless student requests review.
 2. SESSION LENGTH: Maximum 15 minutes for all subjects; maximum 10 minutes for Math and Arithmetic. End the session as soon as the student has finished the reading and answered all questions — do NOT fill remaining time with extra activities or new topics. Summarize what was covered and preview the next session, then close.
 3. CONTENT RESTRICTIONS: NEVER discuss gender ideology, sex education, DEI ideology, evolution, Darwinism, ecology (as ideology), vulgarity, critical race theory, or anti-Catholic content. Redirect gently.
 4. ADAPTIVE TEACHING: If struggling, present concept in a DIFFERENT way (analogy, story, visual). Do not repeat the same explanation.
@@ -1174,7 +1177,7 @@ async function endSessionByTimer(){
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
-        model:'claude-sonnet-4-5', max_tokens:200,
+        model:'claude-sonnet-4-6', max_tokens:200,
         messages:[{role:'user', content:`You are a tutor for a ${gradeCtx[curStudent]||'student'} in subject: ${curSubject ? curSubject.name : 'class'}. The ${limitLabel} session timer has ended. The lesson so far was about: "${lessonText}". Give a warm, brief (3–4 sentences) closing message. Tell the student that class time is up for today. Summarize in one sentence what was learned. Encourage them and say goodbye until next time. Do not ask any new questions. Do not start with "I".`}]
       })
     });
@@ -1792,10 +1795,16 @@ TIME LIMIT: This is a 10-minute session. Keep the reading brisk, vocabulary brie
   // recorded (e.g. the count was set/corrected manually on the Teacher Dashboard
   // and "Last Lesson" was left blank), do NOT tell the AI "Not started" —
   // that makes it treat a returning student as a brand-new student.
-  // Instead, tell it how many sessions have happened and to ask the student
-  // where they left off.
+  // NOTE: This lesson-generation call is a single one-shot prompt with NO
+  // conversation history attached (see the fetch below). If the AI asks the
+  // student a question here, the student's spoken/typed answer is handled by
+  // a LATER, separate API call that has no idea a memory-check question was
+  // ever asked — so the AI would have no way to actually use that answer,
+  // and a later turn can end up contradicting this one ("this is our first
+  // lesson"). So instead of asking-and-waiting, tell the AI to state plainly
+  // that this is a continuing subject and move straight into today's lesson.
   const lastLessonInfo = (sess.lastLesson === 'Not started' && sess.sessionCount > 0)
-    ? `Not recorded in the system — but this student has already completed ${sess.sessionCount} previous session(s) of this subject. Do NOT treat this as the student's first lesson and do NOT restart from the very beginning. Briefly ask the student what they covered last time (which fable/chapter/lesson) and continue sequentially from there based on their answer.`
+    ? `Not recorded in the system — but this student has already completed ${sess.sessionCount} previous session(s) of this subject. Do NOT treat this as the student's first lesson, do NOT restart from the very beginning, and do NOT ask the student to recall or name the last lesson (you will not receive their answer). Instead, briefly and confidently state that you're continuing on from the last session, then move directly into today's lesson.`
     : sess.lastLesson;
 
   const prompt = `${UNIVERSAL_RULES}
@@ -1826,7 +1835,7 @@ Respond in plain, natural tutor voice — no markdown, no bullet symbols.`;
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-5',
+        model:'claude-sonnet-4-6',
         max_tokens: isLiterature ? 2000 : 1000,
         messages:[{role:'user',content:prompt}]
       })
@@ -2606,7 +2615,7 @@ async function reteachConcept(){
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-5', max_tokens:300,
+        model:'claude-sonnet-4-6', max_tokens:300,
         messages:[{role:'user',content:`A student (${gradeCtx[curStudent]}) said "${studentAnswer}" when asked about this lesson:\n\n"${lessonText}"\n\nRule 15 applies: the student does not know the answer. Do ALL of the following in one response:\n1. Acknowledge kindly (1 sentence, do NOT say "I").\n2. Explain the concept in a COMPLETELY DIFFERENT way — use an analogy, story, or vivid example appropriate for the grade level. Be specific and clear (3–5 sentences).\n3. Ask the EXACT SAME question again.\n\nDo not give away the answer directly. Stay within Catholic classical content. Subject: ${curSubject.name}.`}]
       })
     });
@@ -2648,7 +2657,7 @@ async function giveHint(){
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-5',max_tokens:150,
+        model:'claude-sonnet-4-6',max_tokens:150,
         messages:[{role:'user',content:`Give ONE short, gentle hint (1–2 sentences) for a ${gradeCtx[curStudent]} student who is stuck on this lesson content: "${lessonText}". Nudge toward the answer without giving it away. Be warm and encouraging. Do not start with "I". Subject: ${curSubject.name}.`}]
       })
     });
@@ -2692,7 +2701,7 @@ async function nextQuestion(){
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-5',max_tokens:400,
+        model:'claude-sonnet-4-6',max_tokens:400,
         messages:[{role:'user',content:`${UNIVERSAL_RULES}\n${curSubject.prompt}\nSTUDENT: ${studentNames[curStudent]}\n${alreadyAsked}\nContinue the session with the NEXT question or activity. Ask a DIFFERENT question — never repeat any question already asked. Be specific, cite the source, never give away the answer. Subject: ${curSubject.name}.`}]
       })
     });
@@ -2822,7 +2831,7 @@ async function respondToAnswer(studentAnswer){
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-5', max_tokens:400,
+        model:'claude-sonnet-4-6', max_tokens:400,
         messages:[{role:'user',content:`You are a tutor for a ${gradeCtx[curStudent]} student. Subject: ${curSubject.name}.
 
 The lesson content was:
@@ -3130,7 +3139,7 @@ async function fetchImagesForLesson(lessonText) {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
-        model: 'claude-sonnet-4-5',
+        model:'claude-sonnet-4-6',
         max_tokens: 100,
         messages: [{role: 'user', content: `${subjectHint}\n\nLesson text: "${lessonText.substring(0,500)}"\n\nExtract 2 short Wikipedia-friendly image search queries (3-5 words each) that would show a student the main visual subject of this lesson. Focus on concrete nouns — animals, objects, people, places. Reply with ONLY a JSON array of 2 strings, no other text. Example: ["garden spider web","spider anatomy diagram"]`}]
       })
@@ -3405,6 +3414,7 @@ supabaseKeepAlive(); // keep Supabase free tier from pausing
 // ══════════════════════════════════════════════
 const MG_TABLE_NUMS = [0,1,2,3,4,5,6,7,8,9,10,11,12,13];
 const MG_MULTIPLE_NUMS = [2,3,4,5,6,10];
+const MG_DIVISOR_NUMS = [1,2,3,4,5,6,7,8,9,10,11,12,13];
 const MG_TIMEOUT = -99999;
 let mgMode = 'tables';
 let mgNumber = 2;
@@ -3451,16 +3461,17 @@ function mgSelectMode(mode){
   mgMode = mode;
   mgStopQuizTimer();
   mgQuizActive = false;
-  ['tables','skip','quiz'].forEach(m=>{
+  ['tables','skip','division','quiz'].forEach(m=>{
     const t = document.getElementById('mg-tab-'+m);
     if(t) t.classList.toggle('active', m===mode);
   });
-  const nums = (mode==='skip') ? MG_MULTIPLE_NUMS : MG_TABLE_NUMS;
+  const nums = (mode==='skip') ? MG_MULTIPLE_NUMS : (mode==='division') ? MG_DIVISOR_NUMS : MG_TABLE_NUMS;
   if(mgNumber==='mixed' && mode!=='quiz') mgNumber = nums[0];
   if(mgNumber!=='mixed' && !nums.includes(mgNumber)) mgNumber = nums[0];
   const lbl = document.getElementById('mg-number-label');
   lbl.textContent = mode==='skip' ? 'Pick a number to skip-count by'
                    : mode==='quiz' ? 'Pick a times table (or Mixed)'
+                   : mode==='division' ? 'Pick a number to divide by'
                    : 'Pick a times table';
   mgRenderNumberGrid();
   mgLoadBest();
@@ -3468,7 +3479,7 @@ function mgSelectMode(mode){
 }
 
 function mgRenderNumberGrid(){
-  const nums = (mgMode==='skip') ? MG_MULTIPLE_NUMS : MG_TABLE_NUMS;
+  const nums = (mgMode==='skip') ? MG_MULTIPLE_NUMS : (mgMode==='division') ? MG_DIVISOR_NUMS : MG_TABLE_NUMS;
   const grid = document.getElementById('mg-number-grid');
   let html = nums.map(n=>`<button class="mg-num-chip ${n===mgNumber?'active':''}" onclick="mgSelectNumber(${n})">${n}</button>`).join('');
   if(mgMode==='quiz') html += `<button class="mg-num-chip mixed ${mgNumber==='mixed'?'active':''}" onclick="mgSelectNumber('mixed')">Mixed 0–13</button>`;
@@ -3494,6 +3505,7 @@ function mgResetSession(){
 
 function mgNewQuestionForMode(){
   if(mgMode==='skip') mgNewSkipQuestion();
+  else if(mgMode==='division') mgNewDivisionQuestion();
   else mgNewQuestion();
 }
 
@@ -3547,6 +3559,37 @@ function mgRenderChoices(choices, correct){
   cont.innerHTML = choices.map(c=>`<button class="mg-choice-btn" onclick="mgCheckAnswer(${c},${correct},this)">${c}</button>`).join('');
 }
 
+// ── Groups-of-balls visual (shared by Times Tables & Division) ──
+// Draws `groups` squares, each containing `perGroup` small red circle "balls,"
+// so a student can see the meaning behind a multiplication/division fact.
+// Returns '' (no image) when either number is 0 or greater than 13 — this
+// avoids a cluttered or meaningless image and is correct behavior.
+function mgBallsSVG(groups, perGroup){
+  if(!groups || !perGroup || groups<=0 || perGroup<=0 || groups>13 || perGroup>13) return '';
+  const cols = Math.min(groups, 5);
+  const rows = Math.ceil(groups/cols);
+  const boxSize = 54, gap = 8, pad = 10;
+  const innerCols = Math.min(perGroup, 4);
+  const innerRows = Math.ceil(perGroup/innerCols);
+  const ballR = Math.max(3, Math.min(6, Math.floor((boxSize-12)/(innerCols*2))));
+  const w = cols*boxSize + (cols-1)*gap + pad*2;
+  const h = rows*boxSize + (rows-1)*gap + pad*2;
+  let svg = `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">`;
+  for(let g=0; g<groups; g++){
+    const col = g % cols, row = Math.floor(g/cols);
+    const x = pad + col*(boxSize+gap), y = pad + row*(boxSize+gap);
+    svg += `<rect x="${x}" y="${y}" width="${boxSize}" height="${boxSize}" rx="6" fill="rgba(255,255,255,0.06)" stroke="var(--vg-border2)" stroke-width="1.5"/>`;
+    for(let b=0; b<perGroup; b++){
+      const bc = b % innerCols, br = Math.floor(b/innerCols);
+      const cx = x + boxSize/(innerCols+1)*(bc+1);
+      const cy = y + boxSize/(innerRows+1)*(br+1);
+      svg += `<circle cx="${cx}" cy="${cy}" r="${ballR}" fill="#E05050"/>`;
+    }
+  }
+  svg += `</svg>`;
+  return `<div class="mg-balls-visual">${svg}</div>`;
+}
+
 // ── Times Tables mode ──────────────────────────
 function mgGenChoices(correct, a, b){
   const set = new Set([correct]);
@@ -3574,6 +3617,27 @@ function mgNewQuestion(){
   area.innerHTML = `
     <div class="mg-question-box">
       <div class="mg-question-text">${a} × ${b} = ?</div>
+      ${mgBallsSVG(a, b)}
+    </div>
+    <div class="mg-choices" id="mg-choices"></div>
+    <div class="mg-feedback-line" id="mg-feedback"></div>`;
+  mgRenderChoices(choices, correct);
+  mgMaybeAutoRead();
+}
+
+// ── Division mode ───────────────────────────────
+function mgNewDivisionQuestion(){
+  mgAnswered = false;
+  const divisor = mgNumber;
+  const quotient = Math.floor(Math.random()*13);
+  const dividend = divisor * quotient;
+  const correct = quotient;
+  const choices = mgGenChoices(correct, divisor, quotient);
+  const area = document.getElementById('mg-game-area');
+  area.innerHTML = `
+    <div class="mg-question-box">
+      <div class="mg-question-text">${dividend} ÷ ${divisor} = ?</div>
+      ${mgBallsSVG(divisor, quotient)}
     </div>
     <div class="mg-choices" id="mg-choices"></div>
     <div class="mg-feedback-line" id="mg-feedback"></div>`;
@@ -3744,6 +3808,12 @@ function mgSpokenText(){
     const parts = seqEl.textContent.split(',').map(s=>s.trim()).filter(Boolean);
     const spoken = parts.map(p => p === '?' ? 'blank' : p).join(', ');
     return `What number is missing? ${spoken}.`;
+  }
+  if(mgMode === 'division'){
+    const qEl = area.querySelector('.mg-question-text');
+    if(!qEl) return '';
+    const m = qEl.textContent.match(/(\d+)\s*\u00f7\s*(\d+)/);
+    return m ? `${m[1]} divided by ${m[2]} equals what?` : qEl.textContent;
   }
   if(mgMode === 'quiz'){
     const resultEl = area.querySelector('.mg-quiz-result .big');
