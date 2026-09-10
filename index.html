@@ -1748,6 +1748,10 @@ async function beginSession(){
   document.getElementById('fb-area').innerHTML = '';
 
   const sess = getSession(curStudent, curSubject.id);
+  // FIX (Sep 2026): isMathFirst is now computed here, before it is referenced below,
+  // to avoid a 'Cannot access before initialization' crash that previously aborted
+  // beginSession() before the AI call whenever a Math subject's first-ever session opened.
+  const isMathFirst = curSubject && curSubject.isMath && sess.sessionCount === 0;
   // Increment session count immediately so the bot never reports "session 1" on every open
   if(curSubject.isMath && sess.sessionCount === 0 && !isMathFirst){
     // Only bump past 0 if the diagnostic has already been completed (isMathFirst would handle that)
@@ -1758,7 +1762,6 @@ async function beginSession(){
   const studentNames = {AL:'A.L. (Grade 9–12)',FA:'F.A. (Grade 1–4)',FC:'F.C. (Grade 1–4)',LJ:'L.J. (Kindergarten, logic Grade 3)'};
 
   const isNarnia = curSubject && curSubject.id.includes('narnia');
-  const isMathFirst = curSubject && curSubject.isMath && sess.sessionCount === 0;
 
   const isArt = curSubject && curSubject.id.includes('art');
   const isAesop = curSubject && curSubject.isAesop;
