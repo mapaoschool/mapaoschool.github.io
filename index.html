@@ -23,10 +23,10 @@
   --lj-clr:#F0E040;--lj-bg:rgba(60,50,10,0.55);--lj-b:rgba(220,200,40,0.35);
   --radius:12px;--radius-sm:8px;
 }
-body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);min-height:100vh;}
+body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);min-height:100vh;min-height:100dvh;}
 
 /* ── SCREENS ── */
-.screen{display:none;min-height:100vh;}
+.screen{display:none;min-height:100vh;min-height:100dvh;}
 .screen.active{display:flex;flex-direction:column;}
 
 /* ── HOME SCREEN ── */
@@ -96,7 +96,7 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
 .subj-progress-fill{height:100%;border-radius:1px;}
 
 /* ── TUTOR SCREEN ── */
-#tutor{background:var(--vg-bg);display:flex;flex-direction:column;height:100vh;overflow:hidden;}
+#tutor{background:var(--vg-bg);display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden;}
 
 /* TOP BAR */
 .tutor-topbar{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--vg-bg2);border-bottom:2px solid rgba(60,100,220,0.5);flex-shrink:0;}
@@ -289,8 +289,12 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
 
 /* Responsive */
 @media(max-width:700px){
-  .tutor-body{grid-template-columns:1fr;}
-  .tutor-left,.tutor-right{display:none;}
+  #tutor{height:auto;min-height:100vh;min-height:100dvh;overflow:visible;}
+  .tutor-body{grid-template-columns:1fr;grid-template-rows:auto auto auto;overflow:visible;}
+  .tutor-center{overflow:visible;}
+  .session-scroll{overflow:visible;}
+  .ai-question-box{overflow:visible;flex:none;max-height:none;}
+  .tutor-left,.tutor-right{display:flex;overflow:visible;max-height:none;}
 }
 @media(max-width:480px){
   .student-grid{grid-template-columns:1fr 1fr;}
@@ -826,6 +830,7 @@ UNIVERSAL RULES (apply to every subject):
 15. RETEACH AND ASK AGAIN: If the student does not know the answer: (1) Explain differently. (2) Ask the SAME question again. Do not move on until the student answers correctly.
 16. NO REPETITIVE QUESTIONS: After a student answers a question correctly, move to the NEXT question or topic. Do NOT ask the same concept again "to go deeper" or "explore further" — only reteach if the student answered incorrectly.
 17. MIC RULE — CRITICAL: You cannot hear the student in real time. You only receive their response AFTER they tap the mic button and submit it. NEVER say "I can hear you", "I hear you reading", "reading with me", "I'm listening", or any phrase implying you are listening live. If you ask the student to read aloud, tell them to tap the mic button when they are done, then wait. Never acknowledge or comment on reading until an answer is actually submitted.
+18. ANSWER EQUIVALENCE — CRITICAL: For comprehension, reading, and discussion questions, grade by MEANING, not exact wording. If a student's answer uses a synonym, a paraphrase, or a different word/detail that still captures the same underlying idea, mark it fully CORRECT — never "close" or "almost." Example: if a fable's point is that a dog lost its bone by dropping it in the water out of greed, an answer of "it fell in the water" is just as correct as "it fell in the river" — the specific noun does not matter when the concept (loss caused by greed) is right. Only use "close" for answers that are incomplete, partially inaccurate, or miss the actual concept — not for correct ideas expressed in different words.
 `;
 
 // ══════════════════════════════════════════════
@@ -897,11 +902,13 @@ let readingStopped = false; // FIX: track explicit stop so chunks don't restart
 let lastQuestion = '';
 let sessionQuestionIndex = 0; // tracks how many questions answered this session for resume
 let sessionAskedQuestions = []; // tracks all questions asked this session to prevent repeats
+let answerGeneration = 0; // FIX (Sep 2026): incremented on every respondToAnswer() call; a stale/duplicate answer that resolves late is discarded instead of overwriting a newer question's feedback
 
 // Class timer state
 let classTimerInterval = null;
 let classTimerSeconds = 0;
 let classTimerTotal = 15 * 60;
+let sessionEndedByTimer = false; // true once time-up goodbye has fired; blocks stray in-flight mic answers from reopening the session
 
 // Word highlight state
 let highlightWords = [];
@@ -1127,6 +1134,12 @@ function startClassTimer(){
 }
 
 async function endSessionByTimer(){
+  sessionEndedByTimer = true; // block any in-flight mic answer (onend fires async) from reopening this session
+  if(recognition && isListening){
+    clearTimeout(micSilenceTimer);
+    try { recognition.stop(); } catch(e){}
+    isListening = false;
+  }
   stopRead();
   // Cancel any pending readAloud() that is still in its 400 ms startup delay
   readGeneration++;
@@ -1566,6 +1579,7 @@ function openSubject(subjectId){
   sessionQuestionIndex = 0;
   lastQuestion = '';
   sessionAskedQuestions = [];
+  sessionEndedByTimer = false;
   stopRead();
   clearInterval(classTimerInterval); classTimerInterval = null;
 
@@ -2577,6 +2591,7 @@ function updateTimerDisplay(){
 // MARK RESPONSE
 // ══════════════════════════════════════════════
 function markResponse(type){
+  stopMicSilently(); // don't let TTS play over a still-listening mic
   const sess = getSession(curStudent, curSubject.id);
   if(type==='correct'){
     const msg = {text:'✓ Correct! Well done. Session recorded.',bg:'#0A2A12',tc:'#60E080'};
@@ -2601,8 +2616,10 @@ function markResponse(type){
 // RETEACH (AI)
 // ══════════════════════════════════════════════
 async function reteachConcept(){
+  if(sessionEndedByTimer) return; // class time already ended — don't reopen the session
+  stopMicSilently(); // don't let TTS play over a still-listening mic
   const btn = document.getElementById('btn-wrong');
-  ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint'].forEach(id=>{
+  ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint','mic-btn'].forEach(id=>{
     const el = document.getElementById(id); if(el){ el.disabled=true; }
   });
   btn.textContent='...';
@@ -2630,7 +2647,7 @@ async function reteachConcept(){
   } catch(e){
     fbArea.innerHTML = `<div class="feedback" style="background:#2A0A08;color:#FFBBB0">That's okay! Let's think about it differently. Look back at what we just read — what was the main thing that happened?</div>`;
   }
-  ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint'].forEach(id=>{
+  ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint','mic-btn'].forEach(id=>{
     const el = document.getElementById(id); if(el) el.disabled=false;
   });
   btn.textContent='Reteach';
@@ -2640,6 +2657,7 @@ async function reteachConcept(){
 // GIVE HINT (AI)
 // ══════════════════════════════════════════════
 async function giveHint(){
+  stopMicSilently(); // FIX (Sep 2026): don't let TTS play over a still-listening mic — this was breaking the mic after Hint was pressed
   sessionHints++;
   const sess = getSession(curStudent, curSubject.id);
   sess.hints = (sess.hints||0)+1;
@@ -2649,7 +2667,7 @@ async function giveHint(){
     document.getElementById('hint-ct').textContent = sessionHints;
   }
   const btn = document.getElementById('btn-hint');
-  ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint'].forEach(id=>{
+  ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint','mic-btn'].forEach(id=>{
     const el = document.getElementById(id); if(el) el.disabled=true;
   });
   btn.textContent='...';
@@ -2672,7 +2690,7 @@ async function giveHint(){
   } catch(e){
     document.getElementById('fb-area').innerHTML = `<div class="feedback" style="background:#0D2040;color:#A8D0FF"><strong>Hint:</strong> Think about what you remember from last time — the answer is closer than you think!</div>`;
   }
-  ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint'].forEach(id=>{
+  ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint','mic-btn'].forEach(id=>{
     const el = document.getElementById(id); if(el) el.disabled=false;
   });
   btn.textContent='Hint';
@@ -2682,8 +2700,9 @@ async function giveHint(){
 // NEXT QUESTION (AI)
 // ══════════════════════════════════════════════
 async function nextQuestion(){
+  stopMicSilently(); // don't let TTS play over a still-listening mic
   const btn = document.getElementById('btn-next');
-  ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint','btn-next'].forEach(id=>{
+  ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint','btn-next','mic-btn'].forEach(id=>{
     const el = document.getElementById(id); if(el) el.disabled=true;
   });
   btn.innerHTML='<span class="spinner"></span>';
@@ -2732,7 +2751,7 @@ async function nextQuestion(){
     // spans of the full response text.
     safeReadAloud(cleanText);
   } catch(e){ document.getElementById('ai-question-box').innerHTML='<span style="color:var(--vg-text3)">Connection error. Please try again.</span>'; }
-  ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint','btn-next'].forEach(id=>{
+  ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint','btn-next','mic-btn'].forEach(id=>{
     const el = document.getElementById(id); if(el) el.disabled=false;
   });
   btn.innerHTML='Next →';
@@ -2803,15 +2822,23 @@ function extractLastQuestion(text){
 // AI RESPOND TO STUDENT ANSWER
 // ══════════════════════════════════════════════
 async function respondToAnswer(studentAnswer){
+  if(sessionEndedByTimer) return; // class time already ended — don't reopen the session
   // Snapshot lastQuestion NOW before any async operation so that if nextQuestion()
   // or a new PDF question fires before this resolves, we still evaluate against the
   // correct question (fixes PDF question mapping race condition).
   const questionForThisAnswer = lastQuestion;
+  // FIX (Sep 2026): identifies this specific call. mic-btn was never disabled while
+  // an answer was being graded, so a second mic answer could be submitted before the
+  // first one's fetch resolved; if the older call resolved LATE (after the session had
+  // already moved on to a new question), it would overwrite the newer question/feedback
+  // with its own stale correction — the "already-corrected answer 1 comes back on
+  // question 2" bug. myAnswerGen lets a stale result be safely discarded below.
+  const myAnswerGen = ++answerGeneration;
 
   const fbArea = document.getElementById('fb-area');
   fbArea.innerHTML = `<div class="feedback" style="background:#1E1630;color:#C0B0E0"><span class="spinner"></span> Thinking...</div>`;
-  // Disable all response buttons while AI is evaluating to prevent race conditions
-  ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint'].forEach(id=>{
+  // Disable all response buttons (and the mic) while AI is evaluating to prevent race conditions
+  ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint','mic-btn'].forEach(id=>{
     const el = document.getElementById(id); if(el) el.disabled = true;
   });
   document.getElementById('btn-send').disabled = true;
@@ -2826,7 +2853,7 @@ async function respondToAnswer(studentAnswer){
   };
 
   const alreadyAskedCtx = sessionAskedQuestions.length
-    ? `\nQUESTIONS ALREADY ASKED THIS SESSION (do NOT repeat these):\n${sessionAskedQuestions.map((q,i)=>`${i+1}. ${q}`).join('\n')}\n`
+    ? `\nQUESTIONS ALREADY ANSWERED CORRECTLY THIS SESSION (only relevant if you are asking a NEW question below — do not reuse these; this list does NOT apply if you are repeating the current question because the student got it wrong):\n${sessionAskedQuestions.map((q,i)=>`${i+1}. ${q}`).join('\n')}\n`
     : '';
 
   try {
@@ -2840,21 +2867,23 @@ async function respondToAnswer(studentAnswer){
 The lesson content was:
 "${lessonText}"${questionContext}
 ${alreadyAskedCtx}
-CRITICAL: The question you asked was "${questionForThisAnswer || lastQuestion}". Evaluate ONLY whether the student answered THAT specific question correctly. Do not confuse different questions or operations.
+CRITICAL: The question you asked was "${questionForThisAnswer || lastQuestion}". Evaluate ONLY whether the student answered THAT specific question correctly. Do not confuse different questions or operations. Judge by MEANING, not exact wording — accept synonyms and paraphrases that capture the same idea as fully correct, not merely "close."
 
 The student answered:
 "${studentAnswer}"
 
 Respond in this exact order — no labels, no bullet points, plain tutor voice:
 1. Evaluate the answer warmly and specifically (correct, partially correct, or gently incorrect — referring directly to the question you asked).
-2. If incorrect or partial: briefly explain the correct idea in a DIFFERENT way from the original lesson.
-3. Ask the NEXT question or give the next instruction to keep the session going. Ask a DIFFERENT question — never repeat any question already asked this session.
+2. IF THE ANSWER IS WRONG OR ONLY PARTIALLY RIGHT: briefly explain the correct idea in a DIFFERENT way from the original lesson, then ask this EXACT SAME question again, word for word: "${questionForThisAnswer || lastQuestion}". Do NOT move to a different question or topic — stay on this one until the student answers it correctly. Never say you will repeat the question and then ask a different one.
+3. IF THE ANSWER IS FULLY CORRECT: praise them specifically, then ask a NEW, DIFFERENT question to keep the session going — never repeat a question already answered correctly this session (see list above).
 
-IMPORTANT: If the student answered correctly, praise them and immediately move to a new topic or next question. Do NOT probe deeper on the same question they already answered correctly.
 Never say the student is jumping ahead. Stay within Catholic classical content. Do not start with "I".`}]
       })
     });
     const data = await res.json();
+    // A newer answer was submitted while this one was still in flight — never let a
+    // late, stale response overwrite the newer question/feedback now on screen.
+    if(myAnswerGen !== answerGeneration) return;
     if(data.error) throw new Error(data.error.message);
     const reply = data.content?.find(b=>b.type==='text')?.text || "Good try! Let's keep going.";
     // Strip [SHOW_PAGE:]/[SHOW_IMAGE:]/markdown so what's shown matches what's
@@ -2878,10 +2907,12 @@ Never say the student is jumping ahead. Stay within Catholic classical content. 
     sessionQuestionIndex++;
     saveProgress(curStudent, curSubject.id, sessionQuestionIndex, lastQuestion);
   } catch(e){
+    if(myAnswerGen !== answerGeneration) return; // stale call — a newer answer is already in flight/displayed
     fbArea.innerHTML = `<div class="feedback" style="background:#1E1630;color:#C0B0E0">Connection error. Please check your internet and try again.</div>`;
   }
+  if(myAnswerGen !== answerGeneration) return; // stale call — the newer call owns re-enabling the UI
   // Re-enable all response buttons after AI evaluation completes
-  ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint'].forEach(id=>{
+  ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint','mic-btn'].forEach(id=>{
     const el = document.getElementById(id); if(el) el.disabled = false;
   });
 }
@@ -3231,6 +3262,21 @@ const MAX_RETRIES = 3;
 const MIC_SILENCE_GRACE_MS = 1200;
 let micSilenceTimer = null;   // clearTimeout handle
 let micAccumulated = '';      // running transcript across interim events
+let micDiscardPending = false; // FIX (Sep 2026): set true when we stop the mic ourselves (not the student) so onend discards instead of submitting a partial answer
+
+// FIX (Sep 2026): stop any in-progress mic capture WITHOUT submitting its partial
+// transcript. Call this before any AI action that will speak (Hint/Reteach/Next/
+// manual grade) — letting text-to-speech play while SpeechRecognition is still
+// actively listening is what breaks the mic on some browsers/devices (reported as
+// "mic stopped working" after pressing Hint), and also stops a half-spoken answer
+// from being silently auto-submitted when interrupted.
+function stopMicSilently(){
+  if(isListening && recognition){
+    micDiscardPending = true;
+    clearTimeout(micSilenceTimer);
+    try { recognition.stop(); } catch(e){}
+  }
+}
 
 // Pre-check microphone permission and surface a clear error early
 function checkMicPermission(){
@@ -3318,6 +3364,23 @@ function initMic() {
     isListening = false;
     clearTimeout(micSilenceTimer);
     setMicState('idle');
+
+    if(micDiscardPending){
+      // We interrupted the mic ourselves (e.g. Hint/Reteach/Next was pressed) —
+      // discard whatever partial transcript was captured instead of submitting it.
+      micDiscardPending = false;
+      document.getElementById('mic-status').textContent = 'Tap 🎤 to answer by speaking';
+      recognition = null; // fresh instance on next tap, same as the normal-submit path below
+      return;
+    }
+
+    if(sessionEndedByTimer){
+      // Class time already ended (goodbye already shown) while this answer was in flight —
+      // discard it instead of reopening the session with a stray extra question.
+      document.getElementById('mic-status').textContent = 'Class time is up.';
+      recognition = null;
+      return;
+    }
 
     const spokenPart = micAccumulated.trim();
     // Merge with anything the student typed in the text box (typed continuation support).
