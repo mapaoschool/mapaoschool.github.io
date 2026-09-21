@@ -1759,10 +1759,13 @@ function showBookCover(){
   title.textContent = curSubject.book || curSubject.name;
 
   if(curSubject.bookUrl){
-    // Convert dl=0 to dl=1 for direct access, open in PDF.js viewer at page 1
+    // Convert dl=0 to dl=1 for direct access. Open the PDF directly instead of
+    // wrapping it in mozilla.github.io's pdf.js viewer: Dropbox doesn't send the
+    // CORS headers that viewer needs to fetch a cross-origin file, so wrapped
+    // links fail to load. A direct link uses the browser's own built-in PDF
+    // viewer, which has no CORS restriction and still honors #page=N.
     const directUrl = curSubject.bookUrl.replace(/[?&]dl=0/, match => match.replace('dl=0','dl=1'));
-    const viewerUrl = `https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(directUrl)}#page=1`;
-    link.href = viewerUrl;
+    link.href = `${directUrl}#page=1`;
     link.style.display = 'block';
   } else {
     link.style.display = 'none';
