@@ -3,6 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- FIX (Sep 2026): this app has no service worker, so nothing previously told
+     the browser not to cache index.html itself. On devices where the app is
+     "installed" (Add to Home Screen), a stale cached copy could keep running
+     old/already-fixed code until the browser's own cache happened to expire —
+     matching intermittent glitches that "fix themselves" with no action taken.
+     These are best-effort (GitHub Pages doesn't let us set real server-side
+     cache headers), but they tell every browser that honors them to always
+     revalidate instead of serving a stale copy. -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Ma Pao's Classical Catholic Homeschool Tutor</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -813,7 +824,7 @@ SUBJECTS.LJ = [
 // ══════════════════════════════════════════════
 const UNIVERSAL_RULES = `
 UNIVERSAL RULES (apply to every subject):
-1. SESSION TRACKING: At the start of every session, briefly confirm with the student (as a statement, not a question requiring their reply) which lesson/chapter/fable they completed last time, using the LAST LESSON COMPLETED info provided below. Never repeat unless student requests review.
+1. SESSION TRACKING: At the start of every session, briefly confirm with the student (as a statement, not a question requiring their reply) which lesson/chapter/fable they completed last time, using the LAST LESSON COMPLETED info provided below. Never repeat unless student requests review. Even if that info is generic or does not name a specific topic, NEVER say you don't have a record of it and NEVER ask the student what they remember from last time — just state a brief, confident, generic continuation (e.g. "Last time we kept practicing together — let's pick up from there.") and move straight into today's lesson.
 2. SESSION LENGTH: Maximum 15 minutes for all subjects; maximum 10 minutes for Math and Arithmetic. End the session as soon as the student has finished the reading and answered all questions — do NOT fill remaining time with extra activities or new topics. Summarize what was covered and preview the next session, then close.
 3. CONTENT RESTRICTIONS: NEVER discuss gender ideology, sex education, DEI ideology, evolution, Darwinism, ecology (as ideology), vulgarity, critical race theory, or anti-Catholic content. Redirect gently.
 4. ADAPTIVE TEACHING: If struggling, present concept in a DIFFERENT way (analogy, story, visual). Do not repeat the same explanation.
@@ -1159,7 +1170,14 @@ async function endSessionByTimer(){
     try { localStorage.setItem(key, '1'); } catch(e){}
     const sess = getSession(curStudent, curSubject.id);
     if(!sessionCountedThisOpen){ sess.sessionCount++; sessionCountedThisOpen = true; }
-    sess.lastLesson = `Session ${sess.sessionCount} — ${curSubject.name}`;
+    // FIX (Sep 2026): beginSession() already saved the SPECIFIC topic covered this
+    // session (e.g. "we practiced telling time") into sess.lastLesson. Only fall back
+    // to this generic label if no specific one was ever captured — otherwise this was
+    // clobbering the real topic on every session, so the next greeting had nothing
+    // specific to state and the AI ended up asking the student to recall it instead.
+    if(!sess.lastLesson || sess.lastLesson === 'Not started'){
+      sess.lastLesson = `Session ${sess.sessionCount} — ${curSubject.name}`;
+    }
     saveSession(curStudent, curSubject.id, sess);
     syncToSupabase(curStudent, curSubject.id, sess, true);
     clearProgress(curStudent, curSubject.id); // Session complete — clear resume point
@@ -2597,7 +2615,11 @@ function markResponse(type){
     const msg = {text:'✓ Correct! Well done. Session recorded.',bg:'#0A2A12',tc:'#60E080'};
     document.getElementById('fb-area').innerHTML = `<div class="feedback" style="background:${msg.bg};color:${msg.tc}">${msg.text}</div>`;
     if(!sessionCountedThisOpen){ sess.sessionCount++; sessionCountedThisOpen = true; }
-    sess.lastLesson = `Session ${sess.sessionCount} — ${curSubject.name}`;
+    // FIX (Sep 2026): same guard as endSessionByTimer() — don't overwrite the specific
+    // topic beginSession() already captured with this generic label.
+    if(!sess.lastLesson || sess.lastLesson === 'Not started'){
+      sess.lastLesson = `Session ${sess.sessionCount} — ${curSubject.name}`;
+    }
     saveSession(curStudent, curSubject.id, sess);
     const t = `Last: ${sess.lastLesson} · Sessions: ${sess.sessionCount}`;
     document.getElementById('tracker-text') && (document.getElementById('tracker-text').textContent = t);
