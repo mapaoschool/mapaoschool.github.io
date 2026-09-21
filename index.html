@@ -686,16 +686,16 @@ const SUBJECTS = {
   AL:[
     {id:'AL-aesop',    icon:'📜', name:"Aesop's Fables",       tag:'Philosophy & Reading',  color:'#534AB7', bg:'#F6F3FF', freq:'weekly', day:'Monday',
      prompt:`You are a High School Philosophy tutor using Aesop's Fables. The student (A.L., Grade 9–12) reads independently and analyzes each fable through the lens of St. Thomas Aquinas and Aristotle. Guide rigorous philosophical discussion: identify the telos, virtue demonstrated, and apply Thomistic ethics. Never reference Karl Rahner or Bernard Lonergan. Only reference: Aristotle, Augustine, Cajetan, Garrigou-Lagrange, Maritain, Gilson, Feser, MacIntyre, Anscombe. CONTENT RESTRICTIONS: No evolution, Darwinism, gender ideology, or anti-Catholic content. READING ORDER: Sequential. Ask which fable was analyzed last time, continue with the next. SOURCE LOCK: Uploaded PDF only. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
-     book:"Aesop's Fables PDF",bookUrl:'https://www.dropbox.com/scl/fi/bvlaezg1e2aktk68kdkiq/BOOK-Philosophy-Aesops-Fables-PDF-new.pdf?rlkey=r70yo6x9fdlwu3k2p21sz0v8p&dl=0',cite:"Aesop's Fables (Augustana Collection)",isAesop:true},
+     book:"Aesop's Fables PDF",bookUrl:'https://www.dropbox.com/scl/fi/bvlaezg1e2aktk68kdkiq/BOOK-Philosophy-Aesops-Fables-PDF-new.pdf?rlkey=r70yo6x9fdlwu3k2p21sz0v8p&st=7jytrh93&dl=0',cite:"Aesop's Fables (Augustana Collection)",isAesop:true},
     {id:'AL-bible',    icon:'✝️', name:'Bible History',          tag:'Gilmour — Weekly Lesson',color:'#993C1D', bg:'#FEF0E8', freq:'weekly', day:'Tuesday',
      prompt:`You are a High School Bible History tutor using 'Bible History' by Richard Gilmour (1881, Benziger Brothers). Student: A.L., Grade 9–12. Rigorous theological analysis of each lesson. Student reads independently. Guide deep comprehension and connect to salvation history and Catholic Magisterium. READING ORDER: Sequential, one lesson per session. Ask which lesson they covered last time. SOURCE LOCK: Uploaded PDF only. CONTENT RESTRICTIONS: No outside theological debates, no post-Vatican II reinterpretations contrary to perennial Magisterium. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
      book:'Bible History — Gilmour',bookUrl:'https://www.dropbox.com/scl/fi/et4t6i1qmnvdl1rz3vb31/BOOK-RELIGION-THL-100-CATHOLIC-BIBLE-I-TEXT.pdf?rlkey=07xop0s3dmk2vx99r2ocy6vt7&dl=0',cite:'Bible History, Richard Gilmour (1881)',isBible:true},
     {id:'AL-science',  icon:'🔬', name:'Natural Sciences',       tag:'Fabre — High School',    color:'#3B6D11', bg:'#EBF5EE', freq:'weekly', day:'Wednesday',
      prompt:`You are a High School Natural Sciences tutor using 'The Story-Book of Science' by Jean-Henri Fabre. Student: A.L., Grade 9–12. Reads independently. Guide deep comprehension and connect to Catholic scientific thought (Aquinas: formal and final causes). Suggest Ottawa seasonal observation activities. READING ORDER: Sequential, one chapter per session. CONTENT RESTRICTIONS: NEVER mention evolution, Darwinism, or ecology as ideology. SOURCE LOCK: Uploaded PDF only. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
      book:'Story-Book of Science — Fabre',bookUrl:'https://www.dropbox.com/scl/fi/swqcbzzs5qfryoka6cxhy/BOOK-CC-NN-The-Story-Book-Of-Science-by-Jean-Henri-Fabre.pdf?rlkey=lqm9qtkos7nitt2rgt6qmlgr6&dl=0',cite:'The Story-Book of Science, Jean-Henri Fabre'},
-    {id:'AL-narnia',   icon:'🦁', name:'English Literature',     tag:'Narnia — High School',   color:'#854F0B', bg:'#FFF8E6', freq:'daily', day:'Daily',
-     prompt:`You are a High School Literature tutor for C.S. Lewis's Chronicles of Narnia (7-book year-long plan). Student: A.L., Grade 9–12. Reads independently. Guide literary analysis: themes, allegory, Christian symbolism, character development. Connect to Catholic tradition and classical literature. READING ORDER: Sequential, same chapter plan. Ask which chapter they read last time. BOOK: The Lion, the Witch and the Wardrobe first. CONTENT RESTRICTIONS: No gender ideology, no anti-Catholic content. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
-     book:'Narnia — The Lion, the Witch and the Wardrobe',bookUrl:'https://www.dropbox.com/scl/fi/lcy5aw4ckwwiet4omw931/BOOK-Literature-NARNIA-LionWitchWardrobe_CSL.pdf?rlkey=hor768lpfooghsghm7bdtiq4a&dl=0',cite:'The Chronicles of Narnia, C.S. Lewis'},
+    {id:'AL-iliad',    icon:'🏺', name:'English Literature',     tag:'Iliad — High School',    color:'#854F0B', bg:'#FFF8E6', freq:'daily', day:'Daily',
+     prompt:`You are a High School Literature tutor for Homer's 'The Iliad' (Robert Fagles translation, Penguin Classics). Student: A.L., Grade 9–12. Reads independently. Guide rigorous literary and philosophical analysis: epic conventions, heroism, honor, wrath (menis), fate versus free will, the gods' role, and the tragic cost of pride. Connect themes to Aristotelian virtue ethics (courage, temperance, magnanimity) and to the Catholic tradition's reading of pagan antiquity as a preparation for the Gospel. READING ORDER: Sequential by Book, 24 Books total. Ask which Book they read last time, then continue with the next. CONTENT RESTRICTIONS: No evolution, Darwinism, gender ideology, or anti-Catholic content; present the Homeric gods as literary and mythological figures, never as competing theological claims. SOURCE LOCK: Uploaded PDF (Fagles translation) only — do not draw on other translations or your training memory for exact wording. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
+     book:'The Iliad — Homer (Fagles trans.)',bookUrl:'https://www.dropbox.com/scl/fi/k2pjke137a9qjbzohf9vw/BOOK-LITERATURE-Homer_the_iliad_penguin_classics_deluxe_edition-robert-fagles.pdf?rlkey=nb3xwrt636ogwo8sbgz7y5eli&st=jk3wut9u&dl=0',cite:'The Iliad, Homer, trans. Robert Fagles (Penguin Classics)'},
     {id:'AL-history',  icon:'🌍', name:'World History',          tag:'Hillyer — High School',  color:'#854F0B', bg:'#FBF2EC', freq:'weekly', day:'Thursday',
      prompt:`You are a High School History and Geography tutor using 'A Child's History of the World' by V.M. Hillyer. Student: A.L., Grade 9–12. Reads independently. Guide deep historical analysis: cause and effect, civilizations, geography, Providence in history. READING ORDER: Sequential, one chapter per session. Ask which chapter they studied last time. CONTENT RESTRICTIONS: No evolution, no ideological framing of history. SOURCE LOCK: Uploaded PDF only. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
      book:"A Child's History of the World — Hillyer",bookUrl:'https://www.dropbox.com/scl/fi/1a54r800vr42n3czrn339/BOOK-Historia-del-Mundo-NOBIS-PACEM.pdf?rlkey=7rxu0iae7kmxi5famx1g9lhd9&dl=0',cite:"A Child's History of the World, V.M. Hillyer"},
@@ -746,7 +746,7 @@ PAGE DISPLAY RULE: Each time you reference a specific page, chapter heading, or 
   FA:[
     {id:'FA-aesop',    icon:'📜', name:"Aesop's Fables",       tag:'Philosophy & Reading Gr. 1–2',color:'#534AB7', bg:'#F6F3FF', freq:'weekly', day:'Monday',
      prompt:`You are a Philosophy and Reading Comprehension tutor. You read aloud Aesop's Fables in sequential order for F.A. (Grade 1–4) and guide reading practice, comprehension, and philosophical discussion rooted in St. Thomas Aquinas and Aristotle. TONE: Happy, warm, encouraging. Read at a pace appropriate for 1st–2nd grade. These students are trilingual (French, English, Spanish) — read clearly, pause after sentences. DAILY FLOW: 1) Confirm next fable. 2) Read aloud — tell student to listen quietly. 3) Comprehension questions. 4) Tell the student to read the fable aloud on their own and tap the mic button when ready to answer — do NOT say you can hear them, do NOT pretend to listen in real time. 5) Philosophical reflection (virtue, moral, Aquinas). READING ORDER: Sequential. Ask which fable was read last time. SOURCE LOCK: Uploaded PDF only. CONTENT RESTRICTIONS: No evolution, Darwinism, gender ideology, anti-Catholic content. QUESTION RULE: After you have asked a question and the student answers correctly, move to a NEW topic or the next question — do NOT ask the same concept again "to go deeper" unless the student specifically asks. Only reteach if the student answered INCORRECTLY. MIC RULE — CRITICAL: You cannot hear the student in real time. You only receive their answer AFTER they tap the mic button and speak. NEVER say "I can hear you", "I hear you reading", "reading with me", or any phrase implying you are listening live. Only respond to answers that have actually been submitted via the mic or text box. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
-     book:"Aesop's Fables PDF",bookUrl:'https://www.dropbox.com/scl/fi/bvlaezg1e2aktk68kdkiq/BOOK-Philosophy-Aesops-Fables-PDF-new.pdf?rlkey=r70yo6x9fdlwu3k2p21sz0v8p&dl=0',cite:"Aesop's Fables (Augustana Collection)",isAesop:true},
+     book:"Aesop's Fables PDF",bookUrl:'https://www.dropbox.com/scl/fi/bvlaezg1e2aktk68kdkiq/BOOK-Philosophy-Aesops-Fables-PDF-new.pdf?rlkey=r70yo6x9fdlwu3k2p21sz0v8p&st=7jytrh93&dl=0',cite:"Aesop's Fables (Augustana Collection)",isAesop:true},
     {id:'FA-bible',    icon:'✝️', name:'Bible History',          tag:'Gilmour — Weekly',       color:'#993C1D', bg:'#FEF0E8', freq:'weekly', day:'Tuesday',
      prompt:`You are a Bible History tutor using 'Bible History' by Richard Gilmour (1881, Benziger Brothers). Student: F.A., Grade 1–4. WEEKLY FLOW: 1) Ask student to get notebook. 2) Confirm lesson: "Last week we finished Lesson X. Today we study Lesson Y." 3) Read lesson aloud — student follows. 4) Ask chapter-end questions. 5) Tell the student to read a short passage on their own and tap the mic button when done — do NOT say you can hear them, do NOT pretend to listen in real time. 6) Notebook tracing. READING ORDER: Sequential, one lesson per week. Start from Lesson 9: "The Call of Abraham." SOURCE LOCK: Uploaded PDF only. TONE: Warm, encouraging. CONTENT RESTRICTIONS: Stick to textbook and Catholic teaching only. MIC RULE — CRITICAL: You cannot hear the student in real time. You only receive their answer AFTER they tap the mic button and speak. NEVER say "I can hear you", "I hear you reading", "reading with me", or any phrase implying you are listening live. Only respond to answers actually submitted via the mic or text box. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
      book:'Bible History — Gilmour',bookUrl:'https://www.dropbox.com/scl/fi/et4t6i1qmnvdl1rz3vb31/BOOK-RELIGION-THL-100-CATHOLIC-BIBLE-I-TEXT.pdf?rlkey=07xop0s3dmk2vx99r2ocy6vt7&dl=0',cite:'Bible History, Richard Gilmour (1881)',isBible:true},
@@ -756,9 +756,9 @@ PAGE DISPLAY RULE: Each time you reference a specific page, chapter heading, or 
     {id:'FA-phonics',  icon:'🔤', name:'Bilingual Phonics',      tag:'English & Spanish',      color:'#185FA5', bg:'#EBF5FF', freq:'daily', day:'Daily',
      prompt:`You are a bilingual Phonics tutor for F.A. (Grade 1–4) teaching reading and writing in English and Spanish. Students are trilingual (French, English, Spanish) — address sound confusions across all three languages kindly. SPEECH RECOGNITION TOLERANCE: Accept phonetically close answers. Up to 3 retries. "I think I heard [X] — close enough!" READING ORDER: Sequential through phonics exercises. Ask which sound or lesson they covered last time. TONE: Warm, patient, celebratory.`,
      book:'Phonics Workbook',bookUrl:'',cite:'Phonics.com Workbooks',games:PHONICS_GAMES,gamesLabel:'Phonics Games'},
-    {id:'FA-narnia',   icon:'🦁', name:'English Literature',     tag:'Narnia — Gr. 1–2',       color:'#854F0B', bg:'#FFF8E6', freq:'daily', day:'Daily',
-     prompt:`You are a 2nd-grade English Literature tutor for C.S. Lewis's Narnia, starting with 'The Lion, the Witch and the Wardrobe.' Student: F.A., Grade 1–4. Read aloud at moderate pace. Guide comprehension: characters, events, Christian symbolism (age-appropriate). READING ORDER: Sequential. Ask which chapter was read last time. TONE: Enthusiastic, warm. Connect to faith gently. CONTENT RESTRICTIONS: No gender ideology, no anti-Catholic content. SOURCE LOCK: Uploaded PDF only. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
-     book:'Narnia — The Lion, the Witch and the Wardrobe',bookUrl:'https://www.dropbox.com/scl/fi/lcy5aw4ckwwiet4omw931/BOOK-Literature-NARNIA-LionWitchWardrobe_CSL.pdf?rlkey=hor768lpfooghsghm7bdtiq4a&dl=0',cite:'The Chronicles of Narnia, C.S. Lewis',games:READING_GAMES,gamesLabel:'Reading Games'},
+    {id:'FA-hobbit',   icon:'🐉', name:'English Literature',     tag:'The Hobbit — Gr. 1–4',   color:'#854F0B', bg:'#FFF8E6', freq:'daily', day:'Daily',
+     prompt:`You are an English Literature tutor for J.R.R. Tolkien's 'The Hobbit.' Student: F.A., Grade 1–4. Read aloud at a moderate pace, pausing to explain new vocabulary. Guide comprehension: characters, events, courage, and the difference between true treasure and false. Connect gently to the Catholic imagination Tolkien wrote from — providence, sacrifice, the ordinary hero. READING ORDER: Sequential by chapter. Ask which chapter was read last time. TONE: Warm, adventurous, encouraging. CONTENT RESTRICTIONS: No gender ideology, no anti-Catholic content. SOURCE LOCK: Uploaded PDF only. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
+     book:'The Hobbit — J.R.R. Tolkien',bookUrl:'https://www.dropbox.com/scl/fi/m2zrgaitkfe4iwgj3qorw/BOOK-Literature-The-Hobbit-FERNI.pdf?rlkey=nne0u7kgovghvmyc8r85wo45r&st=aj7zdd1u&dl=0',cite:'The Hobbit, J.R.R. Tolkien',games:READING_GAMES,gamesLabel:'Reading Games'},
     {id:'FA-history',  icon:'🌍', name:'World History',          tag:"Hillyer — Gr. 1–2",      color:'#854F0B', bg:'#FBF2EC', freq:'weekly', day:'Thursday',
      prompt:`You are a History and Geography tutor for F.A. (Grade 1–4) using 'A Child's History of the World' by V.M. Hillyer. Read aloud at moderate pace. Guide comprehension: key figures, events, geography. READING ORDER: Sequential, one chapter per session. Ask which chapter was read last time. TONE: Warm, storytelling style. Make history come alive. CONTENT RESTRICTIONS: No evolution, no ideological framing. SOURCE LOCK: Uploaded PDF only. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
      book:"A Child's History of the World — Hillyer",bookUrl:'https://www.dropbox.com/scl/fi/1a54r800vr42n3czrn339/BOOK-Historia-del-Mundo-NOBIS-PACEM.pdf?rlkey=7rxu0iae7kmxi5famx1g9lhd9&dl=0',cite:"A Child's History of the World, V.M. Hillyer"},
@@ -782,11 +782,23 @@ PAGE DISPLAY RULE: Each time you reference a specific page, chapter heading, or 
 // FC has same subjects as FA
 SUBJECTS.FC = SUBJECTS.FA.map(s=>({...s,id:s.id.replace('FA-','FC-'),prompt:s.prompt.replace(/F\.A\./g,'F.C.').replace(/Grade 1–4/g,'Grade 1–4')}));
 
+// F.C. stays on Narnia while F.A. has moved up to The Hobbit — override the auto-generated literature entry
+(function(){
+  const idx = SUBJECTS.FC.findIndex(s=>s.id==='FC-hobbit');
+  if(idx>-1){
+    SUBJECTS.FC[idx] = {
+      id:'FC-narnia', icon:'🦁', name:'English Literature', tag:'Narnia — Gr. 1–2', color:'#854F0B', bg:'#FFF8E6', freq:'daily', day:'Daily',
+      prompt:`You are a 2nd-grade English Literature tutor for C.S. Lewis's Narnia, starting with 'The Lion, the Witch and the Wardrobe.' Student: F.C., Grade 1–4. Read aloud at moderate pace. Guide comprehension: characters, events, Christian symbolism (age-appropriate). READING ORDER: Sequential. Ask which chapter was read last time. TONE: Enthusiastic, warm. Connect to faith gently. CONTENT RESTRICTIONS: No gender ideology, no anti-Catholic content. SOURCE LOCK: Uploaded PDF only. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
+      book:'Narnia — The Lion, the Witch and the Wardrobe', bookUrl:'https://www.dropbox.com/scl/fi/lcy5aw4ckwwiet4omw931/BOOK-Literature-NARNIA-LionWitchWardrobe_CSL.pdf?rlkey=hor768lpfooghsghm7bdtiq4a&st=wwscb7qt&dl=0', cite:'The Chronicles of Narnia, C.S. Lewis', games:READING_GAMES, gamesLabel:'Reading Games'
+    };
+  }
+})();
+
 // LJ subjects — Kindergarten adapted
 SUBJECTS.LJ = [
   {id:'LJ-aesop',   icon:'📜', name:"Aesop's Fables",      tag:'Philosophy — Kindergarten',color:'#534AB7', bg:'#F6F3FF', freq:'weekly', day:'Monday',
    prompt:`You are a Kindergarten Philosophy tutor for L.J. (Kindergarten, but with the logical reasoning of a Grade 3 student). Use Kindergarten-friendly, short, playful language — but the conceptual depth of Grade 3 (explain the WHY simply). Read Aesop's Fables aloud at a very slow, clear pace. One fable per session. TONE: Very warm, playful, celebratory. READING ORDER: Sequential from the first fable. Ask which fable they heard last time. CONTENT RESTRICTIONS: No evolution, gender ideology, anti-Catholic content. QUESTION RULE: After a student answers correctly, move on — do NOT ask the same concept again "to go deeper." PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
-   book:"Aesop's Fables PDF",bookUrl:'https://www.dropbox.com/scl/fi/bvlaezg1e2aktk68kdkiq/BOOK-Philosophy-Aesops-Fables-PDF-new.pdf?rlkey=r70yo6x9fdlwu3k2p21sz0v8p&dl=0',cite:"Aesop's Fables",isAesop:true},
+   book:"Aesop's Fables PDF",bookUrl:'https://www.dropbox.com/scl/fi/bvlaezg1e2aktk68kdkiq/BOOK-Philosophy-Aesops-Fables-PDF-new.pdf?rlkey=r70yo6x9fdlwu3k2p21sz0v8p&st=7jytrh93&dl=0',cite:"Aesop's Fables",isAesop:true},
   {id:'LJ-bible',   icon:'✝️', name:'Bible History',         tag:'Gilmour — Kindergarten',  color:'#993C1D', bg:'#FEF0E8', freq:'weekly', day:'Tuesday',
    prompt:`You are a Kindergarten Bible History tutor for L.J. (Kindergarten, logic of Grade 3). Use very simple, short sentences. Read slowly. Lots of encouragement. One lesson per week from Gilmour. READING ORDER: Sequential. Ask which lesson they covered last time. CONTENT RESTRICTIONS: Catholic teaching only. TONE: Very warm and gentle. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
    book:'Bible History — Gilmour',bookUrl:'https://www.dropbox.com/scl/fi/et4t6i1qmnvdl1rz3vb31/BOOK-RELIGION-THL-100-CATHOLIC-BIBLE-I-TEXT.pdf?rlkey=07xop0s3dmk2vx99r2ocy6vt7&dl=0',cite:'Bible History, Richard Gilmour (1881)',isBible:true},
@@ -795,7 +807,7 @@ SUBJECTS.LJ = [
    book:'Story-Book of Science — Fabre',bookUrl:'https://www.dropbox.com/scl/fi/swqcbzzs5qfryoka6cxhy/BOOK-CC-NN-The-Story-Book-Of-Science-by-Jean-Henri-Fabre.pdf?rlkey=lqm9qtkos7nitt2rgt6qmlgr6&dl=0',cite:'The Story-Book of Science, Jean-Henri Fabre'},
   {id:'LJ-narnia',  icon:'🦁', name:'English Literature',    tag:'Narnia — Kindergarten',   color:'#854F0B', bg:'#FFF8E6', freq:'daily', day:'Daily',
    prompt:`You are a Kindergarten Literature tutor for L.J. (Kindergarten, logic of Grade 3) reading Narnia. Read very slowly and clearly. Ask simple comprehension questions: "Who did we meet? What happened?" Connect to faith gently and simply. READING ORDER: Sequential. Ask what happened in the last session, then continue from the next part. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
-   book:'Narnia — The Lion, the Witch and the Wardrobe',bookUrl:'https://www.dropbox.com/scl/fi/lcy5aw4ckwwiet4omw931/BOOK-Literature-NARNIA-LionWitchWardrobe_CSL.pdf?rlkey=hor768lpfooghsghm7bdtiq4a&dl=0',cite:'The Chronicles of Narnia, C.S. Lewis',games:READING_GAMES,gamesLabel:'Reading Games'},
+   book:'Narnia — The Lion, the Witch and the Wardrobe',bookUrl:'https://www.dropbox.com/scl/fi/lcy5aw4ckwwiet4omw931/BOOK-Literature-NARNIA-LionWitchWardrobe_CSL.pdf?rlkey=hor768lpfooghsghm7bdtiq4a&st=wwscb7qt&dl=0',cite:'The Chronicles of Narnia, C.S. Lewis',games:READING_GAMES,gamesLabel:'Reading Games'},
   {id:'LJ-history', icon:'🌍', name:'World History',         tag:'Hillyer — Kindergarten',  color:'#854F0B', bg:'#FBF2EC', freq:'weekly', day:'Thursday',
    prompt:`You are a Kindergarten History tutor for L.J. (Kindergarten, logic of Grade 3) using Hillyer. Read aloud slowly. Make it a story. Simple questions. READING ORDER: Sequential. Ask which chapter they covered last time. CONTENT RESTRICTIONS: No evolution, no ideology. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
    book:"A Child's History of the World — Hillyer",bookUrl:'https://www.dropbox.com/scl/fi/1a54r800vr42n3czrn339/BOOK-Historia-del-Mundo-NOBIS-PACEM.pdf?rlkey=7rxu0iae7kmxi5famx1g9lhd9&dl=0',cite:"A Child's History of the World, V.M. Hillyer"},
@@ -950,6 +962,8 @@ async function syncToSupabase(student, subjectId, data, doneToday){
       session_count: data.sessionCount || 0,
       last_lesson: data.lastLesson || 'Not started',
       hints: data.hints || 0,
+      last_game: data.lastGame || null,
+      game_opens: data.gameOpens || 0,
       done_today: doneToday || false,
       last_updated: data.lastUpdated || new Date().toISOString()
     };
@@ -972,7 +986,7 @@ async function syncToSupabase(student, subjectId, data, doneToday){
 async function loadSessionsFromSupabase(){
   try {
     const res = await fetch(
-      `${SUPA_URL}/rest/v1/progress?select=student,subject_id,session_count,last_lesson,hints,done_today,last_updated`,
+      `${SUPA_URL}/rest/v1/progress?select=student,subject_id,session_count,last_lesson,hints,last_game,game_opens,done_today,last_updated`,
       { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` } }
     );
     if(!res.ok){ window._cloudSyncStatus = 'fail'; window._cloudSyncMsg = `Cloud error: HTTP ${res.status}`; return; }
@@ -992,6 +1006,8 @@ async function loadSessionsFromSupabase(){
           sessionCount: cloudCount,
           lastLesson: row.last_lesson || 'Not started',
           hints: row.hints || 0,
+          lastGame: row.last_game || (local && local.lastGame) || null,
+          gameOpens: row.game_opens || (local && local.gameOpens) || 0,
           lastUpdated: row.last_updated || (local && local.lastUpdated) || null
         };
         try { localStorage.setItem(key, JSON.stringify(merged)); } catch(e){}
@@ -1001,6 +1017,8 @@ async function loadSessionsFromSupabase(){
         // the app more recently. Adopt that date for the dashboard.
         const updated = local || { lastLesson: row.last_lesson || 'Not started', sessionCount: localCount, hints: (local && local.hints) || 0 };
         updated.lastUpdated = row.last_updated;
+        updated.lastGame = row.last_game || updated.lastGame || null;
+        updated.gameOpens = row.game_opens || updated.gameOpens || 0;
         try { localStorage.setItem(key, JSON.stringify(updated)); } catch(e){}
       }
       // Restore done_today from Supabase only if it was today
@@ -1116,6 +1134,15 @@ function saveSession(student, subjectId, data){
   data.lastUpdated = new Date().toISOString(); // for "Last Used" column on Teacher Dashboard
   try{ localStorage.setItem(storageKey(student,subjectId), JSON.stringify(data)); } catch(e){}
   syncToSupabase(student, subjectId, data, isDone(student, subjectId));
+}
+// Records that the student opened a practice game, into that subject's session —
+// shows up on the Teacher Dashboard and syncs to Supabase like any other session field.
+function logGameOpened(gameName){
+  if(!curStudent || !curSubject) return;
+  const sess = getSession(curStudent, curSubject.id);
+  sess.lastGame = gameName;
+  sess.gameOpens = (sess.gameOpens || 0) + 1;
+  saveSession(curStudent, curSubject.id, sess);
 }
 
 // ══════════════════════════════════════════════
@@ -1322,6 +1349,21 @@ function checkDashPassword(){
   }
 }
 function loadDashboard(){
+  // FIX (Sep 2026): always pull fresh progress from Supabase before rendering.
+  // Previously this only re-fetched when window._cloudSyncStatus was still
+  // unset, so once a device had synced once, opening/refreshing the Teacher
+  // Dashboard later the same page-load just re-rendered old cached data —
+  // sessions completed on OTHER devices in the meantime never showed up.
+  const bar = document.getElementById('cloud-status-bar');
+  const msg = document.getElementById('cloud-status-msg');
+  if(bar && msg){
+    bar.className = 'cloud-status-bar checking';
+    msg.textContent = 'Checking cloud connection...';
+  }
+  loadSessionsFromSupabase().then(()=>renderDashboardGrid());
+}
+
+function renderDashboardGrid(){
   // Show cloud sync status in dashboard
   const bar = document.getElementById('cloud-status-bar');
   const msg = document.getElementById('cloud-status-msg');
@@ -1330,15 +1372,9 @@ function loadDashboard(){
     if(s === 'ok'){
       bar.className = 'cloud-status-bar ok';
       msg.textContent = window._cloudSyncMsg || 'Cloud connected';
-    } else if(s === 'fail'){
+    } else {
       bar.className = 'cloud-status-bar fail';
       msg.textContent = (window._cloudSyncMsg || 'Cloud sync failed') + ' — session counts may be out of date on this device. Check Supabase project is active and CORS allows mapaoschool.github.io';
-    } else {
-      bar.className = 'cloud-status-bar checking';
-      msg.textContent = 'Checking cloud connection...';
-      // Re-attempt sync and refresh after
-      loadSessionsFromSupabase().then(()=>loadDashboard());
-      return;
     }
   }
   const grid = document.getElementById('dash-grid');
@@ -1399,6 +1435,15 @@ function renderDashRow(tr, sid, subj){
   cells.forEach((val, i) => {
     const td = document.createElement('td');
     if(i === 5) td.innerHTML = val;
+    else if(i === 2 && sess.lastGame){
+      const main = document.createElement('div');
+      main.textContent = val;
+      td.appendChild(main);
+      const sub = document.createElement('div');
+      sub.style.cssText = 'font-size:10px;color:var(--vg-text3);margin-top:2px;';
+      sub.textContent = '🎮 ' + sess.lastGame + (sess.gameOpens > 1 ? ' (' + sess.gameOpens + 'x)' : '');
+      td.appendChild(sub);
+    }
     else td.textContent = val;
     if(i === 4) td.style.cssText = 'font-size:11px;color:var(--vg-text3);white-space:nowrap;';
     tr.appendChild(td);
@@ -1793,7 +1838,9 @@ async function beginSession(){
   const sessionNumber = sess.sessionCount + 1;
   const studentNames = {AL:'A.L. (Grade 9–12)',FA:'F.A. (Grade 1–4)',FC:'F.C. (Grade 1–4)',LJ:'L.J. (Kindergarten, logic Grade 3)'};
 
-  const isNarnia = curSubject && curSubject.id.includes('narnia');
+  // Narnia, The Hobbit, and the Fagles Iliad translation are all in-copyright —
+  // the tutor retells these in its own words rather than reading them verbatim.
+  const isNarnia = curSubject && (curSubject.id.includes('narnia') || curSubject.id === 'AL-iliad' || curSubject.id === 'FA-hobbit');
 
   const isArt = curSubject && curSubject.id.includes('art');
   const isAesop = curSubject && curSubject.isAesop;
@@ -1865,7 +1912,7 @@ IMPORTANT: Never give away answers. Be encouraging. Stay within content restrict
 Respond in plain, natural tutor voice — no markdown, no bullet symbols.`;
 
   try {
-    const isLiterature = curSubject && ['narnia','aesop','bible','history','science'].some(k => curSubject.id.includes(k));
+    const isLiterature = curSubject && ['narnia','aesop','bible','history','science','iliad','hobbit'].some(k => curSubject.id.includes(k));
     const res = await fetchWithTimeout('https://divine-sunset-f2ee.panicovillegas.workers.dev',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
@@ -3510,6 +3557,7 @@ let mgCorrect = 0, mgStreak = 0, mgBestStreak = 0, mgAnswered = false;
 let mgQuizActive = false, mgQuizQ = 0, mgQuizTotal = 10, mgQuizScore = 0, mgQuizTimer = null, mgQuizTimeLeft = 0;
 
 function openMathGames(){
+  logGameOpened('Math Games');
   document.getElementById('mg-overlay').classList.add('active');
   mgSelectMode(mgMode || 'tables');
 }
@@ -3529,6 +3577,7 @@ function openExtGames(){
     a.href = g.url;
     a.target = '_blank';
     a.rel = 'noopener';
+    a.onclick = function(){ logGameOpened(g.name); };
     const nameSpan = document.createElement('span');
     nameSpan.className = 'eg-link-name';
     nameSpan.textContent = g.name;
