@@ -837,7 +837,7 @@ SUBJECTS.LJ = [
 const UNIVERSAL_RULES = `
 UNIVERSAL RULES (apply to every subject):
 1. SESSION TRACKING: At the start of every session, briefly confirm with the student (as a statement, not a question requiring their reply) which lesson/chapter/fable they completed last time, using the LAST LESSON COMPLETED info provided below. Never repeat unless student requests review. Even if that info is generic or does not name a specific topic, NEVER say you don't have a record of it and NEVER ask the student what they remember from last time — just state a brief, confident, generic continuation (e.g. "Last time we kept practicing together — let's pick up from there.") and move straight into today's lesson.
-2. SESSION LENGTH: Maximum 15 minutes for all subjects; maximum 10 minutes for Math and Arithmetic. End the session as soon as the student has finished the reading and answered all questions — do NOT fill remaining time with extra activities or new topics. Summarize what was covered and preview the next session, then close.
+2. SESSION LENGTH: Maximum 15 minutes for all subjects; maximum 10 minutes for Math and Arithmetic. End the session as soon as the student has finished the reading and answered all questions — do NOT fill remaining time with extra activities or new topics — the ONLY exception is the NOTEBOOK ACTIVITY (write 3 examples of today's topic in the notebook, show it to the mother), which the app requests when the book has no more questions and time remains. Summarize what was covered and preview the next session, then close.
 3. CONTENT RESTRICTIONS: NEVER discuss gender ideology, sex education, DEI ideology, evolution, Darwinism, ecology (as ideology), vulgarity, critical race theory, or anti-Catholic content. Redirect gently.
 4. ADAPTIVE TEACHING: If struggling, present concept in a DIFFERENT way (analogy, story, visual). Do not repeat the same explanation.
 5. VISUAL SUPPORT: Generate images when needed. If unable, say: "Ask your teacher to show you a picture of [X]."
@@ -869,14 +869,32 @@ const HAS_SPEECH_RECOGNITION = !!(window.SpeechRecognition || window.webkitSpeec
 // Wraps fetch() with a timeout so a hung AI-worker request always resolves
 // into the existing catch/error-handling instead of leaving "Thinking..."
 // (and disabled buttons) on screen forever — fixes "bot does not react".
+// FIX (Sep 23 2026): 25 s was too short — a full lesson (up to 2000 tokens) often
+// takes 30–60 s to generate, so the request was aborted and the student saw
+// "Connection error: signal is aborted without reason" even with good internet.
+// Now: 90 s default, and ONE automatic retry on timeout / network drop /
+// AI-service busy (429, 500, 502, 503, 504, 529) before showing any error.
 async function fetchWithTimeout(url, options, timeoutMs){
-  timeoutMs = timeoutMs || 25000;
-  const controller = new AbortController();
-  const timer = setTimeout(()=>controller.abort(), timeoutMs);
-  try {
-    return await fetch(url, Object.assign({}, options, {signal: controller.signal}));
-  } finally {
-    clearTimeout(timer);
+  timeoutMs = timeoutMs || 90000;
+  for(let attempt = 1; attempt <= 2; attempt++){
+    const controller = new AbortController();
+    const timer = setTimeout(()=>controller.abort(), timeoutMs);
+    try {
+      const res = await fetch(url, Object.assign({}, options, {signal: controller.signal}));
+      if(attempt === 1 && [429,500,502,503,504,529].includes(res.status)){
+        await new Promise(r=>setTimeout(r, 2000));
+        continue;
+      }
+      return res;
+    } catch(e){
+      if(attempt === 2){
+        if(e && e.name === 'AbortError') throw new Error('The tutor took too long to answer (the AI service was busy)');
+        throw e;
+      }
+      await new Promise(r=>setTimeout(r, 2000));
+    } finally {
+      clearTimeout(timer);
+    }
   }
 }
 
@@ -925,6 +943,9 @@ let readingStopped = false; // FIX: track explicit stop so chunks don't restart
 let lastQuestion = '';
 let sessionQuestionIndex = 0; // tracks how many questions answered this session for resume
 let sessionAskedQuestions = []; // tracks all questions asked this session to prevent repeats
+let currentLessonText = ''; // FIX (Sep 23 2026): the lesson text as generated in beginSession(); used as AI context for next question / grading / hint / reteach, because ai-response is overwritten by feedback read-aloud
+let notebookStage = 0; // FIX (Sep 23 2026): 0 = not assigned, 1 = notebook activity assigned, waiting for student to confirm mother checked it, 2 = confirmed
+let lessonImageGen = 0; // FIX (Sep 23 2026): stale image searches from a previous subject/question are discarded
 let answerGeneration = 0; // FIX (Sep 2026): incremented on every respondToAnswer() call; a stale/duplicate answer that resolves late is discarded instead of overwriting a newer question's feedback
 
 // Class timer state
@@ -1208,7 +1229,7 @@ async function endSessionByTimer(){
     saveSession(curStudent, curSubject.id, sess);
     syncToSupabase(curStudent, curSubject.id, sess, true);
     clearProgress(curStudent, curSubject.id); // Session complete — clear resume point
-    const t = `Last: ${sess.lastLesson} · Sessions: ${sess.sessionCount}`;
+    const t = `Session ${sess.sessionCount} · Last: ${sess.lastLesson}`;
     document.getElementById('tracker-text') && (document.getElementById('tracker-text').textContent = t);
     document.getElementById('tracker-text-right') && (document.getElementById('tracker-text-right').textContent = t);
     // Update subject card to show strikethrough immediately
@@ -1643,6 +1664,9 @@ function openSubject(subjectId){
   lastQuestion = '';
   sessionAskedQuestions = [];
   sessionEndedByTimer = false;
+  currentLessonText = '';
+  notebookStage = 0;
+  lessonImageGen++;
   stopRead();
   clearInterval(classTimerInterval); classTimerInterval = null;
 
@@ -1705,7 +1729,9 @@ function openSubject(subjectId){
 
   // Session tracker (both elements)
   const sess = getSession(curStudent, subjectId);
-  const trackerText = `Last: ${sess.lastLesson} · Sessions: ${sess.sessionCount}`;
+  // FIX (Sep 23 2026): show TODAY's session number (completed + 1) so the green box
+  // matches the session the tutor announces, instead of the last completed count.
+  const trackerText = `Session ${sess.sessionCount + 1} · Last: ${sess.lastLesson}`;
   document.getElementById('tracker-text') && (document.getElementById('tracker-text').textContent = trackerText);
   document.getElementById('tracker-text-right') && (document.getElementById('tracker-text-right').textContent = trackerText);
   // Re-sync tracker once cloud progress finishes loading (covers race on slow/mobile connections
@@ -1714,7 +1740,7 @@ function openSubject(subjectId){
     window._cloudSyncPromise.then(()=>{
       if(curSubject && curSubject.id === subjectId){
         const freshSess = getSession(curStudent, subjectId);
-        const freshText = `Last: ${freshSess.lastLesson} · Sessions: ${freshSess.sessionCount}`;
+        const freshText = `Session ${freshSess.sessionCount + 1} · Last: ${freshSess.lastLesson}`;
         document.getElementById('tracker-text') && (document.getElementById('tracker-text').textContent = freshText);
         document.getElementById('tracker-text-right') && (document.getElementById('tracker-text-right').textContent = freshText);
       }
@@ -1913,6 +1939,10 @@ ${vocabStep}
 5. After the ${isNarnia ? 'retelling' : 'reading'}${hasVocab ? ' and vocabulary explanation' : ''}, ask ${hasVocab ? '2' : '2–3'} comprehension or discussion questions — ONE AT A TIME. Wait for answer before next question.
 6. End with encouragement and preview of next session
 
+SESSION NUMBER RULE: If you mention the session number, say exactly "Session ${sessionNumber}" — never a different session number. Book numbering (Lesson, Chapter, Fable, Page) is separate from the session number — call it "Lesson", "Chapter", "Fable" or "Page", never "Session".
+DO NOT ask the student what they covered last time — you already have it above (LAST LESSON COMPLETED). Continue from the NEXT part of the book; do NOT repeat the last lesson.
+LESSON TAG — REQUIRED: The very FIRST line of your response must be a tag naming TODAY's lesson with its book position, e.g. [LESSON: Lesson 4 — Counting to five, page 12] or [LESSON: Fable 3 — The Fox and the Grapes]. The app removes this tag before display; it is used to remember where the student is.
+
 IMPORTANT: Never give away answers. Be encouraging. Stay within content restrictions.
 Respond in plain, natural tutor voice — no markdown, no bullet symbols.`;
 
@@ -1959,13 +1989,20 @@ Respond in plain, natural tutor voice — no markdown, no bullet symbols.`;
     // Save lesson topic immediately so the next session knows what was covered.
     // Extract the first meaningful sentence (after the greeting) as the lesson title.
     const sentences = cleanText.replace(/\n+/g,' ').match(/[^.!?]{15,}[.!?]/g) || [];
-    const lessonTitle = sentences.find(s => !/\b(hello|hi|good morning|good afternoon|welcome|great to see|nice to see|let's|let us begin|today we)\b/i.test(s))
+    // FIX (Sep 23 2026): prefer the AI's [LESSON: ...] tag (today's exact book position).
+    // The old first-sentence guess often saved the sentence about LAST time, so the
+    // next session repeated the same reading.
+    const lessonTagMatch = text.match(/\[LESSON:\s*([^\]]+)\]/i);
+    const lessonTitle = (lessonTagMatch && lessonTagMatch[1].trim())
+      || sentences.find(s => !/\b(hello|hi|good morning|good afternoon|welcome|great to see|nice to see|let's|let us begin|today we|last time)\b/i.test(s))
       || sentences[1] || sentences[0] || cleanText.substring(0, 80);
+    currentLessonText = cleanText;
+    notebookStage = 0;
     const sess = getSession(curStudent, curSubject.id);
     if(!sessionCountedThisOpen){ sess.sessionCount++; sessionCountedThisOpen = true; }
     sess.lastLesson = lessonTitle.trim().substring(0, 120);
     saveSession(curStudent, curSubject.id, sess);
-    const t = `Last: ${sess.lastLesson} · Sessions: ${sess.sessionCount}`;
+    const t = `Session ${sess.sessionCount} · Last: ${sess.lastLesson}`;
     document.getElementById('tracker-text') && (document.getElementById('tracker-text').textContent = t);
     document.getElementById('tracker-text-right') && (document.getElementById('tracker-text-right').textContent = t);
     // Also save question-level progress so student can resume mid-session
@@ -2000,7 +2037,9 @@ Respond in plain, natural tutor voice — no markdown, no bullet symbols.`;
     // Hide diagnostic banner after first session begins
     document.getElementById('diag-banner').style.display = 'none';
   } catch(e){
-    document.getElementById('ai-response').textContent = 'Connection error: ' + e.message + '. Please check your internet and try again.';
+    document.getElementById('ai-response').textContent = /took too long/i.test(e.message || '')
+      ? e.message + '. Please tap Begin again in a moment.'
+      : 'Connection error: ' + e.message + '. Please check your internet and try again.';
   }
   btn.disabled = false;
   btn.innerHTML = '✦ Begin Session';
@@ -2208,6 +2247,8 @@ function sanitizeForTTS(text){
     // Remove bracket tags (already parsed by the app)
     .replace(/\[SHOW_PAGE:\s*\d+\]/gi, '')
     .replace(/\[SHOW_IMAGE:[^\]]*\]/gi, '')
+    .replace(/\[LESSON:[^\]]*\]/gi, '')
+    .replace(/\[NOTEBOOK\]/gi, '')
     .replace(/\[KEY\]|\[\/KEY\]/gi, '')
     .replace(/\[EXAMPLE:[^\]]*\]|\[\/EXAMPLE\]/gi, '')
     .trim();
@@ -2226,6 +2267,8 @@ function stripDirectiveTags(text){
     .replace(/#+\s/g, '')
     .replace(/\[SHOW_PAGE:\s*\d+\]/gi, '')
     .replace(/\[SHOW_IMAGE:[^\]]*\]/gi, '')
+    .replace(/\[LESSON:[^\]]*\]/gi, '')
+    .replace(/\[NOTEBOOK\]/gi, '')
     .replace(/\[KEY\]|\[\/KEY\]/gi, '')
     .replace(/\[EXAMPLE:[^\]]*\]|\[\/EXAMPLE\]/gi, '')
     .replace(/\n{3,}/g, '\n\n')
@@ -2673,7 +2716,7 @@ function markResponse(type){
       sess.lastLesson = `Session ${sess.sessionCount} — ${curSubject.name}`;
     }
     saveSession(curStudent, curSubject.id, sess);
-    const t = `Last: ${sess.lastLesson} · Sessions: ${sess.sessionCount}`;
+    const t = `Session ${sess.sessionCount} · Last: ${sess.lastLesson}`;
     document.getElementById('tracker-text') && (document.getElementById('tracker-text').textContent = t);
     document.getElementById('tracker-text-right') && (document.getElementById('tracker-text-right').textContent = t);
     safeReadAloud(msg.text);
@@ -2691,6 +2734,7 @@ function markResponse(type){
 // ══════════════════════════════════════════════
 async function reteachConcept(){
   if(sessionEndedByTimer) return; // class time already ended — don't reopen the session
+  if(notebookStage === 1){ handleNotebookReply(''); return; } // notebook activity: just remind, no reteach
   stopMicSilently(); // don't let TTS play over a still-listening mic
   const btn = document.getElementById('btn-wrong');
   ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint','mic-btn'].forEach(id=>{
@@ -2700,7 +2744,7 @@ async function reteachConcept(){
   const fbArea = document.getElementById('fb-area');
   fbArea.innerHTML = `<div class="feedback" style="background:#2A0A08;color:#FF9090"><span class="spinner"></span> Preparing a different explanation...</div>`;
 
-  const lessonText = document.getElementById('ai-response').textContent.substring(0, 500);
+  const lessonText = (currentLessonText || document.getElementById('ai-response').textContent).substring(0, 1000);
   const studentAnswer = document.getElementById('mic-transcript').textContent || document.getElementById('student-answer-text').textContent || 'no answer given';
   const gradeCtx = {AL:'Grade 9–12 — mature, analytical, use Thomistic vocabulary',FA:'Grade 1–4 — simple language, warm, concrete examples',FC:'Grade 1–4 — simple language, warm, concrete examples',LJ:'Kindergarten with Grade 3 logic — very short sentences, playful, use objects and comparisons'};
 
@@ -2745,7 +2789,7 @@ async function giveHint(){
     const el = document.getElementById(id); if(el) el.disabled=true;
   });
   btn.textContent='...';
-  const lessonText = document.getElementById('ai-response').textContent.substring(0,400);
+  const lessonText = (currentLessonText || document.getElementById('ai-response').textContent).substring(0,800);
   const gradeCtx = {AL:'Grade 9–12 — mature, precise',FA:'Grade 1–4 — simple, warm',FC:'Grade 1–4 — simple, warm',LJ:'Kindergarten with Grade 3 logic — playful, short sentences'};
   try {
     const res = await fetchWithTimeout('https://divine-sunset-f2ee.panicovillegas.workers.dev',{
@@ -2771,6 +2815,80 @@ async function giveHint(){
 }
 
 // ══════════════════════════════════════════════
+// NOTEBOOK ACTIVITY (added Sep 23 2026)
+// When the book has no more questions for today and class time remains, the
+// tutor asks the student to write 3 examples of today's topic in the notebook
+// (giving 1–2 examples first), show it to the mother to correct, and then
+// confirm that the mother has checked it.
+// ══════════════════════════════════════════════
+const NOTEBOOK_CONFIRM_Q = 'Has your mother checked your notebook?';
+function notebookQuestionLimit(){
+  return (curSubject && (curSubject.isAesop || curSubject.isBible)) ? 2 : 3;
+}
+function notebookBudgetReached(){
+  const unique = new Set(sessionAskedQuestions.map(q => q.toLowerCase().trim())).size;
+  return unique >= notebookQuestionLimit();
+}
+function notebookTimeLeft(){ return !sessionEndedByTimer && classTimerSeconds > 60; }
+function notebookInstructions(){
+  const drawOk = curStudent === 'LJ' ? ' (L.J. may write single words or draw a small picture for each example)' : '';
+  return `NOTEBOOK ACTIVITY: tell the student to open their notebook and write down 3 examples of today's topic${drawOk} — name the topic clearly. Give 1 or 2 short, clear examples first so the student understands what to write (these do not count as their 3). Tell the student to show the notebook to their mother so she can correct it. End with exactly this question: "${NOTEBOOK_CONFIRM_Q}" Then add the tag [NOTEBOOK] at the very end.`;
+}
+function showNotebookMessage(text){
+  const fbArea = document.getElementById('fb-area');
+  fbArea.innerHTML = `<div class="feedback" style="background:#1a3a22;color:#d4f0dc;border:1px solid #2d6b3a;line-height:1.7"><strong>📓 Notebook time</strong><br><br>${text.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>`;
+  document.getElementById('ai-question-box').innerHTML = `<div style="background:#FFF6D6;border:1px solid #E8C870;border-radius:6px;padding:10px 12px;margin-bottom:8px;font-size:14px;color:#1A1A1A;line-height:1.6;">${NOTEBOOK_CONFIRM_Q}</div>`;
+  lastQuestion = NOTEBOOK_CONFIRM_Q;
+  safeReadAloud(text);
+}
+function enableAnswerButtons(){
+  ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint','btn-next','mic-btn'].forEach(id=>{
+    const el = document.getElementById(id); if(el) el.disabled = false;
+  });
+}
+async function startNotebookActivity(){
+  notebookStage = 1;
+  const gradeCtx = {AL:'Grade 9–12',FA:'Grade 1–4 — simple warm language',FC:'Grade 1–4 — simple warm language',LJ:'Kindergarten with Grade 3 logic — very short playful sentences'};
+  const lesson = (currentLessonText || document.getElementById('ai-response').textContent).substring(0, 1200);
+  let text = '';
+  try {
+    const res = await fetchWithTimeout('https://divine-sunset-f2ee.panicovillegas.workers.dev',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6', max_tokens:300,
+        messages:[{role:'user',content:`You are a tutor for a ${gradeCtx[curStudent]} student. Subject: ${curSubject.name}.\n\nToday's lesson was:\n"${lesson}"\n\nThe book has no more questions for today and there is class time left. In plain, warm tutor voice (no markdown, no bullet symbols, do not start with "I"), give the ${notebookInstructions()}\nStay within Catholic classical content.`}]
+      })
+    });
+    const data = await res.json();
+    text = stripDirectiveTags(data.content?.find(b=>b.type==='text')?.text || '');
+  } catch(e){}
+  if(!text){
+    text = `Great work today! Now open your notebook. Write down 3 examples of what we learned today. Then show your notebook to your mother so she can correct it. ${NOTEBOOK_CONFIRM_Q}`;
+  }
+  if(sessionEndedByTimer) return;
+  showNotebookMessage(text);
+}
+function handleNotebookReply(answer){
+  const a = (answer || '').trim();
+  const YES = /(?:^|[^A-Za-zÀ-ÿ])(yes|yeah|yep|yup|done|finished|checked|she did|she has|s[ií]|ya|listo|lista|termin[eé]|revis[oó]|oui|fini)(?![A-Za-zÀ-ÿ])/i;
+  const STARTS_NO = /^\s*(no|not|nope|non|todav[ií]a|a[uú]n|pas)(?![A-Za-zÀ-ÿ])/i;
+  let msg;
+  if(YES.test(a) && !STARTS_NO.test(a)){
+    notebookStage = 2;
+    msg = 'Wonderful! Thank you for showing your notebook to your mother. You worked very hard today — well done!';
+    document.getElementById('fb-area').innerHTML = `<div class="feedback" style="background:#1a3a22;color:#d4f0dc;border:1px solid #2d6b3a;line-height:1.7">✅ ${msg}</div>`;
+    document.getElementById('ai-question-box').innerHTML = `<div style="font-size:13px;color:#1A1A1A;line-height:1.8;">📓 Notebook checked by mother ✓</div>`;
+    lastQuestion = '';
+    safeReadAloud(msg);
+  } else {
+    msg = `That's okay! Finish writing your 3 examples, then show your notebook to your mother so she can check it. ${NOTEBOOK_CONFIRM_Q} Tell me yes when she has.`;
+    showNotebookMessage(msg);
+  }
+  enableAnswerButtons();
+}
+
+// ══════════════════════════════════════════════
 // NEXT QUESTION (AI)
 // ══════════════════════════════════════════════
 async function nextQuestion(){
@@ -2792,13 +2910,27 @@ async function nextQuestion(){
   const alreadyAsked = sessionAskedQuestions.length
     ? `\nQUESTIONS ALREADY ASKED THIS SESSION (do NOT repeat these):\n${sessionAskedQuestions.map((q,i)=>`${i+1}. ${q}`).join('\n')}\n`
     : '';
+  // NOTEBOOK ACTIVITY (Sep 23 2026): book questions used up + time left → notebook instead of another question
+  if(notebookStage === 1 || (notebookStage === 0 && notebookBudgetReached() && notebookTimeLeft())){
+    if(notebookStage === 1){
+      showNotebookMessage(`Remember: write 3 examples in your notebook and show it to your mother. ${NOTEBOOK_CONFIRM_Q}`);
+    } else {
+      await startNotebookActivity();
+    }
+    enableAnswerButtons();
+    btn.innerHTML='Next →';
+    return;
+  }
+  // FIX (Sep 23 2026): the AI used to receive NO lesson text here, so it often
+  // started the whole lesson over (greeting + reading again) — the "reading loop".
+  const lessonCtx = (currentLessonText || '').substring(0, 1500);
   try {
     const res = await fetchWithTimeout('https://divine-sunset-f2ee.panicovillegas.workers.dev',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         model:'claude-sonnet-4-6',max_tokens:400,
-        messages:[{role:'user',content:`${UNIVERSAL_RULES}\n${curSubject.prompt}\nSTUDENT: ${studentNames[curStudent]}\n${alreadyAsked}\nContinue the session with the NEXT question or activity. Ask a DIFFERENT question — never repeat any question already asked. Be specific, cite the source, never give away the answer. Subject: ${curSubject.name}.`}]
+        messages:[{role:'user',content:`${UNIVERSAL_RULES}\n${curSubject.prompt}\nSTUDENT: ${studentNames[curStudent]}\n${alreadyAsked}\nTODAY'S LESSON (already read to the student — do NOT read it again, do NOT greet, do NOT restart the lesson):\n"${lessonCtx}"\n\nContinue the session with ONE NEXT question about today's lesson above. Ask a DIFFERENT question — never repeat any question already asked. Be specific, cite the source, never give away the answer. ${notebookStage === 0 && notebookTimeLeft() ? 'If today\'s lesson has NO more new questions to ask, do not invent a repeat — instead give the ' + notebookInstructions() : ''} Subject: ${curSubject.name}.`}]
       })
     });
     const data = await res.json();
@@ -2806,6 +2938,13 @@ async function nextQuestion(){
     // Strip [SHOW_PAGE:]/[SHOW_IMAGE:]/markdown so what's shown matches what's
     // spoken (sanitizeForTTS strips the same tags in safeReadAloud below).
     const cleanText = stripDirectiveTags(text);
+    if(/\[NOTEBOOK\]/i.test(text)){
+      notebookStage = 1;
+      showNotebookMessage(cleanText);
+      enableAnswerButtons();
+      btn.innerHTML='Next →';
+      return;
+    }
     // Update right-panel question box with the new question — do NOT touch ai-response (lesson text)
     const newQs = cleanText.match(/[^.!?]*\?[^?]*/g) || [];
     document.getElementById('ai-question-box').innerHTML = newQs.length
@@ -2909,6 +3048,9 @@ async function respondToAnswer(studentAnswer){
   // question 2" bug. myAnswerGen lets a stale result be safely discarded below.
   const myAnswerGen = ++answerGeneration;
 
+  // NOTEBOOK ACTIVITY (Sep 23 2026): student is confirming the mother checked the notebook
+  if(notebookStage === 1){ handleNotebookReply(studentAnswer); return; }
+
   const fbArea = document.getElementById('fb-area');
   fbArea.innerHTML = `<div class="feedback" style="background:#1E1630;color:#C0B0E0"><span class="spinner"></span> Thinking...</div>`;
   // Disable all response buttons (and the mic) while AI is evaluating to prevent race conditions
@@ -2917,7 +3059,7 @@ async function respondToAnswer(studentAnswer){
   });
   document.getElementById('btn-send').disabled = true;
 
-  const lessonText = document.getElementById('ai-response').textContent.substring(0, 600);
+  const lessonText = (currentLessonText || document.getElementById('ai-response').textContent).substring(0, 1200);
   const questionContext = questionForThisAnswer ? `\n\nThe specific question you asked the student was:\n"${questionForThisAnswer}"` : '';
   const gradeCtx = {
     AL:'Grade 9–12 — mature, analytical, Thomistic vocabulary',
@@ -2949,7 +3091,9 @@ The student answered:
 Respond in this exact order — no labels, no bullet points, plain tutor voice:
 1. Evaluate the answer warmly and specifically (correct, partially correct, or gently incorrect — referring directly to the question you asked).
 2. IF THE ANSWER IS WRONG OR ONLY PARTIALLY RIGHT: briefly explain the correct idea in a DIFFERENT way from the original lesson, then ask this EXACT SAME question again, word for word: "${questionForThisAnswer || lastQuestion}". Do NOT move to a different question or topic — stay on this one until the student answers it correctly. Never say you will repeat the question and then ask a different one.
-3. IF THE ANSWER IS FULLY CORRECT: praise them specifically, then ask a NEW, DIFFERENT question to keep the session going — never repeat a question already answered correctly this session (see list above).
+3. IF THE ANSWER IS FULLY CORRECT: praise them specifically, then ${(notebookStage === 0 && notebookTimeLeft() && notebookBudgetReached())
+      ? 'the book has no more questions for today, so do NOT ask a new question — instead give the ' + notebookInstructions()
+      : 'ask a NEW, DIFFERENT question to keep the session going — never repeat a question already answered correctly this session (see list above). Do NOT re-read the lesson.' + ((notebookStage === 0 && notebookTimeLeft()) ? ' If today\'s lesson has NO more new questions to ask, instead give the ' + notebookInstructions() : '')}
 
 Never say the student is jumping ahead. Stay within Catholic classical content. Do not start with "I".`}]
       })
@@ -2963,6 +3107,14 @@ Never say the student is jumping ahead. Stay within Catholic classical content. 
     // Strip [SHOW_PAGE:]/[SHOW_IMAGE:]/markdown so what's shown matches what's
     // spoken (sanitizeForTTS strips the same tags in safeReadAloud below).
     const cleanReply = stripDirectiveTags(reply);
+    if(/\[NOTEBOOK\]/i.test(reply)){
+      notebookStage = 1;
+      showNotebookMessage(cleanReply);
+      sessionQuestionIndex++;
+      saveProgress(curStudent, curSubject.id, sessionQuestionIndex, lastQuestion);
+      enableAnswerButtons();
+      return;
+    }
     const newQ = extractLastQuestion(cleanReply);
     if(newQ){ sessionAskedQuestions.push(newQ); lastQuestion = newQ; }
     else { lastQuestion = extractLastQuestion(cleanReply) || lastQuestion; }
@@ -3126,6 +3278,9 @@ async function renderBookPage(pageNum, pdfUrl, bookLabel) {
 // WEB IMAGE SEARCH
 // ══════════════════════════════════════════════
 async function fetchImagesForLesson(lessonText) {
+  // FIX (Sep 23 2026): generation token — a slow image search from an earlier
+  // question/subject must never pop up later on top of the current lesson.
+  const myImgGen = ++lessonImageGen;
   // Reset both sidebar and center image panels
   document.getElementById('img-section').style.display = 'none';
   document.getElementById('img-grid').innerHTML = '';
@@ -3138,6 +3293,7 @@ async function fetchImagesForLesson(lessonText) {
 
   // Helper: display images prominently in the center reading panel
   function showCenterImages(images, sectionLabel) {
+    if (myImgGen !== lessonImageGen) return; // stale search — a newer lesson/question owns the panel
     if (!images || images.length === 0) return;
     const panel = document.getElementById('lesson-images');
     const grid = document.getElementById('lesson-images-grid');
@@ -3275,6 +3431,7 @@ async function fetchImagesForLesson(lessonText) {
   }
 }
 
+const IMG_JUNK_RE = /quick[\s_%20-]*brown[\s_%20-]*fox|lazy[\s_%20-]*dog|pangram|typeface|(?:^|[^a-z])fonts?(?:[^a-z]|$)|specimen|glyph/i;
 async function searchImages(keywords) {
   const images = [];
   // Strategy 1: Wikipedia article search with pageimages (most reliable)
@@ -3289,6 +3446,10 @@ async function searchImages(keywords) {
       if (pages) {
         for (const page of Object.values(pages)) {
           const imgUrl = page?.thumbnail?.source;
+          // FIX (Sep 23 2026): skip font/typeface specimen pictures — e.g. the Wikipedia
+          // article "The quick brown fox jumps over the lazy dog" (hit by fox fables)
+          // returned a picture of that sentence instead of a lesson image.
+          if (IMG_JUNK_RE.test(page?.title || '') || IMG_JUNK_RE.test(imgUrl || '')) continue;
           if (imgUrl && !imgUrl.includes('Icon') && !imgUrl.includes('placeholder')) {
             images.push({url: imgUrl, label: kw});
             break;
@@ -3310,6 +3471,7 @@ async function searchImages(keywords) {
           for (const page of Object.values(pages)) {
             const imgUrl = page?.imageinfo?.[0]?.url;
             const mime = page?.imageinfo?.[0]?.mime;
+            if (IMG_JUNK_RE.test(page?.title || '') || IMG_JUNK_RE.test(imgUrl || '')) continue;
             if (imgUrl && mime && mime.startsWith('image/') && !mime.includes('svg') && !imgUrl.includes('Icon')) {
               images.push({ url: imgUrl, label: kw });
               break;
