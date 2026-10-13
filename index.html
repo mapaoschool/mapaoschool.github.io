@@ -257,8 +257,8 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
 .mg-close:hover{border-color:var(--vg-gold);color:var(--vg-gold);}
 .mg-speak-btn{background:rgba(240,200,48,0.12);border:1px solid rgba(240,200,48,0.35);border-radius:50%;width:30px;height:30px;color:var(--vg-gold);font-size:14px;cursor:pointer;flex-shrink:0;margin-right:6px;}
 .mg-speak-btn:hover{background:rgba(240,200,48,0.25);}
-.mg-tabs{display:flex;gap:6px;margin-bottom:12px;}
-.mg-tab{flex:1;padding:8px 4px;border-radius:var(--radius-sm);border:1px solid var(--vg-border2);background:rgba(255,255,255,0.04);color:var(--vg-text2);font-size:11px;font-weight:700;cursor:pointer;text-align:center;font-family:'Lato',sans-serif;}
+.mg-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+.mg-tab{flex:1 1 22%;padding:8px 4px;border-radius:var(--radius-sm);border:1px solid var(--vg-border2);background:rgba(255,255,255,0.04);color:var(--vg-text2);font-size:11px;font-weight:700;cursor:pointer;text-align:center;font-family:'Lato',sans-serif;}
 .mg-tab.active{background:var(--vg-gold-dim);color:var(--vg-gold);border-color:rgba(240,200,48,0.4);}
 .mg-section-label{font-size:9px;font-weight:700;color:#8a90b8;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;}
 .mg-number-grid{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
@@ -288,6 +288,14 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
 .mg-quiz-result .big{font-family:'Playfair Display',serif;font-size:34px;color:var(--vg-gold);margin-bottom:6px;}
 .mg-replay-btn{display:block;width:100%;margin-top:12px;padding:11px;border-radius:var(--radius-sm);border:1px solid rgba(240,200,48,0.4);background:var(--vg-gold-dim);color:var(--vg-gold);font-weight:700;cursor:pointer;font-family:'Lato',sans-serif;font-size:13px;}
 .mg-quiz-intro{color:var(--vg-text2);font-size:13px;line-height:1.6;margin-top:6px;}
+.mg-cal{max-width:330px;margin:0 auto;}
+.mg-cal-title{font-family:'Playfair Display',serif;font-size:17px;color:var(--vg-gold2);margin-bottom:8px;}
+.mg-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.mg-cal-h{font-size:10px;font-weight:700;color:var(--vg-text2);padding:2px 0;}
+.mg-cal-d{font-size:13px;font-weight:700;color:var(--vg-text);background:#1F1833;border:1px solid #2E2548;border-radius:5px;padding:6px 0;}
+.mg-cal-d.empty{background:transparent;border-color:transparent;}
+.mg-cal-d.mark{background:#F0C830;border-color:#F0C830;color:#1A1228;}
+.mg-roman-key{font-size:11px;color:var(--vg-text2);margin-top:12px;line-height:1.6;}
 
 /* Book page ref */
 .book-page-ref{background:rgba(255,255,255,0.04);border:1px solid var(--vg-border2);border-radius:var(--radius-sm);padding:6px 9px;font-family:'Lato',sans-serif;font-size:10px;color:var(--vg-text3);display:flex;align-items:center;gap:6px;margin:0 10px 6px;}
@@ -624,6 +632,9 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
         <button class="mg-tab" id="mg-tab-skip" onclick="mgSelectMode('skip')">📈 Skip Counting</button>
         <button class="mg-tab" id="mg-tab-division" onclick="mgSelectMode('division')">➗ Division</button>
         <button class="mg-tab" id="mg-tab-quiz" onclick="mgSelectMode('quiz')">⚡ Speed Quiz</button>
+        <button class="mg-tab" id="mg-tab-clock" onclick="mgSelectMode('clock')">🕒 Clock</button>
+        <button class="mg-tab" id="mg-tab-calendar" onclick="mgSelectMode('calendar')">📅 Calendar</button>
+        <button class="mg-tab" id="mg-tab-roman" onclick="mgSelectMode('roman')">🏛️ Roman Numerals</button>
       </div>
 
       <div class="mg-section-label" id="mg-number-label">Pick a times table</div>
@@ -3762,20 +3773,26 @@ function closeExtGames(){
 }
 
 function mgSelectMode(mode){
+  const prevMode = mgMode;
   mgMode = mode;
   mgStopQuizTimer();
   mgQuizActive = false;
-  ['tables','skip','division','quiz'].forEach(m=>{
+  // Switching between a number-based mode and a level-based mode (Clock/Calendar/Roman) resets the pick
+  if(prevMode !== mode && (mgIsLevelMode(mode) || mgIsLevelMode(prevMode))) mgNumber = mgIsLevelMode(mode) ? mgLevelNums(mode)[0] : 2;
+  ['tables','skip','division','quiz','clock','calendar','roman'].forEach(m=>{
     const t = document.getElementById('mg-tab-'+m);
     if(t) t.classList.toggle('active', m===mode);
   });
-  const nums = (mode==='skip') ? MG_MULTIPLE_NUMS : (mode==='division') ? MG_DIVISOR_NUMS : MG_TABLE_NUMS;
+  const nums = mgNumsFor(mode);
   if(mgNumber==='mixed' && mode!=='quiz') mgNumber = nums[0];
   if(mgNumber!=='mixed' && !nums.includes(mgNumber)) mgNumber = nums[0];
   const lbl = document.getElementById('mg-number-label');
   lbl.textContent = mode==='skip' ? 'Pick a number to skip-count by'
                    : mode==='quiz' ? 'Pick a times table (or Mixed)'
                    : mode==='division' ? 'Pick a number to divide by'
+                   : mode==='clock' ? 'Pick a clock level'
+                   : mode==='calendar' ? 'Pick a calendar level'
+                   : mode==='roman' ? 'Pick a Roman numeral level'
                    : 'Pick a times table';
   mgRenderNumberGrid();
   mgLoadBest();
@@ -3783,8 +3800,12 @@ function mgSelectMode(mode){
 }
 
 function mgRenderNumberGrid(){
-  const nums = (mgMode==='skip') ? MG_MULTIPLE_NUMS : (mgMode==='division') ? MG_DIVISOR_NUMS : MG_TABLE_NUMS;
+  const nums = mgNumsFor(mgMode);
   const grid = document.getElementById('mg-number-grid');
+  if(mgIsLevelMode(mgMode)){
+    grid.innerHTML = MG_LEVELS[mgMode].map(l=>`<button class="mg-num-chip mixed ${l.n===mgNumber?'active':''}" onclick="mgSelectNumber(${l.n})">${l.label}</button>`).join('');
+    return;
+  }
   let html = nums.map(n=>`<button class="mg-num-chip ${n===mgNumber?'active':''}" onclick="mgSelectNumber(${n})">${n}</button>`).join('');
   if(mgMode==='quiz') html += `<button class="mg-num-chip mixed ${mgNumber==='mixed'?'active':''}" onclick="mgSelectNumber('mixed')">Mixed 0–13</button>`;
   grid.innerHTML = html;
@@ -3810,6 +3831,9 @@ function mgResetSession(){
 function mgNewQuestionForMode(){
   if(mgMode==='skip') mgNewSkipQuestion();
   else if(mgMode==='division') mgNewDivisionQuestion();
+  else if(mgMode==='clock') mgNewClockQuestion();
+  else if(mgMode==='calendar') mgNewCalendarQuestion();
+  else if(mgMode==='roman') mgNewRomanQuestion();
   else mgNewQuestion();
 }
 
@@ -4064,6 +4088,304 @@ function mgQuizEnd(){
   mgMaybeAutoRead();
 }
 
+// ══════════════════════════════════════════════
+// MATH GAMES — Clock, Calendar & Roman Numerals (added Oct 2026)
+// Level-based modes: the "number" picker holds a level (1..N) instead of a
+// times table. Their choices can be text ("3:45", "Tuesday", "XIV"), so they
+// use mgRenderChoicesAny() (DOM-built buttons) instead of mgRenderChoices().
+// mgCheckAnswer() is shared and unchanged.
+// ══════════════════════════════════════════════
+const MG_LEVEL_MODES = ['clock','calendar','roman'];
+const MG_LEVELS = {
+  clock: [{n:1,label:"O'clock"},{n:2,label:'Half hour'},{n:3,label:'Quarter hour'},{n:4,label:'5 minutes'},{n:5,label:'Any minute'}],
+  calendar: [{n:1,label:'Days & months'},{n:2,label:'Read the calendar'},{n:3,label:'Count days & weeks'},{n:4,label:'Challenge'}],
+  roman: [{n:1,label:'I – X'},{n:2,label:'1 – 39'},{n:3,label:'40 – 100'},{n:4,label:'100 – 1000'},{n:5,label:'Years'}]
+};
+function mgIsLevelMode(mode){ return MG_LEVEL_MODES.indexOf(mode) !== -1; }
+function mgLevelNums(mode){ return MG_LEVELS[mode].map(function(l){ return l.n; }); }
+function mgNumsFor(mode){
+  return mgIsLevelMode(mode) ? mgLevelNums(mode)
+       : (mode==='skip') ? MG_MULTIPLE_NUMS
+       : (mode==='division') ? MG_DIVISOR_NUMS
+       : MG_TABLE_NUMS;
+}
+function mgRand(n){ return Math.floor(Math.random()*n); }
+
+// Builds 4 unique choices: the correct one + distractors from `cands` (in order of preference),
+// topped up from `filler()` if there aren't enough. Everything is compared as text.
+function mgPickChoices(correct, cands, filler){
+  const seen = {}; seen[String(correct)] = true;
+  const out = [correct];
+  mgShuffle(cands.slice()).forEach(function(c){
+    if(out.length>=4) return;
+    if(c===null || c===undefined || seen[String(c)]) return;
+    seen[String(c)] = true; out.push(c);
+  });
+  let guard = 0;
+  while(out.length<4 && guard<60){
+    const c = filler(); guard++;
+    if(c===null || c===undefined || seen[String(c)]) continue;
+    seen[String(c)] = true; out.push(c);
+  }
+  return mgShuffle(out);
+}
+function mgRenderChoicesAny(choices, correct){
+  const cont = document.getElementById('mg-choices');
+  cont.innerHTML = '';
+  choices.forEach(function(c){
+    const b = document.createElement('button');
+    b.className = 'mg-choice-btn';
+    b.textContent = String(c);
+    b.onclick = function(){ mgCheckAnswer(c, correct, b); };
+    cont.appendChild(b);
+  });
+}
+function mgShowQuestion(boxHtml){
+  document.getElementById('mg-game-area').innerHTML = boxHtml +
+    '<div class="mg-choices" id="mg-choices"></div><div class="mg-feedback-line" id="mg-feedback"></div>';
+}
+
+// ── Analog Clock mode ───────────────────────────
+function mgFmtTime(h, m){ return h + ':' + (m<10 ? '0' : '') + m; }
+function mgClockSVG(h, m){
+  const P = function(a, r){ return [100 + Math.sin(a)*r, 100 - Math.cos(a)*r]; };
+  let s = '<svg viewBox="0 0 200 200" width="190" height="190" xmlns="http://www.w3.org/2000/svg">';
+  s += '<circle cx="100" cy="100" r="96" fill="#FAF3DC" stroke="#8A6D1A" stroke-width="5"/>';
+  for(let i=0;i<60;i++){
+    const a = i*6*Math.PI/180, major = (i%5===0);
+    const p1 = P(a, major ? 80 : 86), p2 = P(a, 91);
+    s += '<line x1="'+p1[0].toFixed(1)+'" y1="'+p1[1].toFixed(1)+'" x2="'+p2[0].toFixed(1)+'" y2="'+p2[1].toFixed(1)+'" stroke="#5A4A20" stroke-width="'+(major?2.5:1)+'"/>';
+  }
+  for(let n=1;n<=12;n++){
+    const p = P(n*30*Math.PI/180, 66);
+    s += '<text x="'+p[0].toFixed(1)+'" y="'+(p[1]+6).toFixed(1)+'" text-anchor="middle" font-size="18" font-weight="bold" font-family="Lato,Arial,sans-serif" fill="#1A1228">'+n+'</text>';
+  }
+  const ha = ((h%12)*30 + m*0.5)*Math.PI/180, ma = (m*6)*Math.PI/180;
+  const hp = P(ha, 46), mp = P(ma, 72);
+  s += '<line x1="100" y1="100" x2="'+hp[0].toFixed(1)+'" y2="'+hp[1].toFixed(1)+'" stroke="#1A1228" stroke-width="7" stroke-linecap="round"/>';
+  s += '<line x1="100" y1="100" x2="'+mp[0].toFixed(1)+'" y2="'+mp[1].toFixed(1)+'" stroke="#C03030" stroke-width="4" stroke-linecap="round"/>';
+  s += '<circle cx="100" cy="100" r="6" fill="#1A1228"/></svg>';
+  return '<div class="mg-balls-visual">' + s + '</div>';
+}
+function mgNewClockQuestion(){
+  mgAnswered = false;
+  const lvl = mgNumber;
+  const h = mgRand(12) + 1;
+  let m;
+  if(lvl===1) m = 0;
+  else if(lvl===2) m = [0,30][mgRand(2)];
+  else if(lvl===3) m = [0,15,30,45][mgRand(4)];
+  else if(lvl===4) m = mgRand(12)*5;
+  else m = mgRand(60);
+  const norm = function(hh, mm){ return mgFmtTime(((hh-1+12)%12)+1, (mm+60)%60); };
+  const correct = mgFmtTime(h, m);
+  const cands = [norm(h+1,m), norm(h-1,m), norm(h+2,m)];
+  if(m%5===0) cands.push(mgFmtTime(m/5 || 12, (h%12)*5));            // hands swapped
+  if(lvl>=2){ cands.push(norm(h,m+5), norm(h,m-5), norm(h,m+15), norm(h,m-15)); }
+  if(lvl===5){ cands.push(norm(h,m+1), norm(h,m-1), norm(h,m+10)); }
+  const choices = mgPickChoices(correct, cands, function(){ return norm(mgRand(12)+1, lvl>=4 ? mgRand(12)*5 : (lvl===1 ? 0 : [0,15,30,45][mgRand(4)])); });
+  mgShowQuestion(`
+    <div class="mg-question-box">
+      <div class="mg-question-text" style="font-size:20px;" data-spoken="What time does the clock show?">What time does the clock show?</div>
+      ${mgClockSVG(h, m)}
+      <div class="mg-quiz-intro" style="font-size:11px;">Short black hand = hours · Long red hand = minutes</div>
+    </div>`);
+  mgRenderChoicesAny(choices, correct);
+  mgMaybeAutoRead();
+}
+
+// ── Calendar mode ───────────────────────────────
+const MG_MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MG_WEEKDAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+function mgDaysInMonth(y, m){ return new Date(y, m+1, 0).getDate(); }
+function mgWeekday(y, m, d){ return new Date(y, m, d).getDay(); }
+function mgOrdinal(n){ return n + ((n%100>=11 && n%100<=13) ? 'th' : (['th','st','nd','rd'][n%10] || 'th')); }
+function mgCalendarHTML(y, m, marks){
+  marks = marks || {};
+  const first = mgWeekday(y, m, 1), dim = mgDaysInMonth(y, m);
+  let h = '<div class="mg-cal"><div class="mg-cal-title">'+MG_MONTHS[m]+' '+y+'</div><div class="mg-cal-grid">';
+  MG_WEEKDAYS.forEach(function(w){ h += '<div class="mg-cal-h">'+w.slice(0,3)+'</div>'; });
+  for(let i=0;i<first;i++) h += '<div class="mg-cal-d empty"></div>';
+  for(let d=1; d<=dim; d++) h += '<div class="mg-cal-d'+(marks[d] ? ' mark' : '')+'">'+d+'</div>';
+  return h + '</div></div>';
+}
+function mgWeekdayChoices(correctIdx){
+  const cands = [];
+  for(let i=0;i<7;i++) if(i!==correctIdx) cands.push(MG_WEEKDAYS[i]);
+  return mgPickChoices(MG_WEEKDAYS[correctIdx], cands, function(){ return MG_WEEKDAYS[mgRand(7)]; });
+}
+function mgNumChoices(correct, cands, min){
+  cands = cands.filter(function(c){ return c>=min; });
+  return mgPickChoices(correct, cands, function(){ const c = correct + mgRand(11) - 5; return c>=min ? c : null; });
+}
+function mgNewCalendarQuestion(){
+  mgAnswered = false;
+  const lvl = mgNumber;
+  const y = 2025 + mgRand(6), m = mgRand(12), dim = mgDaysInMonth(y, m);
+  const mName = MG_MONTHS[m];
+  let text, spoken, grid = '', correct, choices;
+
+  if(lvl===1){
+    const t = mgRand(4);
+    if(t===0 || t===1){
+      const idx = mgRand(7), after = (t===0);
+      correct = MG_WEEKDAYS[(idx + (after?1:6)) % 7];
+      text = spoken = 'Which day comes ' + (after?'after ':'before ') + MG_WEEKDAYS[idx] + '?';
+      choices = mgWeekdayChoices((idx + (after?1:6)) % 7);
+    } else if(t===2){
+      const idx = mgRand(12);
+      correct = MG_MONTHS[(idx+1)%12];
+      text = spoken = 'Which month comes after ' + MG_MONTHS[idx] + '?';
+      choices = mgPickChoices(correct, [MG_MONTHS[(idx+11)%12], MG_MONTHS[(idx+2)%12], MG_MONTHS[(idx+10)%12], MG_MONTHS[(idx+3)%12]], function(){ return MG_MONTHS[mgRand(12)]; });
+    } else {
+      correct = dim;
+      text = 'How many days are in ' + mName + ' ' + y + '?';
+      spoken = 'How many days does ' + mName + ' ' + y + ' have?';
+      choices = mgShuffle([28,29,30,31]);
+    }
+  } else if(lvl===2){
+    const t = mgRand(3);
+    if(t===0){
+      const d = mgRand(dim) + 1, wd = mgWeekday(y, m, d);
+      grid = mgCalendarHTML(y, m, (function(){ const o={}; o[d]=1; return o; })());
+      correct = MG_WEEKDAYS[wd]; choices = mgWeekdayChoices(wd);
+      text = spoken = 'What day of the week is the highlighted date, ' + mName + ' ' + mgOrdinal(d) + '?';
+    } else if(t===1){
+      const wd = mgRand(7), nth = mgRand(3) + 1;       // 1st–3rd weekday always exists
+      let count = 0, found = 0;
+      for(let d=1; d<=dim; d++){ if(mgWeekday(y,m,d)===wd){ count++; if(count===nth){ found = d; break; } } }
+      grid = mgCalendarHTML(y, m);
+      correct = found;
+      choices = mgNumChoices(found, [found+7, found-7, found+1, found-1, found+14], 1);
+      text = spoken = 'What is the date of the ' + ['first','second','third'][nth-1] + ' ' + MG_WEEKDAYS[wd] + ' of ' + mName + '?';
+    } else {
+      const wd = mgRand(7);
+      let count = 0; for(let d=1; d<=dim; d++) if(mgWeekday(y,m,d)===wd) count++;
+      grid = mgCalendarHTML(y, m);
+      correct = count;
+      choices = mgShuffle([3,4,5,6].filter(function(n){ return n!==count; }).slice(0,3).concat([count]));
+      text = spoken = 'How many ' + MG_WEEKDAYS[wd] + 's does ' + mName + ' ' + y + ' have?';
+    }
+  } else if(lvl===3){
+    const t = mgRand(3);
+    if(t===0){
+      const wk = mgRand(2) + 1;                               // 1 or 2 weeks
+      const start = mgRand(dim - 7*wk) + 1;
+      const o = {}; o[start] = 1; grid = mgCalendarHTML(y, m, o);
+      correct = start + 7*wk;
+      choices = mgNumChoices(correct, [correct+1, correct-1, correct+7, correct-7, start+wk, start+10*wk], 1);
+      text = spoken = 'Today is the highlighted date, ' + mName + ' ' + mgOrdinal(start) + '. What is the date ' + (wk===1 ? 'one week' : 'two weeks') + ' later?';
+    } else if(t===1){
+      const a = mgRand(dim-2) + 1, b = a + 2 + mgRand(Math.min(14, dim-a-1));
+      const o = {}; o[a] = 1; o[b] = 1; grid = mgCalendarHTML(y, m, o);
+      correct = b - a;
+      choices = mgNumChoices(correct, [correct+1, correct-1, correct+2, correct-2, correct+7, b], 1);
+      text = 'How many days from the ' + mgOrdinal(a) + ' to the ' + mgOrdinal(b) + '? (highlighted)';
+      spoken = 'How many days are there from the ' + mgOrdinal(a) + ' to the ' + mgOrdinal(b) + '?';
+    } else {
+      const a = mgRand(dim-7) + 1, off = 1 + mgRand(Math.min(13, dim-a));
+      const b = a + off, wdA = mgWeekday(y, m, a);
+      const o = {}; o[a] = 1; o[b] = 1; grid = mgCalendarHTML(y, m, o);
+      correct = MG_WEEKDAYS[mgWeekday(y, m, b)]; choices = mgWeekdayChoices(mgWeekday(y, m, b));
+      text = spoken = 'The ' + mgOrdinal(a) + ' is a ' + MG_WEEKDAYS[wdA] + '. What day of the week is the ' + mgOrdinal(b) + '?';
+    }
+  } else {
+    const t = mgRand(4);
+    if(t===0){
+      const idx = mgRand(12), n = 2 + mgRand(9);
+      const ci = (idx + n) % 12;
+      correct = MG_MONTHS[ci];
+      choices = mgPickChoices(correct, [MG_MONTHS[(ci+1)%12], MG_MONTHS[(ci+11)%12], MG_MONTHS[(ci+2)%12], MG_MONTHS[(ci+10)%12]], function(){ return MG_MONTHS[mgRand(12)]; });
+      text = spoken = 'What month is ' + n + ' months after ' + MG_MONTHS[idx] + '?';
+    } else if(t===1){
+      const idx = mgRand(7), n = 8 + mgRand(30), ci = (idx + n) % 7;
+      correct = MG_WEEKDAYS[ci]; choices = mgWeekdayChoices(ci);
+      text = spoken = 'Today is ' + MG_WEEKDAYS[idx] + '. What day of the week will it be after ' + n + ' days?';
+    } else if(t===2){
+      const leap = [2024, 2028, 2032][mgRand(3)] , common = [2025, 2026, 2027, 2029][mgRand(4)];
+      const useLeap = mgRand(2)===0, yr = useLeap ? leap : common;
+      correct = useLeap ? 29 : 28;
+      choices = mgShuffle([28,29,30,31]);
+      text = 'How many days does February ' + yr + ' have?';
+      spoken = text;
+    } else {
+      const k = mgRand(3);
+      if(k===0){ correct = 52; choices = mgShuffle([48,50,52,54]); text = 'How many weeks are in a year?'; spoken = 'How many weeks does a year have?'; }
+      else if(k===1){ correct = 365; choices = mgShuffle([360,364,365,366]); text = 'How many days are in a common year?'; spoken = 'How many days does a common year have?'; }
+      else { correct = 366; choices = mgShuffle([364,365,366,367]); text = 'How many days are in a leap year?'; spoken = 'How many days does a leap year have?'; }
+    }
+  }
+  mgShowQuestion(`
+    <div class="mg-question-box">
+      <div class="mg-question-text" style="font-size:18px;line-height:1.35;" data-spoken="${spoken}">${text}</div>
+      ${grid ? '<div style="margin-top:14px;">' + grid + '</div>' : ''}
+    </div>`);
+  mgRenderChoicesAny(choices, correct);
+  mgMaybeAutoRead();
+}
+
+// ── Roman Numerals mode ─────────────────────────
+const MG_ROMAN_VALS = [[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']];
+const MG_ROMAN_ADD = [[1000,'M'],[500,'D'],[100,'C'],[50,'L'],[10,'X'],[5,'V'],[1,'I']];
+const MG_ROMAN_SAY = {I:'eye', V:'vee', X:'ex', L:'el', C:'see', D:'dee', M:'em'};
+function mgToRoman(n, table){
+  table = table || MG_ROMAN_VALS;
+  let out = '';
+  table.forEach(function(p){ while(n>=p[0]){ out += p[1]; n -= p[0]; } });
+  return out;
+}
+function mgFromRomanNaive(str){ // reads every letter as "add" (the common mistake for IV, IX, XL...)
+  const v = {I:1,V:5,X:10,L:50,C:100,D:500,M:1000};
+  let t = 0; for(const ch of str) t += v[ch]; return t;
+}
+function mgRomanRange(lvl){
+  return lvl===1 ? [1,10] : lvl===2 ? [1,39] : lvl===3 ? [40,100] : lvl===4 ? [100,1000] : [1000,2999];
+}
+function mgNewRomanQuestion(){
+  mgAnswered = false;
+  const lvl = mgNumber, r = mgRomanRange(lvl);
+  const n = r[0] + mgRand(r[1]-r[0]+1);
+  const roman = mgToRoman(n);
+  const toRoman = (mgRand(2)===0);                 // true: show number, pick Roman · false: show Roman, pick number
+  const keySyms = lvl===1 ? ['I','V','X'] : lvl===2 ? ['I','V','X'] : lvl===3 ? ['I','V','X','L','C'] : lvl===4 ? ['I','V','X','L','C','D','M'] : [];
+  const vals = {I:1,V:5,X:10,L:50,C:100,D:500,M:1000};
+  const key = keySyms.length ? '<div class="mg-roman-key">' + keySyms.map(function(k){ return '<b>'+k+'</b> = '+vals[k]; }).join(' &nbsp;·&nbsp; ') + '</div>' : '';
+  const maxN = lvl===5 ? 3999 : 1000;
+  const near = function(d){ const v = n + d; return (v>=1 && v<=maxN) ? v : null; };
+  let correct, choices, text, spoken, big;
+  if(toRoman){
+    correct = roman;
+    const cands = [];
+    const naive = mgToRoman(n, MG_ROMAN_ADD);
+    if(naive !== roman && naive !== 'IIII') cands.push(naive);
+    const rev = roman.split('').reverse().join('');
+    if(rev !== roman) cands.push(rev);
+    [1,-1,5,-5,10,-10,50,-50].forEach(function(d){ const v = near(d); if(v) cands.push(mgToRoman(v)); });
+    choices = mgPickChoices(correct, cands.filter(function(c){ return c !== 'IIII'; }), function(){ const v = near(mgRand(21)-10); return v ? mgToRoman(v) : null; });
+    big = String(n);
+    text = 'Which Roman numeral means this number?';
+    spoken = 'Which Roman numeral means ' + n + '?';
+  } else {
+    correct = n;
+    const cands = [];
+    const naive = mgFromRomanNaive(roman);
+    if(naive !== n) cands.push(naive);
+    [1,-1,5,-5,10,-10,50,-50,100,-100].forEach(function(d){ const v = near(d); if(v) cands.push(v); });
+    choices = mgPickChoices(correct, cands, function(){ return near(mgRand(21)-10); });
+    big = roman;
+    text = 'Which number is this Roman numeral?';
+    spoken = 'Which number is this Roman numeral? ' + roman.split('').map(function(ch){ return MG_ROMAN_SAY[ch]; }).join(', ') + '.';
+  }
+  mgShowQuestion(`
+    <div class="mg-question-box">
+      <div style="font-size:12px;color:var(--vg-text2);margin-bottom:8px;">${text}</div>
+      <div class="mg-question-text" style="font-size:40px;letter-spacing:0.06em;" data-spoken="${spoken}">${big}</div>
+      ${key}
+    </div>`);
+  mgRenderChoicesAny(choices, correct);
+  mgMaybeAutoRead();
+}
+
 // ── Read aloud (Math Games) ─────────────────────
 // Self-contained: uses the same voice profile/picker as the lesson reader,
 // but never touches readGeneration/pausedFullText/chunking — it cleanly
@@ -4133,6 +4455,10 @@ function mgSpokenText(){
     }
     const label = (mgNumber==='mixed') ? 'mixed, zero to thirteen' : `the ${mgNumber} times table`;
     return `Speed Quiz. Ten questions, ${label}. Five seconds per question.`;
+  }
+  if(mgIsLevelMode(mgMode)){
+    const qEl = area.querySelector('.mg-question-text');
+    return qEl ? (qEl.getAttribute('data-spoken') || qEl.textContent) : '';
   }
   return '';
 }
