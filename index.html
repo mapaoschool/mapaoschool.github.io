@@ -1549,7 +1549,7 @@ function showDashEditRow(tr, sid, subj){
   saveBtn.className = 'dash-save-btn';
   saveBtn.textContent = '✔ Save';
   saveBtn.onclick = function(){
-    saveDashEdit(tr, sid, subj, lessonInput.value.trim(), parseInt(sessInput.value)||0, doneCheck.checked);
+    saveDashEdit(tr, sid, subj, lessonInput.value.trim(), parseInt(sessInput.value, 10), doneCheck.checked);
   };
 
   const cancelBtn = document.createElement('button');
@@ -1568,12 +1568,21 @@ function showDashEditRow(tr, sid, subj){
 }
 
 function saveDashEdit(tr, sid, subj, newLesson, newCount, doneToday){
+  // FIX (Oct 2026): a manual dashboard edit must never wipe real progress.
+  // 1) If the cloud could not be read, this device may be showing empty/zero
+  //    values that are NOT the real progress — saving them would overwrite the
+  //    cloud with zeros, so ask first.
+  if(window._cloudSyncStatus !== 'ok'){
+    if(!confirm('Cloud is not connected, so the numbers shown here may not be the real saved progress. Saving now could overwrite the cloud with these values. Save anyway?')) return;
+  }
   // Update localStorage
   const key = 'mapao_' + sid + '_' + subj.id;
   let sess = {};
   try { sess = JSON.parse(localStorage.getItem(key)) || {}; } catch(e){}
   sess.lastLesson = newLesson || sess.lastLesson || 'Not started';
-  sess.sessionCount = newCount;
+  // 2) A blank/invalid Sessions box used to be saved as 0 — keep the existing count instead.
+  if(typeof newCount !== 'number' || isNaN(newCount)) newCount = sess.sessionCount || 0;
+  sess.sessionCount = Math.max(0, newCount);
   sess.hints = sess.hints || 0;
   try { localStorage.setItem(key, JSON.stringify(sess)); } catch(e){}
 
@@ -1581,12 +1590,44 @@ function saveDashEdit(tr, sid, subj, newLesson, newCount, doneToday){
   const doneKey = getDoneKey(sid, subj.id);
   try { localStorage.setItem(doneKey, doneToday ? '1' : '0'); } catch(e){}
 
-  // Sync to Supabase
-  syncToSupabase(sid, subj.id, sess, doneToday);
+  // Sync to Supabase (only the fields that were edited)
+  syncDashEditToSupabase(sid, subj.id, sess, doneToday);
 
   // Re-render the row as read-only
   tr.className = '';
   renderDashRow(tr, sid, subj);
+}
+
+// FIX (Oct 2026): the old path re-sent the WHOLE row (last_game, game_opens, hints,
+// last_updated) from this device's localStorage, so a dashboard edit on a device
+// with little/no local history nulled out the cloud copy of those fields. This
+// updates only session_count / last_lesson / done_today on the existing row, and
+// falls back to the normal full upsert only if the row does not exist yet.
+async function syncDashEditToSupabase(student, subjectId, sess, doneToday){
+  try {
+    const res = await fetch(
+      `${SUPA_URL}/rest/v1/progress?student=eq.${encodeURIComponent(student)}&subject_id=eq.${encodeURIComponent(subjectId)}`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPA_KEY,
+          'Authorization': `Bearer ${SUPA_KEY}`,
+          'Prefer': 'return=representation'
+        },
+        body: JSON.stringify({
+          session_count: sess.sessionCount || 0,
+          last_lesson: sess.lastLesson || 'Not started',
+          done_today: !!doneToday
+        })
+      }
+    );
+    let updated = null;
+    if(res.ok){ try { updated = await res.json(); } catch(e){} }
+    if(!res.ok || !Array.isArray(updated) || updated.length === 0){
+      syncToSupabase(student, subjectId, sess, doneToday); // row missing (or PATCH refused) — normal upsert
+    }
+  } catch(e){ /* silent fail — localStorage always works */ }
 }
 
 function getDoneKey(studentId, subjectId){
