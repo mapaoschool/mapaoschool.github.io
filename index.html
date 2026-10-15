@@ -1016,15 +1016,27 @@ async function syncToSupabase(student, subjectId, data, doneToday){
     );
     let rowsUpdated = null;
     if(pr.ok){ try { rowsUpdated = await pr.json(); } catch(e){} }
-    if(pr.ok && Array.isArray(rowsUpdated) && rowsUpdated.length > 0){ window._cloudWriteError = null; return; }
+    if(pr.ok && Array.isArray(rowsUpdated) && rowsUpdated.length > 0){ window._cloudWriteError = null; return true; }
     const ir = await fetch(`${SUPA_URL}/rest/v1/progress`, {
       method: 'POST',
       headers: Object.assign({'Prefer': 'resolution=merge-duplicates'}, hdrs),
       body: JSON.stringify(payload)
     });
-    if(ir.ok){ window._cloudWriteError = null; }
-    else { window._cloudWriteError = 'HTTP ' + ir.status; console.warn('[Ma Pao] Cloud save FAILED:', ir.status, student, subjectId); }
-  } catch(e){ window._cloudWriteError = e.message; /* localStorage always works */ }
+    if(ir.ok){ window._cloudWriteError = null; return true; }
+    if(ir.status === 409){
+      // Another save created this row a moment ago (two saves fired together for a brand-new
+      // subject) — the row exists now, so update it instead of reporting a failure.
+      const rr = await fetch(
+        `${SUPA_URL}/rest/v1/progress?student=eq.${encodeURIComponent(student)}&subject_id=eq.${encodeURIComponent(subjectId)}`,
+        { method: 'PATCH', headers: Object.assign({'Prefer': 'return=representation'}, hdrs), body: JSON.stringify(upd) }
+      );
+      let again = null;
+      if(rr.ok){ try { again = await rr.json(); } catch(e){} }
+      if(rr.ok && Array.isArray(again) && again.length > 0){ window._cloudWriteError = null; return true; }
+    }
+    window._cloudWriteError = 'HTTP ' + ir.status; console.warn('[Ma Pao] Cloud save FAILED:', ir.status, student, subjectId);
+    return false;
+  } catch(e){ window._cloudWriteError = e.message; return false; /* localStorage always works */ }
 }
 
 // ══════════════════════════════════════════════
@@ -1606,8 +1618,11 @@ function saveDashEdit(tr, sid, subj, newLesson, newCount, doneToday){
   const doneKey = getDoneKey(sid, subj.id);
   try { localStorage.setItem(doneKey, doneToday ? '1' : '0'); } catch(e){}
 
-  // Sync to Supabase (only the fields that were edited)
-  syncDashEditToSupabase(sid, subj.id, sess, doneToday);
+  // Sync to Supabase (only the fields that were edited) — and say so out loud if the cloud refuses it,
+  // because an edit that only exists on this device can vanish on the next refresh/other device.
+  syncDashEditToSupabase(sid, subj.id, sess, doneToday).then(function(ok){
+    if(!ok) alert('WARNING: this change was saved on this device only. The cloud did not accept it (' + (window._cloudWriteError || 'no connection') + '), so it may disappear when you refresh or open another device.');
+  });
 
   // Re-render the row as read-only
   tr.className = '';
@@ -1641,10 +1656,9 @@ async function syncDashEditToSupabase(student, subjectId, sess, doneToday){
     );
     let updated = null;
     if(res.ok){ try { updated = await res.json(); } catch(e){} }
-    if(!res.ok || !Array.isArray(updated) || updated.length === 0){
-      syncToSupabase(student, subjectId, sess, doneToday); // row missing (or PATCH refused) — normal upsert
-    }
-  } catch(e){ /* silent fail — localStorage always works */ }
+    if(res.ok && Array.isArray(updated) && updated.length > 0){ window._cloudWriteError = null; return true; }
+    return await syncToSupabase(student, subjectId, sess, doneToday); // row missing (or PATCH refused) — normal save path
+  } catch(e){ window._cloudWriteError = e.message; return false; /* localStorage always works */ }
 }
 
 function getDoneKey(studentId, subjectId){
