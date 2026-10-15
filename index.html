@@ -1599,6 +1599,7 @@ function saveDashEdit(tr, sid, subj, newLesson, newCount, doneToday){
   if(typeof newCount !== 'number' || isNaN(newCount)) newCount = sess.sessionCount || 0;
   sess.sessionCount = Math.max(0, newCount);
   sess.hints = sess.hints || 0;
+  sess.lastUpdated = new Date().toISOString(); // a manual edit counts as "last used" today (Oct 2026 fix: the PATCH path had dropped this)
   try { localStorage.setItem(key, JSON.stringify(sess)); } catch(e){}
 
   // Update done-today
@@ -1633,7 +1634,8 @@ async function syncDashEditToSupabase(student, subjectId, sess, doneToday){
         body: JSON.stringify({
           session_count: sess.sessionCount || 0,
           last_lesson: sess.lastLesson || 'Not started',
-          done_today: !!doneToday
+          done_today: !!doneToday,
+          last_updated: sess.lastUpdated || new Date().toISOString()
         })
       }
     );
