@@ -999,17 +999,32 @@ async function syncToSupabase(student, subjectId, data, doneToday){
       done_today: doneToday || false,
       last_updated: data.lastUpdated || new Date().toISOString()
     };
-    await fetch(`${SUPA_URL}/rest/v1/progress`, {
+    // FIX (Oct 2026): the old code only did POST + "merge-duplicates". That resolves
+    // conflicts on the table's primary key (id) only, so for any (student, subject)
+    // row that already existed Supabase answered HTTP 409 and the save was silently
+    // dropped — only the FIRST save per subject ever reached the cloud. Update the
+    // existing row first (PATCH); only insert (POST) when no row exists yet.
+    const hdrs = {
+      'Content-Type': 'application/json',
+      'apikey': SUPA_KEY,
+      'Authorization': `Bearer ${SUPA_KEY}`
+    };
+    const upd = Object.assign({}, payload); delete upd.student; delete upd.subject_id;
+    const pr = await fetch(
+      `${SUPA_URL}/rest/v1/progress?student=eq.${encodeURIComponent(student)}&subject_id=eq.${encodeURIComponent(subjectId)}`,
+      { method: 'PATCH', headers: Object.assign({'Prefer': 'return=representation'}, hdrs), body: JSON.stringify(upd) }
+    );
+    let rowsUpdated = null;
+    if(pr.ok){ try { rowsUpdated = await pr.json(); } catch(e){} }
+    if(pr.ok && Array.isArray(rowsUpdated) && rowsUpdated.length > 0){ window._cloudWriteError = null; return; }
+    const ir = await fetch(`${SUPA_URL}/rest/v1/progress`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': SUPA_KEY,
-        'Authorization': `Bearer ${SUPA_KEY}`,
-        'Prefer': 'resolution=merge-duplicates'
-      },
+      headers: Object.assign({'Prefer': 'resolution=merge-duplicates'}, hdrs),
       body: JSON.stringify(payload)
     });
-  } catch(e){ /* silent fail — localStorage always works */ }
+    if(ir.ok){ window._cloudWriteError = null; }
+    else { window._cloudWriteError = 'HTTP ' + ir.status; console.warn('[Ma Pao] Cloud save FAILED:', ir.status, student, subjectId); }
+  } catch(e){ window._cloudWriteError = e.message; /* localStorage always works */ }
 }
 
 // ══════════════════════════════════════════════
@@ -1403,7 +1418,7 @@ function renderDashboardGrid(){
     const s = window._cloudSyncStatus;
     if(s === 'ok'){
       bar.className = 'cloud-status-bar ok';
-      msg.textContent = window._cloudSyncMsg || 'Cloud connected';
+      msg.textContent = (window._cloudSyncMsg || 'Cloud connected') + (window._cloudWriteError ? ' — WARNING: the last save to the cloud FAILED (' + window._cloudWriteError + ')' : '');
     } else {
       bar.className = 'cloud-status-bar fail';
       msg.textContent = (window._cloudSyncMsg || 'Cloud sync failed') + ' — session counts may be out of date on this device. Check Supabase project is active and CORS allows mapaoschool.github.io';
