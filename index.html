@@ -656,7 +656,7 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
         <div class="mg-title" id="eg-title">🎮 Games</div>
         <button class="mg-close" onclick="closeExtGames()">✕</button>
       </div>
-      <div class="eg-note" id="eg-note">These are free websites outside the app. Tap one to open it in a new tab — this app will stay open behind it.</div>
+      <div class="eg-note">These are free websites outside the app. Tap one to open it in a new tab — this app will stay open behind it.</div>
       <div id="eg-list"></div>
     </div>
   </div>
@@ -679,12 +679,7 @@ const GRAMMAR_GAMES = [
   {name:'More Language Arts Games (ABCya)', url:'https://www.abcya.com/games/category/language-arts'}
 ];
 const PHONICS_GAMES = [
-  {name:'Phonics Playground — our workbook sounds (EN/ES)', url:'phonics-games.html', local:true},
-  {name:'Teach Your Monster to Read', url:'https://www.teachyourmonster.org/teach-your-monster-to-read/'},
-  {name:'Starfall — Letters & Phonics', url:'https://www.starfall.com/h/'},
-  {name:'Kindergarten Letter & Sound Games (ABCya)', url:'https://www.abcya.com/grades/k'},
-  {name:'PBS Kids Reading Games', url:'https://pbskids.org/games/reading'},
-  {name:'Funbrain', url:'https://www.funbrain.com/'}
+  {name:'Phonics Playground — our workbook sounds (EN/ES)', url:'phonics-games.html', local:true}
 ];
 const READING_GAMES = [
   {name:'Teach Your Monster: Reading for Fun', url:'https://www.teachyourmonster.org/reading-for-fun/'},
@@ -3819,13 +3814,20 @@ function closeMathGames(){
 
 function openExtGames(){
   if(!curSubject || !curSubject.games || !curSubject.games.length) return;
-  document.getElementById('eg-title').textContent = '🎮 ' + (curSubject.gamesLabel || 'Games');
-  const egNote = document.getElementById('eg-note');
-  if(egNote){
-    egNote.textContent = curSubject.games.some(function(g){ return g.local; })
-      ? 'Tap a game to open it in a new tab — this app will stay open behind it. Phonics Playground is part of our school; the others are free websites outside the app.'
-      : 'These are free websites outside the app. Tap one to open it in a new tab — this app will stay open behind it.';
+  // A subject whose only game is built into our app (Phonics Playground) skips the list and opens it directly in a new tab.
+  if(curSubject.games.length === 1 && curSubject.games[0].local){
+    const only = curSubject.games[0];
+    logGameOpened(only.name);
+    const direct = document.createElement('a');
+    direct.href = only.url;
+    direct.target = '_blank';
+    direct.rel = 'noopener';
+    document.body.appendChild(direct);
+    direct.click();
+    document.body.removeChild(direct);
+    return;
   }
+  document.getElementById('eg-title').textContent = '🎮 ' + (curSubject.gamesLabel || 'Games');
   const list = document.getElementById('eg-list');
   list.innerHTML = '';
   curSubject.games.forEach(function(g){

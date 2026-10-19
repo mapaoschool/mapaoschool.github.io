@@ -4,7 +4,7 @@
 
 1. **Add** `phonics-games.html` to the repo, in the **same folder as `index.html`** (new file).
 2. **Replace** `index.html` with the new one (only 3 small changes, listed in section 2).
-3. Hard-refresh the app (Ctrl+Shift+R) and check it works: **F.A. / F.C. / L.J. → Bilingual Phonics → 🎮 Phonics Games → "Phonics Playground — our workbook sounds (EN/ES)"**. It opens in a new tab, so the tutor session stays open behind it. Students tap **← Back to tutor** (or close the tab) when done.
+3. Hard-refresh the app (Ctrl+Shift+R) and check it works: **F.A. / F.C. / L.J. → Bilingual Phonics → 🎮 Phonics Games**. The button opens Phonics Playground directly, with no list of other links, in a new tab, so the tutor session stays open behind it. Students tap **← Back to tutor** (or close the tab) when done.
 
 Also upload the new `index.html` to Project knowledge, as usual.
 
@@ -14,9 +14,8 @@ Also upload the new `index.html` to Project knowledge, as usual.
 
 | Line | Change |
 |---|---|
-| 659 | `eg-note` div got `id="eg-note"` |
-| 682 | New first entry in `PHONICS_GAMES`: `{name:'Phonics Playground — our workbook sounds (EN/ES)', url:'phonics-games.html', local:true}` |
-| 3823–3828 | `openExtGames()` now words the note correctly ("others are free websites outside the app") only when a game has `local:true` |
+| 682 | `PHONICS_GAMES` now holds only our game: `{name:'Phonics Playground — our workbook sounds (EN/ES)', url:'phonics-games.html', local:true}`. The old outside links (Teach Your Monster, Starfall, ABCya, PBS Kids, Funbrain) are removed. |
+| 3817–3829 | `openExtGames()`: if a subject's only game has `local:true`, it opens that page directly in a new tab and skips the list. Grammar and Reading still show their lists as before. |
 
 F.C. inherits it automatically (same `PHONICS_GAMES` list). A.L. has no phonics subject, so he doesn't see it. `logGameOpened()` records it under the student's session like the other games. All PROTECTED.md markers were checked before and after: unchanged.
 
@@ -88,9 +87,9 @@ S('bl','bl','black blob blot bled blip',false,'bl-'),
 ## RULE 14 — Phonics Playground (added Oct 2026)
 
 * `phonics-games.html` is a standalone page in the repo root, opened from the Phonics "🎮 Games" overlay in a new tab. It is NOT inside index.html.
-* The link is the first entry of `PHONICS_GAMES` (`local:true`, url `phonics-games.html`). F.C. inherits it through the FA→FC spread. Do not remove it when editing game lists.
-* `openExtGames()` sets the `eg-note` text (element id `eg-note`) depending on whether any game has `local:true`.
+* `PHONICS_GAMES` contains only our game (`local:true`, url `phonics-games.html`). F.C. inherits it through the FA→FC spread. Do not remove it when editing game lists.
+* `openExtGames()` opens a subject's game directly (new tab, no list) when its only game has `local:true`. Grammar and Reading keep their lists.
 * The word list lives only in the top block of phonics-games.html (GROUPS, SETS, EMOJI); `checkData()` warns in the console.
 * Its read-aloud copies the app's rules (Zira/offline first, 400 ms after cancel, Edge watchdog). Keep them in sync with COMPATIBILITY.md.txt.
-* Verification grep: `phonics-games.html`, `local:true`, `eg-note` in index.html.
+* Verification grep: `phonics-games.html` and `local:true` in index.html.
 ```
