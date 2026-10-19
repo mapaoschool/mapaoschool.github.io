@@ -260,6 +260,23 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
 .mg-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
 .mg-tab{flex:1 1 22%;padding:8px 4px;border-radius:var(--radius-sm);border:1px solid var(--vg-border2);background:rgba(255,255,255,0.04);color:var(--vg-text2);font-size:11px;font-weight:700;cursor:pointer;text-align:center;font-family:'Lato',sans-serif;}
 .mg-tab.active{background:var(--vg-gold-dim);color:var(--vg-gold);border-color:rgba(240,200,48,0.4);}
+.pp-modal{max-width:560px;}
+.pp-h{font-family:'Playfair Display',serif;font-size:15px;color:#D4A840;margin:10px 0 8px;}
+.pp-way{background:#1E1630;border:1px solid #3A2F55;border-radius:8px;padding:10px 12px;margin-bottom:10px;}
+.pp-way-label{font-size:12px;font-weight:700;color:#F0C830;margin-bottom:6px;}
+.pp-line{font-size:14px;line-height:1.6;color:#E8DCC8;margin-bottom:5px;}
+.pp-pre{font-family:'Courier New',Courier,monospace;font-size:18px;line-height:1.3;color:#F0C830;background:#110D1E;border-radius:6px;padding:8px 14px;margin:6px 0;white-space:pre;display:inline-block;max-width:100%;overflow-x:auto;}
+.pp-note{font-size:14px;line-height:1.7;color:#E8DCC8;background:#1E1630;border:1px solid #3A2F55;border-radius:8px;padding:10px 12px;white-space:pre-line;}
+.pp-ex{display:flex;gap:12px;align-items:flex-start;background:#1E1630;border:1px solid #3A2F55;border-radius:8px;padding:10px 12px;margin-bottom:8px;}
+.pp-ex .pp-pre{margin:0;}
+.pp-num{font-weight:700;font-size:16px;color:#F0C830;min-width:24px;}
+.pp-q{font-size:15px;line-height:1.5;color:#E8DCC8;}
+.pp-big-btn{display:block;width:100%;margin:12px 0 4px;padding:12px;border-radius:8px;border:1px solid #6B5A20;background:#3A3010;color:#F0C830;font-size:14px;font-weight:700;cursor:pointer;font-family:'Lato',sans-serif;}
+.pp-big-btn:active{transform:scale(0.98);}
+.pp-green{background:#1A3A22;border-color:#2D6B3A;color:#D4F0DC;}
+.pp-small-btn{display:block;width:100%;margin:8px 0 4px;padding:8px;border-radius:8px;border:1px solid #3A2F55;background:#1E1630;color:#9880C0;font-size:12px;font-weight:700;cursor:pointer;font-family:'Lato',sans-serif;}
+.pp-success{margin-top:12px;background:#1A3A22;border:1px solid #2D6B3A;border-radius:8px;padding:12px;}
+.pp-success-t{font-size:15px;font-weight:700;color:#D4F0DC;margin-bottom:6px;}
 .mg-section-label{font-size:9px;font-weight:700;color:#8a90b8;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;}
 .mg-number-grid{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
 .mg-num-chip{min-width:38px;height:38px;padding:0 4px;border-radius:19px;border:1px solid var(--vg-border2);background:rgba(255,255,255,0.04);color:var(--vg-text);font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:'Lato',sans-serif;}
@@ -517,6 +534,7 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
         <div class="read-bar-btns">
           <button class="math-games-fab" id="math-games-fab" onclick="openMathGames()" title="Math Games">🎮 Games</button>
           <button class="ext-games-fab" id="ext-games-fab" onclick="openExtGames()" title="Free Online Games">🎮 Games</button>
+          <button class="math-games-fab" id="paper-fab" onclick="openPaperPractice()" title="Paper Practice">📝 Paper Practice</button>
           <button class="rbtn" id="btn-read" onclick="startReadAloud()" onpointerdown="ttsGestureUnlocked=true">▶ Read</button>
           <button class="rbtn" id="btn-pause-read" onclick="pauseReadAloud()" style="display:none">⏸ Pause</button>
           <button class="rbtn" id="btn-resume-read" onclick="resumeReadAloud()" style="display:none">▶ Resume</button>
@@ -647,6 +665,20 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
       </div>
 
       <div id="mg-game-area"></div>
+    </div>
+  </div>
+
+  <div class="mg-overlay" id="pp-overlay">
+    <div class="mg-modal pp-modal">
+      <div class="mg-header">
+        <div class="mg-title">📝 Paper Practice</div>
+        <button class="mg-close" onclick="closePaperPractice()">✕</button>
+      </div>
+      <div class="mg-tabs">
+        <button class="mg-tab" id="pp-tab-learn" onclick="ppSetTab('learn')">📖 1. Learn how</button>
+        <button class="mg-tab" id="pp-tab-practice" onclick="ppSetTab('practice')">✏️ 2. Practice on paper</button>
+      </div>
+      <div id="pp-body"></div>
     </div>
   </div>
 
@@ -1377,8 +1409,8 @@ function resetSubjColors(){
   const topbar = document.querySelector('.tutor-topbar');
   if(topbar) topbar.style.borderBottomColor = '';
 }
-function goHome(){ stopRead(); clearInterval(classTimerInterval); classTimerInterval=null; resetSubjColors(); closeMathGames(); closeExtGames(); const mgFab=document.getElementById('math-games-fab'); if(mgFab) mgFab.style.display='none'; const egFab=document.getElementById('ext-games-fab'); if(egFab) egFab.style.display='none'; showScreen('home'); }
-function goSubjects(){ stopRead(); resetSubjColors(); closeMathGames(); closeExtGames(); const mgFab=document.getElementById('math-games-fab'); if(mgFab) mgFab.style.display='none'; const egFab=document.getElementById('ext-games-fab'); if(egFab) egFab.style.display='none'; showScreen('subjects'); }
+function goHome(){ stopRead(); clearInterval(classTimerInterval); classTimerInterval=null; resetSubjColors(); closeMathGames(); closeExtGames(); closePaperPractice(); const mgFab=document.getElementById('math-games-fab'); if(mgFab) mgFab.style.display='none'; const egFab=document.getElementById('ext-games-fab'); if(egFab) egFab.style.display='none'; showScreen('home'); }
+function goSubjects(){ stopRead(); resetSubjColors(); closeMathGames(); closeExtGames(); closePaperPractice(); const mgFab=document.getElementById('math-games-fab'); if(mgFab) mgFab.style.display='none'; const egFab=document.getElementById('ext-games-fab'); if(egFab) egFab.style.display='none'; showScreen('subjects'); }
 
 // ── TEACHER DASHBOARD ──
 const DASH_PASSWORD = 'mapao2024';
@@ -1787,6 +1819,7 @@ function openSubject(subjectId){
   document.getElementById('timer-bar').style.display = curSubject.isMath ? 'block' : 'none';
   const mgFab = document.getElementById('math-games-fab');
   if(mgFab) mgFab.style.display = (curSubject.id.includes('math') || curSubject.id.includes('arithmetic')) ? 'inline-flex' : 'none';
+  updatePaperPracticeFab();
   const egFab = document.getElementById('ext-games-fab');
   if(egFab){
     if(curSubject.games && curSubject.games.length){
@@ -3810,6 +3843,270 @@ function openMathGames(){
 function closeMathGames(){
   document.getElementById('mg-overlay').classList.remove('active');
   mgStopQuizTimer();
+}
+
+// ══════════════════════════════════════════════
+// PAPER PRACTICE (Oct 2026) — teacher-requested paper math review
+// Shown inside Math subjects for F.A. and F.C. until Oct 28, 2026 (local date, inclusive).
+// Explains each procedure several ways, shows exercises to copy onto paper,
+// then lets the student email the exercises + answer key to the teacher.
+// To extend or change: edit the three constants below.
+// ══════════════════════════════════════════════
+const PAPER_PRACTICE_LAST_DAY = '2026-10-28';
+const PAPER_PRACTICE_STUDENTS = ['FA','FC'];
+const PAPER_PRACTICE_EMAIL = 'panicovillegas@gmail.com';
+const PP_INITIALS = {AL:'A.L.', FA:'F.A.', FC:'F.C.', LJ:'L.J.'};
+let ppTab = 'learn', ppTopic = 0;
+const ppDoneBy = {};
+
+// NOTE: the worked examples below use DIFFERENT numbers from the exercises so the
+// answers are never shown on screen.
+const PP_LESSONS = [
+  {tab:'Place value', title:'Place value: ones, tens, hundreds', ways:[
+    {label:'Way 1 — The place-value chart', parts:[
+      'Every digit lives in a “house”. Reading from the right, the houses are: ONES, then TENS, then HUNDREDS. The house tells you what the digit is worth.',
+      {pre:'Hundreds | Tens | Ones\n   3     |  5   |  9'},
+      'In the number 359: the 3 is in the hundreds house, so it is worth 300. The 5 is in the tens house, so it is worth 50. The 9 is in the ones house, so it is worth 9.'
+    ]},
+    {label:'Way 2 — Picture the blocks', parts:[
+      'Imagine blocks: a big flat square is 100, a long rod is 10, and a tiny cube is 1.',
+      '359 = 3 flats + 5 rods + 9 cubes.',
+      'Count them: 100, 200, 300 … 310, 320, 330, 340, 350 … 351, 352 … 359.'
+    ]},
+    {label:'Way 3 — Break it apart (expanded form)', parts:[
+      '359 = 300 + 50 + 9',
+      'The zero is a placeholder. In 207 there are 2 hundreds, 0 tens and 7 ones, so 207 = 200 + 0 + 7. The zero keeps the 2 in the hundreds house!',
+      'Say it out loud: “two hundred seven”.'
+    ]}
+  ]},
+  {tab:'Carrying (adding)', title:'Addition with carrying', ways:[
+    {label:'Way 1 — Step by step in columns', parts:[
+      'Example: 47 + 68. Always start at the ONES (right side) and move left. Small carry numbers go on top.',
+      {pre:' 11\n  47\n+ 68\n----\n 115'},
+      '1) Ones: 7 + 8 = 15. Write the 5 under the ones. Carry the 1 (it is a ten) to the top of the tens column.',
+      '2) Tens: 4 + 6 + the 1 you carried = 11. Write one 1 under the tens and carry the other 1 to the hundreds column.',
+      '3) Hundreds: only the carried 1 is there. Write 1. Answer: 115.'
+    ]},
+    {label:'Way 2 — Break it apart', parts:[
+      '47 + 68: add the tens first: 40 + 60 = 100.',
+      'Add the ones: 7 + 8 = 15.',
+      'Put them together: 100 + 15 = 115.'
+    ]},
+    {label:'Way 3 — Bundles of sticks', parts:[
+      '10 loose sticks can be tied into 1 bundle of ten. 7 sticks + 8 sticks = 15 sticks. Tie 10 of them into a new bundle: now there is 1 new bundle and 5 loose sticks left.',
+      'That new bundle goes with the tens. That is what “carrying” means!',
+      'Rule: whenever a column adds up to 10 or more, keep the ones part and carry the tens part to the next column on the left.'
+    ]},
+    {label:'Way 4 — Bigger numbers', parts:[
+      'Do exactly the same thing in every column, from right to left. Example: 378 + 495. Line up ones under ones, tens under tens, hundreds under hundreds.',
+      {pre:'  11\n  378\n+ 495\n-----\n  873'},
+      'Ones: 8 + 5 = 13 → write 3, carry 1. Tens: 7 + 9 + 1 = 17 → write 7, carry 1. Hundreds: 3 + 4 + 1 = 8 → write 8.',
+      'Thousands and ten-thousands work the same way. Keep going left!'
+    ]}
+  ]},
+  {tab:'Borrowing (subtracting)', title:'Subtraction with borrowing', ways:[
+    {label:'Way 1 — Step by step in columns', parts:[
+      'Example: 53 − 28. Start at the ONES.',
+      {pre:'  53\n- 28\n----'},
+      '1) Ones: 3 − 8? You cannot take 8 from 3.',
+      '2) Borrow: take 1 ten from the 5 tens. Now there are 4 tens. That ten becomes 10 ones, so 3 ones + 10 = 13 ones.',
+      '3) Ones: 13 − 8 = 5.   4) Tens: 4 − 2 = 2.',
+      'Answer: 25.'
+    ]},
+    {label:'Way 2 — Break it apart', parts:[
+      '53 is the same as 40 + 13.   28 is 20 + 8.',
+      'Take away: 40 − 20 = 20, and 13 − 8 = 5.',
+      'Put together: 20 + 5 = 25.'
+    ]},
+    {label:'Way 3 — Trade a rod for cubes', parts:[
+      'You have 5 rods (tens) and 3 cubes (ones). You must take away 8 cubes, but you only have 3!',
+      'Trade 1 rod for 10 cubes. Now you have 4 rods and 13 cubes. Take away 8 cubes → 5 cubes left. Take away 2 rods → 2 rods left.',
+      '2 rods and 5 cubes = 25.'
+    ]},
+    {label:'Way 4 — Check with adding', parts:[
+      'Subtraction can be checked with addition: your answer + the number you took away = the top number.',
+      '25 + 28 = 53 ✓'
+    ]}
+  ]},
+  {tab:'Borrowing with zeros', title:'Borrowing when there is a zero', ways:[
+    {label:'Way 1 — Step by step in columns', parts:[
+      'Example: 604 − 257. Ones: 4 − 7? You cannot. Next door, the tens house has a 0 — nothing to borrow from!',
+      {pre:'  604\n- 257\n-----'},
+      '1) A zero cannot lend, so reach one more house to the left. Borrow 1 hundred from the 6. Now there are 5 hundreds.',
+      '2) That hundred becomes 10 tens, so the tens house now has 10.',
+      '3) Now borrow 1 ten from those 10 tens. The tens house has 9 left, and the ones house gets 10 more: 4 + 10 = 14.',
+      '4) Subtract: ones 14 − 7 = 7. Tens 9 − 5 = 4. Hundreds 5 − 2 = 3.',
+      'Answer: 347.'
+    ]},
+    {label:'Way 2 — Count up (no borrowing!)', parts:[
+      'Start at 257 and count up to 604 in jumps:',
+      '257 → 260 is 3.   260 → 300 is 40.   300 → 600 is 300.   600 → 604 is 4.',
+      'Add the jumps: 3 + 40 + 300 + 4 = 347.'
+    ]},
+    {label:'Way 3 — Break it apart', parts:[
+      '604 = 500 + 90 + 14 (we moved a hundred into the tens, then a ten into the ones).   257 = 200 + 50 + 7.',
+      '500 − 200 = 300.   90 − 50 = 40.   14 − 7 = 7.',
+      'Put together: 300 + 40 + 7 = 347.'
+    ]},
+    {label:'Way 4 — Check with adding', parts:[
+      '347 + 257 = 604 ✓'
+    ]}
+  ]}
+];
+
+function ppTodayStr(){
+  const d = new Date(), p = n => String(n).padStart(2,'0');
+  return d.getFullYear() + '-' + p(d.getMonth()+1) + '-' + p(d.getDate());
+}
+function paperPracticeActive(){
+  return !!(curStudent && curSubject && curSubject.isMath &&
+    PAPER_PRACTICE_STUDENTS.indexOf(curStudent) !== -1 &&
+    ppTodayStr() <= PAPER_PRACTICE_LAST_DAY);
+}
+function updatePaperPracticeFab(){
+  const f = document.getElementById('paper-fab');
+  if(f) f.style.display = paperPracticeActive() ? 'inline-flex' : 'none';
+}
+// 5-digit numbers get a comma (29,987). When a problem has a 5-digit number, its 4-digit
+// numbers get one too (9,876) so the commas line up in the column. Otherwise no comma (1389).
+function ppFmt(n, withComma){ return (n >= 10000 || (withComma && n >= 1000)) ? String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',') : String(n); }
+function ppUseComma(e){ return Math.max(e.x, e.y, e.r) >= 10000; }
+
+// Answers are COMPUTED here (never typed by hand), so the answer key cannot drift from the exercises.
+function ppBuildExercises(){
+  const out = [];
+  const add = (section, o) => { o.section = section; o.n = out.length + 1; out.push(o); };
+  add('Place value', {q:'In the number 482, which digit is in the HUNDREDS place, the TENS place and the ONES place? What is each digit worth?', a:'Hundreds: 4 (worth 400). Tens: 8 (worth 80). Ones: 2 (worth 2).'});
+  add('Place value', {q:'Write the number: 6 hundreds, 5 tens and 7 ones.', a:String(600 + 50 + 7)});
+  add('Place value', {q:'Write 305 in expanded form (hundreds + tens + ones).', a:'300 + 0 + 5 (also accept 300 + 5)'});
+  [[89,98],[896,989],[1389,2349],[29987,9876]].forEach(p => add('Addition with carrying', {op:'+', x:p[0], y:p[1], r:p[0]+p[1]}));
+  add('Subtraction with borrowing', {op:'-', x:42, y:17, r:42-17});
+  add('Borrowing with zeros', {op:'-', x:503, y:179, r:503-179});
+  return out;
+}
+function ppVertical(e){
+  const c = ppUseComma(e);
+  const x = ppFmt(e.x, c), y = ppFmt(e.y, c);
+  const w = Math.max(x.length, y.length);
+  return '  ' + x.padStart(w) + '\n' + e.op + ' ' + y.padStart(w) + '\n' + '-'.repeat(w + 2);
+}
+
+function ppEl(tag, cls, text){
+  const n = document.createElement(tag);
+  if(cls) n.className = cls;
+  if(text !== undefined) n.textContent = text;
+  return n;
+}
+function ppSetTab(tab){
+  ppTab = tab;
+  document.getElementById('pp-tab-learn').classList.toggle('active', tab === 'learn');
+  document.getElementById('pp-tab-practice').classList.toggle('active', tab === 'practice');
+  const body = document.getElementById('pp-body');
+  body.textContent = '';
+  if(tab === 'learn') ppRenderLearn(body); else ppRenderPractice(body);
+  const m = body.closest('.mg-modal'); if(m) m.scrollTop = 0;
+}
+function ppRenderLearn(body){
+  const topics = ppEl('div', 'mg-tabs');
+  PP_LESSONS.forEach((L, i) => {
+    const b = ppEl('button', 'mg-tab' + (i === ppTopic ? ' active' : ''), L.tab);
+    b.onclick = function(){ ppTopic = i; ppSetTab('learn'); };
+    topics.appendChild(b);
+  });
+  body.appendChild(topics);
+  const L = PP_LESSONS[ppTopic];
+  body.appendChild(ppEl('div', 'pp-h', L.title));
+  L.ways.forEach(w => {
+    const card = ppEl('div', 'pp-way');
+    card.appendChild(ppEl('div', 'pp-way-label', w.label));
+    w.parts.forEach(p => {
+      if(typeof p === 'string') card.appendChild(ppEl('div', 'pp-line', p));
+      else card.appendChild(ppEl('pre', 'pp-pre', p.pre));
+    });
+    body.appendChild(card);
+  });
+  const go = ppEl('button', 'pp-big-btn', '✏️ Ready? Go to the paper practice →');
+  go.onclick = function(){ ppSetTab('practice'); };
+  body.appendChild(go);
+}
+function ppRenderPractice(body){
+  body.appendChild(ppEl('div', 'pp-note', '1. Take a piece of paper and a pencil.\n2. Copy each exercise below onto your paper, then solve it there. Show your work!\n3. When you are finished, tap the green button and show your paper to your teacher.'));
+  let sec = '';
+  ppBuildExercises().forEach(e => {
+    if(e.section !== sec){ sec = e.section; body.appendChild(ppEl('div', 'pp-h', sec)); }
+    const row = ppEl('div', 'pp-ex');
+    row.appendChild(ppEl('div', 'pp-num', e.n + '.'));
+    if(e.op) row.appendChild(ppEl('pre', 'pp-pre', ppVertical(e)));
+    else row.appendChild(ppEl('div', 'pp-q', e.q));
+    body.appendChild(row);
+  });
+  if(!ppDoneBy[curStudent]){
+    const done = ppEl('button', 'pp-big-btn pp-green', '✅ I am finished — I will show my paper');
+    done.onclick = function(){ ppDoneBy[curStudent] = true; ppSetTab('practice'); };
+    body.appendChild(done);
+  } else {
+    const box = ppEl('div', 'pp-success');
+    box.appendChild(ppEl('div', 'pp-success-t', '🎉 Great work! Now show your paper to your teacher.'));
+    box.appendChild(ppEl('div', 'pp-line', 'Then tap the button to email the exercises and the answer key to your teacher. Your email app will open — press Send there.'));
+    const mail = ppEl('button', 'pp-big-btn', '✉️ Email my teacher');
+    mail.onclick = ppSendEmail;
+    box.appendChild(mail);
+    const copy = ppEl('button', 'pp-small-btn', '📋 Email did not open? Copy it instead');
+    copy.onclick = ppCopyEmail;
+    box.appendChild(copy);
+    const st = ppEl('div', 'pp-line'); st.id = 'pp-copy-status';
+    box.appendChild(st);
+    body.appendChild(box);
+  }
+}
+
+function ppEmailParts(){
+  const ex = ppBuildExercises();
+  const who = PP_INITIALS[curStudent] || String(curStudent);
+  const d = new Date().toLocaleDateString('en-CA', {weekday:'short', year:'numeric', month:'short', day:'numeric'});
+  const subject = 'Math paper practice - ' + who + ' - ' + d;
+  const L = [
+    'Math paper practice - ' + who + ' - ' + d,
+    'The student copied these exercises onto paper and solved them. Please check the paper against this answer key.'
+  ];
+  let sec = '';
+  ex.forEach(e => {
+    if(e.section !== sec){ sec = e.section; L.push(''); L.push(sec.toUpperCase()); }
+    if(e.op){ const c = ppUseComma(e); L.push(e.n + '. ' + ppFmt(e.x, c) + ' ' + e.op + ' ' + ppFmt(e.y, c) + ' = ' + ppFmt(e.r, c)); }
+    else { L.push(e.n + '. ' + e.q); L.push('   Answer: ' + e.a); }
+  });
+  return {subject: subject, body: L.join('\r\n')};
+}
+function ppSendEmail(){
+  const m = ppEmailParts();
+  const a = document.createElement('a');
+  a.href = 'mailto:' + PAPER_PRACTICE_EMAIL + '?subject=' + encodeURIComponent(m.subject) + '&body=' + encodeURIComponent(m.body);
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+function ppCopyEmail(){
+  const m = ppEmailParts();
+  const txt = 'To: ' + PAPER_PRACTICE_EMAIL + '\nSubject: ' + m.subject + '\n\n' + m.body.replace(/\r\n/g, '\n');
+  const fallback = function(){
+    const t = document.createElement('textarea');
+    t.value = txt; t.style.position = 'fixed'; t.style.opacity = '0';
+    document.body.appendChild(t); t.select();
+    try{ document.execCommand('copy'); }catch(err){}
+    document.body.removeChild(t);
+  };
+  if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).catch(fallback); } else { fallback(); }
+  const st = document.getElementById('pp-copy-status');
+  if(st) st.textContent = 'Copied! Paste it into a new email addressed to ' + PAPER_PRACTICE_EMAIL + '.';
+}
+function openPaperPractice(){
+  if(!paperPracticeActive()) return;
+  document.getElementById('pp-overlay').classList.add('active');
+  ppSetTab(ppTab || 'learn');
+}
+function closePaperPractice(){
+  const o = document.getElementById('pp-overlay');
+  if(o) o.classList.remove('active');
 }
 
 function openExtGames(){
