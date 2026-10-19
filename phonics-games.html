@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Same no-cache hints as index.html (this site has no service worker). -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Phonics Playground — Ma Pao's Homeschool Tutor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lato:wght@400;700&family=Andika:wght@400;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+/* Colours come from the tutor app (index.html :root). Solid hex only for score/progress bits. */
+:root{
+  --vg-bg:#1A1228;--vg-bg2:#110D1E;
+  --vg-gold:#F0C830;--vg-gold2:#D4A840;
+  --vg-text:#E8DCC8;--vg-text2:#9880C0;
+  --surface:#231A38;--surface2:#2E2250;--line:#43366B;
+  --good-bg:#1a3a22;--good-b:#2d6b3a;--good-t:#d4f0dc;
+  --bad-bg:#4a1d24;--bad-b:#b04a52;--bad-t:#ffc9cc;
+  --radius:12px;--radius-sm:8px;
+  --f-head:'Playfair Display',Georgia,serif;
+  --f-ui:'Lato',system-ui,sans-serif;
+  --f-word:'Andika','Lato',system-ui,sans-serif;
+}
+html{-webkit-text-size-adjust:100%;}
+body{font-family:var(--f-ui);background:var(--vg-bg);color:var(--vg-text);min-height:100vh;min-height:100dvh;
+  font-size:16px;line-height:1.45;padding:16px 14px 40px;}
+#app{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:16px;}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;}
+button:focus-visible,a:focus-visible{outline:3px solid var(--vg-gold);outline-offset:2px;}
+h1,h2{font-family:var(--f-head);color:#F5E8B0;line-height:1.2;font-weight:700;}
+h1{font-size:24px;}
+h2{font-size:17px;}
+.cross{color:var(--vg-gold);margin-right:6px;}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.sub{color:var(--vg-text2);font-size:14px;margin-top:3px;}
+.bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.grow{flex:1;min-width:0;}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface);}
+.seg button{padding:6px 14px;font-weight:700;font-size:13px;color:var(--vg-text2);}
+.seg button[aria-pressed="true"]{background:var(--vg-gold);color:var(--vg-bg);}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;gap:14px;}
+.group{display:flex;flex-direction:column;gap:8px;}
+.group-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+.group-head b{font-family:var(--f-head);font-size:16px;color:var(--vg-gold2);}
+.group-head small{color:var(--vg-text2);font-size:12px;}
+.linkbtn{margin-left:auto;color:var(--vg-gold2);font-weight:700;font-size:12px;text-decoration:underline;padding:4px;}
+.chips{display:flex;flex-wrap:wrap;gap:8px;}
+.chip{min-width:62px;padding:8px 14px;border-radius:var(--radius-sm);border:1px solid var(--line);background:var(--vg-bg2);
+  font-family:var(--f-word);font-weight:700;font-size:19px;color:var(--vg-text);}
+.chip[aria-pressed="true"]{background:var(--vg-gold);border-color:var(--vg-gold);color:var(--vg-bg);}
+.games{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;}
+.tile{display:flex;flex-direction:column;gap:6px;text-align:left;padding:14px;border-radius:var(--radius);
+  background:var(--vg-bg2);border:1px solid var(--line);min-width:0;}
+.tile:hover:not(:disabled){border-color:var(--vg-gold);}
+.tile:disabled{opacity:.45;cursor:not-allowed;}
+.tile .ic{width:44px;height:44px;border-radius:10px;background:var(--surface2);display:grid;place-items:center;
+  font-family:var(--f-word);font-weight:700;font-size:18px;color:var(--vg-gold);}
+.tile b{font-family:var(--f-head);font-size:16px;color:#F5E8B0;}
+.tile .d{color:var(--vg-text2);font-size:13px;}
+.stars{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-variant-numeric:tabular-nums;
+  background:#3a2f12;border:1px solid #8a6f1c;color:#F0C830;border-radius:14px;padding:3px 11px;}
+.stars svg{width:18px;height:18px;fill:var(--vg-gold);}
+.btn{padding:10px 18px;border-radius:var(--radius-sm);background:var(--vg-gold);color:var(--vg-bg);font-weight:700;border:1px solid var(--vg-gold);}
+.btn.ghost{background:var(--surface);color:var(--vg-text);border:1px solid var(--line);}
+.btn.small{padding:6px 12px;font-size:13px;}
+.round{color:var(--vg-text2);font-variant-numeric:tabular-nums;font-size:14px;}
+.how{color:var(--vg-text2);font-size:15px;}
+.notice{background:#3a2f12;border:1px solid #8a6f1c;color:#F5E8B0;border-radius:var(--radius-sm);padding:9px 12px;font-size:14px;}
+.foot{color:var(--vg-text2);font-size:13px;text-align:center;}
+.stage{display:flex;flex-direction:column;align-items:center;gap:16px;padding:6px 0;}
+.say{width:92px;height:92px;border-radius:50%;background:var(--vg-gold);color:var(--vg-bg);display:grid;place-items:center;border:0;}
+.say svg{width:42px;height:42px;fill:currentColor;}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;width:100%;}
+.opt{padding:18px 8px;border-radius:var(--radius);border:1px solid var(--line);background:var(--vg-bg2);
+  font-family:var(--f-word);font-size:32px;font-weight:700;text-align:center;min-width:0;overflow-wrap:anywhere;color:var(--vg-text);}
+.opt.good,.bucket.good,.card.done{background:var(--good-bg);border-color:var(--good-b);color:var(--good-t);}
+.opt.bad,.bucket.bad{background:var(--bad-bg);border-color:var(--bad-b);color:var(--bad-t);}
+.big{font-family:var(--f-word);font-size:60px;font-weight:700;letter-spacing:.03em;text-align:center;line-height:1.1;color:#F5E8B0;}
+.big .rime{color:var(--vg-gold);}
+.wordcard{font-family:var(--f-word);font-size:50px;font-weight:700;padding:14px 34px;border-radius:var(--radius);
+  background:var(--vg-bg2);border:1px solid var(--line);text-align:center;overflow-wrap:anywhere;color:#F5E8B0;}
+.emoji{font-size:46px;line-height:1;}
+.buckets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;width:100%;}
+.bucket{padding:22px 8px;border-radius:var(--radius);border:2px dashed var(--vg-gold2);background:var(--surface2);
+  font-family:var(--f-word);font-size:34px;font-weight:700;text-align:center;color:var(--vg-text);}
+.tiles{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;}
+.tile-l{min-width:60px;height:62px;padding:0 14px;border-radius:var(--radius-sm);border:1px solid var(--vg-gold2);background:var(--vg-bg2);
+  font-family:var(--f-word);font-size:30px;font-weight:700;color:var(--vg-text);}
+.tile-l[disabled]{opacity:.25;}
+.slots{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+.slot{width:54px;height:66px;border-bottom:4px solid var(--vg-gold2);display:grid;place-items:center;font-family:var(--f-word);font-size:38px;font-weight:700;}
+.slot.fill{color:#7ee0a0;}
+.found{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;min-height:42px;}
+.found span{padding:4px 12px;border-radius:var(--radius-sm);background:var(--good-bg);border:1px solid var(--good-b);color:var(--good-t);font-family:var(--f-word);font-weight:700;font-size:19px;}
+.mem{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;width:100%;}
+.card{aspect-ratio:1/1;border-radius:var(--radius);border:1px solid var(--vg-gold2);background:var(--surface2);color:var(--vg-text);
+  display:grid;place-items:center;font-family:var(--f-word);font-size:22px;font-weight:700;min-width:0;padding:4px;overflow-wrap:anywhere;}
+.card.up{background:var(--vg-bg2);}
+.card .emoji{font-size:36px;}
+.msg{min-height:1.6em;font-weight:700;text-align:center;}
+.msg.good{color:#7ee0a0;} .msg.bad{color:#ff9a9a;}
+.end{text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px;padding:12px 0;}
+.end .stars svg{width:30px;height:30px;}
+.shake{animation:shake .35s;}
+.pop{animation:pop .3s;}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@keyframes pop{50%{transform:scale(1.1)}}
+@media (prefers-reduced-motion:reduce){.shake,.pop{animation:none;}}
+@media (max-width:420px){h1{font-size:21px;}.big{font-size:48px;}.wordcard{font-size:40px;padding:12px 20px;}.card{font-size:17px;}.mem{gap:8px;}.opt{font-size:27px;}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<noscript><p class="notice">This page needs JavaScript. / Esta página necesita JavaScript.</p></noscript>
+
+<script>
+/* ════════════════════════════════════════════════════════════════════
+   PHONICS PLAYGROUND — word list
+   Source of truth: "Phonics Sounds and Blends: Order of Introduction".
+   ► TO ADD A NEW SOUND LATER, ONLY EDIT THIS BLOCK (see PHONICS-GAMES-GUIDE.md).
+   1. If it is a new book/heading, add one line to GROUPS.
+   2. Add one S(...) line to SETS.
+        S('id', 'groupId', 'word word word')                  word FAMILY (-at, -ack, -ell …): all 5 games
+        S('id', 'groupId', 'word word', false)                any other sound (le, bl, ph …): 4 games
+        S('id', 'groupId', 'word word', false, '-tch')        same, with a custom chip label
+   3. (Optional) add a picture to EMOJI for any word — only clear, unambiguous pictures.
+   Open the browser console (F12) after saving: checkData() prints a warning if anything is off.
+   ════════════════════════════════════════════════════════════════════ */
+const GROUPS=[
+ {id:'a',book:'1-1',en:'Short a',es:'a corta'},
+ {id:'o',book:'1-2',en:'Short o',es:'o corta'},
+ {id:'i',book:'1-4',en:'Short i',es:'i corta'},
+ {id:'u',book:'1-5',en:'Short u',es:'u corta'},
+ {id:'e',book:'1-7',en:'Short e',es:'e corta'},
+ {id:'x',book:'4-5 to 4-7',en:'Special sounds',es:'Sonidos especiales'}
+ // ,{id:'ck',book:'2-2',en:'Sound of -ck',es:'Sonido -ck'}     ← example of a new heading
+];
+const S=(id,g,words,rime,label)=>{const r=rime!==false;return {id:id,g:g,label:label||(r?'-'+id:id),words:words.split(' '),rime:r};};
+const SETS=[
+ /* Book 1-1 — short a  (Order: -ad -an -at;  -ap and -ag are teacher additions) */
+ S('ad','a','bad dad fad had lad mad pad sad'),
+ S('an','a','ban can fan man pan ran tan van'),
+ S('at','a','bat cat fat hat mat pat rat sat vat'),
+ S('ap','a','cap gap lap map nap rap sap tap zap'),
+ S('ag','a','bag lag nag rag sag tag wag'),
+ /* Book 1-2 — short o  (Order: -op -ot;  -og and -ob are teacher additions) */
+ S('op','o','cop hop mop pop top'),
+ S('ot','o','cot dot got hot jot lot not pot rot tot'),
+ S('og','o','bog dog fog hog jog log'),
+ S('ob','o','cob job mob rob sob'),
+ /* Book 1-4 — short i  (Order: -id -ig -in -ip -it) */
+ S('id','i','bid did hid kid lid rid'),
+ S('ig','i','big dig fig jig pig rig wig'),
+ S('in','i','bin din fin kin pin sin tin win'),
+ S('ip','i','dip hip lip nip rip sip tip zip'),
+ S('it','i','bit fit hit kit lit pit sit wit'),
+ /* Book 1-5 — short u  (Order: -ug -un -up -ut) */
+ S('ug','u','bug dug hug jug lug mug pug rug tug'),
+ S('un','u','bun fun gun nun pun run sun'),
+ S('up','u','cup pup'),
+ S('ut','u','but cut gut hut jut nut rut'),
+ /* Book 1-7 — short e  (Order: -ed -eg -en -et) */
+ S('ed','e','bed fed led red wed'),
+ S('eg','e','beg keg leg peg'),
+ S('en','e','den hen men pen ten'),
+ S('et','e','bet get jet let met net pet set vet wet yet'),
+ /* Books 4-5 to 4-7 — ph, -ied, -tch (not word families, so Build It skips them) */
+ S('ph','x','phone photo graph trophy dolphin orphan phase phrase',false),
+ S('ied','x','tried cried dried fried spied pried',false,'-ied'),
+ S('tch','x','catch fetch witch hutch patch match hatch pitch ditch notch',false,'-tch')
+];
+/* Pictures for Memory Match and Spell It. Kept to clear, one-meaning pictures. */
+const EMOJI={bat:'🦇',cat:'🐱',hat:'🎩',rat:'🐀',van:'🚐',man:'👨',can:'🥫',pan:'🍳',cap:'🧢',map:'🗺️',nap:'😴',bag:'👜',tag:'🏷️',
+ mad:'😠',sad:'😢',dad:'🧔',pot:'🍲',dot:'⚫',dog:'🐶',log:'🪵',pig:'🐖',pin:'📌',lip:'👄',bin:'🗑️',kid:'🧒',
+ bug:'🐛',mug:'☕',cup:'🥤',sun:'☀️',nut:'🥜',cut:'✂️',hut:'🛖',bed:'🛏️',pen:'🖊️',hen:'🐔',ten:'🔟',net:'🥅',jet:'✈️',
+ leg:'🦵',phone:'📱',photo:'📷',trophy:'🏆',dolphin:'🐬'};
+const ALLWORDS=new Set(SETS.reduce(function(a,s){return a.concat(s.words);},[]));
+
+/* Quick self-check so a typo in the list above shows up in the console (F12), not in front of a student. */
+function checkData(){
+  const warn=[];const seen={};const gids=GROUPS.map(function(g){return g.id;});const ids={};
+  SETS.forEach(function(s){
+    if(ids[s.id])warn.push('Duplicate sound id: '+s.id);ids[s.id]=1;
+    if(gids.indexOf(s.g)<0)warn.push(s.id+': group "'+s.g+'" is not in GROUPS');
+    if(!s.words.length||s.words.indexOf('')>=0)warn.push(s.id+': empty word (extra space?)');
+    s.words.forEach(function(w){
+      if(seen[w])warn.push('Word "'+w+'" appears in both -'+seen[w]+' and '+s.id);seen[w]=s.id;
+      if(s.rime&&(w.length<=s.id.length||w.slice(-s.id.length)!==s.id))warn.push('"'+w+'" does not end in -'+s.id);
+    });
+  });
+  Object.keys(EMOJI).forEach(function(w){if(!ALLWORDS.has(w))warn.push('EMOJI word not in any list: '+w);});
+  if(warn.length&&window.console)console.warn('Phonics Playground word-list check:\n'+warn.join('\n'));
+  return warn;
+}
+checkData();
+
+/* ---------- Text (English / Español). The practice words always stay in English. ---------- */
+const T={
+ en:{title:'Phonics Playground',sub:'Practice the sounds from our workbook.',tutor:'← Back to tutor',pickSounds:'1. Pick the sounds to practice',pickGame:'2. Pick a game',
+  all:'Select all',none:'Clear',chosen:function(n){return n+' sound'+(n===1?'':'s')+' chosen';},needSound:'Pick at least one sound above first.',
+  back:'Back',again:'Play again',home:'Home',stars:'Stars',round:function(i,n){return 'Round '+i+' of '+n;},
+  g:{build:['Build It','Make every word in the family.'],listen:['Listen and Pick','Hear the word, tap the right one.'],sort:['Sort It','Drop each word in its sound.'],
+     mem:['Memory Match','Find the word and its picture.'],spell:['Spell It','Tap the letters in order.']},
+  how:{build:'Tap a letter to put it in front. Find every real word!',listen:'Tap the speaker to hear the word. Then tap the word you heard.',
+   sort:'Read the word. Tap the sound it belongs to.',mem:'Flip two cards. Match the pairs. Each card is read aloud.',spell:'Listen to the word. Tap the letters in the right order.'},
+  yes:['Great!','Yes!','You got it!','Super!'],no:'Try again',notWord:'Not a word. Try another letter.',allFound:'You found them all!',next:'Next sound',
+  done:'Well done!',score:function(a,b){return a+' out of '+b;},found:'Found',
+  noBuild:'Build It needs a word family like -at or -in. Pick one of those sounds.',needTwo:'Sort It needs two sounds. I added one for you.',
+  noSound:'This device cannot read words aloud, so Listen and Spell are turned off.',noVoice:'No voice found yet. If you hear nothing, ask a grown-up to check the sound.',
+  closeHint:'When you are done, tap “Back to tutor” (or close this tab).'},
+ es:{title:'Juegos de Fonética',sub:'Practica los sonidos de nuestro libro de trabajo.',tutor:'← Volver al tutor',pickSounds:'1. Elige los sonidos para practicar',pickGame:'2. Elige un juego',
+  all:'Elegir todos',none:'Borrar',chosen:function(n){return n+(n===1?' sonido elegido':' sonidos elegidos');},needSound:'Primero elige al menos un sonido arriba.',
+  back:'Atrás',again:'Jugar otra vez',home:'Inicio',stars:'Estrellas',round:function(i,n){return 'Ronda '+i+' de '+n;},
+  g:{build:['Arma palabras','Forma todas las palabras de la familia.'],listen:['Escucha y elige','Oye la palabra y toca la correcta.'],sort:['Clasifica','Pon cada palabra en su sonido.'],
+     mem:['Memoria','Encuentra la palabra y su dibujo.'],spell:['Deletrea','Toca las letras en orden.']},
+  how:{build:'Toca una letra para ponerla al inicio. ¡Encuentra todas las palabras reales!',listen:'Toca la bocina para oír la palabra. Luego toca la palabra que oíste.',
+   sort:'Lee la palabra. Toca el sonido al que pertenece.',mem:'Voltea dos tarjetas. Une las parejas. Cada tarjeta se lee en voz alta.',spell:'Escucha la palabra. Toca las letras en el orden correcto.'},
+  yes:['¡Muy bien!','¡Sí!','¡Lo lograste!','¡Súper!'],no:'Inténtalo otra vez',notWord:'No es una palabra. Prueba otra letra.',allFound:'¡Las encontraste todas!',next:'Siguiente sonido',
+  done:'¡Bien hecho!',score:function(a,b){return a+' de '+b;},found:'Encontradas',
+  noBuild:'Arma palabras necesita una familia como -at o -in. Elige uno de esos sonidos.',needTwo:'Clasifica necesita dos sonidos. Agregué uno por ti.',
+  noSound:'Este aparato no puede leer las palabras en voz alta, así que Escucha y Deletrea están desactivados.',noVoice:'No se encontró ninguna voz. Si no oyes nada, pide a un adulto que revise el sonido.',
+  closeHint:'Cuando termines, toca “Volver al tutor” (o cierra esta pestaña).'}
+};
+
+/* ---------- State and helpers ---------- */
+const app=document.getElementById('app');
+let lang='en',stars=0,G=null,timer=null;
+let sel=new Set(['at','an','ad']);
+try{
+  lang=localStorage.getItem('pp-lang')==='es'?'es':'en';
+  stars=+localStorage.getItem('pp-stars')||0;
+  const saved=(localStorage.getItem('pp-sel')||'').split(',').filter(function(id){return SETS.some(function(s){return s.id===id;});});
+  if(saved.length)sel=new Set(saved);
+}catch(e){}
+const t=function(){return T[lang];};
+const rnd=function(a){return a[Math.floor(Math.random()*a.length)];};
+const shuffle=function(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const x=a[i];a[i]=a[j];a[j]=x;}return a;};
+const esc=function(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
+const IC_SPEAK='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 4V5L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"/></svg>';
+const IC_STAR='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3 6.6 7.2.8-5.4 4.9 1.5 7.1L12 17.8 5.7 21.4l1.5-7.1L1.8 9.4 9 8.6z"/></svg>';
+function saveSel(){try{localStorage.setItem('pp-sel',Array.from(sel).join(','));}catch(e){}}
+function addStar(n){stars+=(n||1);try{localStorage.setItem('pp-stars',stars);}catch(e){}const el=document.getElementById('starcount');if(el)el.textContent=stars;}
+function later(fn,ms){clearTimeout(timer);timer=setTimeout(fn,ms);}
+const chosenSets=function(){return SETS.filter(function(s){return sel.has(s.id);});};
+const poolWords=function(){return chosenSets().reduce(function(a,s){return a.concat(s.words.map(function(w){return {w:w,set:s};}));},[]);};
+const starBadge=function(){return '<span class="stars" title="'+t().stars+'">'+IC_STAR+'<span id="starcount">'+stars+'</span></span>';};
+
+/* ---------- Read-aloud (same rules as the tutor app: see COMPATIBILITY.md.txt) ----------
+   • feature-detect, never throw        • Zira / offline voices first (Edge online voices fail silently)
+   • one cancel() then a 400 ms pause   • Edge watchdog: retry once if speak() was dropped
+   • silent "unlock" on first tap for iOS Safari                                                      */
+const HAS_TTS=('speechSynthesis' in window)&&(typeof SpeechSynthesisUtterance!=='undefined');
+const IS_EDGE=(function(){
+  try{if(navigator.userAgentData&&navigator.userAgentData.brands&&navigator.userAgentData.brands.some(function(b){return b.brand&&b.brand.toLowerCase().indexOf('edge')>=0;}))return true;}catch(e){}
+  return /Edg\/|EdgA\/|EdgiOS\//i.test(navigator.userAgent||'');
+})();
+const PREFER=['Zira','Linda','David','Samantha','Karen','Moira','Aria','Jenny','Alice'];
+let voices=[],voicesGaveUp=false,speakGen=0,unlocked=false;
+function loadVoices(){if(!HAS_TTS)return;try{voices=window.speechSynthesis.getVoices()||[];}catch(e){voices=[];}}
+if(HAS_TTS){
+  loadVoices();
+  try{window.speechSynthesis.onvoiceschanged=loadVoices;}catch(e){}
+  let tries=0;
+  const poll=setInterval(function(){          // some browsers surface voices late (Edge, Ubuntu Chromium)
+    loadVoices();tries++;
+    if(voices.length||tries>60){clearInterval(poll);if(!voices.length){voicesGaveUp=true;if(!G)home();}}
+  },150);
+}
+function pickVoice(){
+  if(!voices.length)return null;
+  let pool=voices;
+  if(IS_EDGE){const loc=voices.filter(function(v){return v.localService;});if(loc.length)pool=loc;}
+  const en=pool.filter(function(v){return /^en/i.test(v.lang||'');});
+  for(let i=0;i<PREFER.length;i++){
+    const hit=en.find(function(v){return v.name.toLowerCase().indexOf(PREFER[i].toLowerCase())>=0;});
+    if(hit)return hit;
+  }
+  return en.find(function(v){return /^en[-_]US/i.test(v.lang);})||en.find(function(v){return /^en[-_]CA/i.test(v.lang);})||en[0]||null;
+}
+function unlockTTS(){
+  if(unlocked||!HAS_TTS)return;unlocked=true;
+  try{const u=new SpeechSynthesisUtterance(' ');u.volume=0;window.speechSynthesis.speak(u);}catch(e){}
+}
+document.addEventListener('pointerdown',unlockTTS);
+function doSpeak(w,gen,retried){
+  if(gen!==speakGen)return;
+  let started=false;
+  try{
+    const u=new SpeechSynthesisUtterance(w);u.lang='en-US';u.rate=.7;
+    const v=pickVoice();if(v){u.voice=v;u.lang=v.lang||'en-US';}
+    u.onstart=function(){started=true;};
+    u.onerror=function(){};
+    window.speechSynthesis.speak(u);
+  }catch(e){return;}
+  if(IS_EDGE&&!retried){
+    setTimeout(function(){
+      if(gen!==speakGen||started)return;
+      try{if(window.speechSynthesis.speaking)return;window.speechSynthesis.cancel();}catch(e){}
+      setTimeout(function(){doSpeak(w,gen,true);},200);
+    },800);
+  }
+}
+function speak(w){
+  if(!HAS_TTS||!w)return;
+  const gen=++speakGen;
+  let busy=false;
+  try{busy=window.speechSynthesis.speaking||window.speechSynthesis.pending;if(busy)window.speechSynthesis.cancel();}catch(e){}
+  if(busy)setTimeout(function(){doSpeak(w,gen,false);},400);   // one cancel(), then wait (Windows Chrome/Edge)
+  else doSpeak(w,gen,false);
+}
+
+/* ---------- Back to the tutor ---------- */
+function goTutor(){
+  try{if(window.history.length>1&&document.referrer&&document.referrer.indexOf(location.origin)===0){window.history.back();return;}}catch(e){}
+  try{window.close();}catch(e){}
+  setTimeout(function(){location.href='index.html';},300);   // only runs if the tab could not close itself
+}
+
+/* ---------- Home ---------- */
+function home(){
+  clearTimeout(timer);G=null;const L=t();
+  const groups=GROUPS.map(function(g){
+    const ss=SETS.filter(function(s){return s.g===g.id;});
+    if(!ss.length)return '';
+    return '<div class="group"><div class="group-head"><b>'+esc(g[lang])+'</b><small>Book '+esc(g.book)+'</small>'+
+     '<button class="linkbtn" data-all="'+g.id+'">'+L.all+'</button></div><div class="chips">'+
+     ss.map(function(s){return '<button class="chip" data-set="'+s.id+'" aria-pressed="'+sel.has(s.id)+'">'+esc(s.label)+'</button>';}).join('')+'</div></div>';
+  }).join('');
+  const defs=[['build','-at'],['listen','♪'],['sort','A|B'],['mem','◧'],['spell','a·b·c']];
+  const ok=sel.size>0;
+  const needsSound={listen:1,spell:1};
+  const notice=!HAS_TTS?'<p class="notice">'+L.noSound+'</p>':(voicesGaveUp?'<p class="notice">'+L.noVoice+'</p>':'');
+  app.innerHTML='<div class="top"><div><h1><span class="cross">✝</span>'+L.title+'</h1><p class="sub">'+L.sub+'</p></div>'+
+   '<div class="bar">'+starBadge()+'<div class="seg" role="group" aria-label="Language"><button data-lang="en" aria-pressed="'+(lang==='en')+'">EN</button><button data-lang="es" aria-pressed="'+(lang==='es')+'">ES</button></div></div></div>'+
+   '<div class="bar"><button class="btn ghost small" data-act="tutor">'+L.tutor+'</button></div>'+notice+
+   '<section class="panel"><div class="bar"><h2 class="grow">'+L.pickSounds+'</h2><span class="round">'+L.chosen(sel.size)+'</span><button class="linkbtn" id="clr" style="margin-left:0">'+L.none+'</button></div>'+groups+'</section>'+
+   '<section class="panel"><h2>'+L.pickGame+'</h2>'+(ok?'':'<p class="how">'+L.needSound+'</p>')+'<div class="games">'+
+   defs.map(function(d){const k=d[0],ic=d[1];const off=!ok||(!HAS_TTS&&needsSound[k]);
+     return '<button class="tile" data-game="'+k+'"'+(off?' disabled':'')+'><span class="ic">'+esc(ic)+'</span><b>'+L.g[k][0]+'</b><span class="d">'+L.g[k][1]+'</span></button>';}).join('')+'</div></section>'+
+   '<p class="foot">'+L.closeHint+'</p>';
+}
+app.addEventListener('click',function(e){
+  const b=e.target.closest?e.target.closest('button'):null;if(!b)return;
+  if(b.dataset.lang){lang=b.dataset.lang;try{localStorage.setItem('pp-lang',lang);}catch(x){}return G?render():home();}
+  if(b.dataset.set){if(sel.has(b.dataset.set))sel.delete(b.dataset.set);else sel.add(b.dataset.set);saveSel();return home();}
+  if(b.dataset.all){const ids=SETS.filter(function(s){return s.g===b.dataset.all;}).map(function(s){return s.id;});
+    const every=ids.every(function(i){return sel.has(i);});ids.forEach(function(i){if(every)sel.delete(i);else sel.add(i);});saveSel();return home();}
+  if(b.id==='clr'){sel.clear();saveSel();return home();}
+  if(b.dataset.game)return start(b.dataset.game);
+  if(b.dataset.act==='tutor')return goTutor();
+  if(b.dataset.act)return G&&G.act&&G.act(b.dataset.act,b);
+});
+
+/* ---------- Game shell ---------- */
+function start(k){
+  clearTimeout(timer);
+  const init={build:initBuild,listen:initListen,sort:initSort,mem:initMem,spell:initSpell}[k];
+  G={k:k,i:0,n:0,score:0,msg:'',msgCls:'',finished:false};
+  if(!init(G))return;
+  render();
+}
+function shell(inner){
+  const L=t();
+  return '<div class="top"><div class="bar"><button class="btn ghost small" data-act="home">← '+L.home+'</button></div><div class="bar">'+starBadge()+
+   '<div class="seg" role="group" aria-label="Language"><button data-lang="en" aria-pressed="'+(lang==='en')+'">EN</button><button data-lang="es" aria-pressed="'+(lang==='es')+'">ES</button></div></div></div>'+
+   '<section class="panel"><div class="bar"><h2 class="grow">'+L.g[G.k][0]+'</h2>'+(G.n&&!G.finished?'<span class="round">'+L.round(Math.min(G.i+1,G.n),G.n)+'</span>':'')+'</div>'+
+   '<p class="how">'+L.how[G.k]+'</p>'+inner+'</section>';
+}
+function render(){app.innerHTML=shell(G.draw());if(G.after)G.after();}
+function finish(){
+  G.finished=true;const L=t();
+  G.draw=function(){return '<div class="end"><h2>'+L.done+'</h2><div class="stars">'+IC_STAR+'<span>'+L.score(G.score,G.n)+'</span></div>'+
+    '<div class="bar"><button class="btn" data-act="again">'+L.again+'</button><button class="btn ghost" data-act="home">'+L.home+'</button></div></div>';};
+  G.after=null;G.act=function(a){if(a==='again')start(G.k);else home();};render();
+}
+function praise(){return rnd(t().yes);}
+
+/* ---------- Game 1: Build It (word families only) ---------- */
+function initBuild(g){
+  const fams=shuffle(chosenSets().filter(function(s){return s.rime;}));
+  if(!fams.length){app.innerHTML=shell('<p class="msg bad">'+t().noBuild+'</p>');G.act=function(){home();};G.draw=function(){return '';};return false;}
+  g.fams=fams.slice(0,3);g.n=g.fams.length;g.found=new Set();g.i=0;
+  g.setup=function(){
+    const f=g.fams[g.i];const onsets=f.words.map(function(w){return w.slice(0,w.length-f.id.length);});
+    const extra=['x','q','v','z','y','j','w','k'].filter(function(c){return !ALLWORDS.has(c+f.id)&&onsets.indexOf(c)<0;}).slice(0,2);
+    g.tiles=shuffle(onsets.concat(extra));g.cur='';g.found=new Set();g.msg='';g.msgCls='';
+  };
+  g.setup();
+  g.draw=function(){const f=g.fams[g.i];const L=t();const all=g.found.size===f.words.length;
+    return '<div class="stage"><div class="big" id="bigword">'+esc(g.cur||'_')+'<span class="rime">'+esc(f.id)+'</span></div>'+
+     '<div class="tiles">'+g.tiles.map(function(o){return '<button class="tile-l" data-act="on" data-v="'+esc(o)+'"'+(all?' disabled':'')+'>'+esc(o)+'</button>';}).join('')+'</div>'+
+     '<div class="msg '+g.msgCls+'" id="msg">'+(all?L.allFound:g.msg)+'</div>'+
+     '<div class="round">'+L.found+': '+g.found.size+' / '+f.words.length+'</div>'+
+     '<div class="found">'+Array.from(g.found).map(function(w){return '<span>'+esc(w)+'</span>';}).join('')+'</div>'+
+     (all?'<button class="btn" data-act="next">'+(g.i+1<g.n?L.next:L.done)+'</button>':'')+'</div>';};
+  g.act=function(a,b){
+    if(a==='home')return home();
+    const f=g.fams[g.i];
+    if(a==='next'){g.score+=1;if(g.i+1<g.n){g.i++;g.setup();render();}else finish();return;}
+    if(a==='on'){const w=b.dataset.v+f.id;g.cur=b.dataset.v;
+      if(f.words.indexOf(w)>=0){if(!g.found.has(w)){g.found.add(w);addStar();g.msg=praise();g.msgCls='good';}else{g.msg=w;g.msgCls='good';}speak(w);render();
+        const bw=document.getElementById('bigword');if(bw)bw.classList.add('pop');}
+      else{g.msg=t().notWord;g.msgCls='bad';render();const bw=document.getElementById('bigword');if(bw)bw.classList.add('shake');}}
+  };
+  return true;
+}
+
+/* ---------- Game 2: Listen and Pick ---------- */
+function initListen(g){
+  const pool=poolWords();const order=shuffle(pool).slice(0,10);g.n=order.length;g.order=order;g.locked=false;
+  g.setup=function(){
+    const cur=g.order[g.i];
+    let others=shuffle(pool.filter(function(p){return p.w!==cur.w;})).slice(0,3).map(function(x){return x.w;});
+    if(others.length<3){   // very small selection: borrow look-alike words from the whole list
+      const have={};have[cur.w]=1;others.forEach(function(w){have[w]=1;});
+      const more=shuffle(Array.from(ALLWORDS)).filter(function(w){return !have[w];});
+      others=others.concat(more.slice(0,3-others.length));
+    }
+    g.cur=cur;g.opts=shuffle([cur.w].concat(others));g.locked=false;g.picked=null;
+  };
+  g.setup();
+  g.draw=function(){return '<div class="stage"><button class="say" data-act="say" aria-label="Play word">'+IC_SPEAK+'</button><div class="opts">'+
+    g.opts.map(function(w){let c='';if(g.picked){if(w===g.cur.w)c=' good';else if(w===g.picked)c=' bad';}
+      return '<button class="opt'+c+'" data-act="pick" data-w="'+esc(w)+'">'+esc(w)+'</button>';}).join('')+'</div><div class="msg '+g.msgCls+'" id="msg">'+g.msg+'</div></div>';};
+  g.after=function(){if(!g.picked)speak(g.cur.w);};
+  g.act=function(a,b){
+    if(a==='home')return home();
+    if(a==='say')return speak(g.cur.w);
+    if(a==='pick'&&!g.locked){g.locked=true;g.picked=b.dataset.w;const ok=g.picked===g.cur.w;
+      if(ok){g.score++;addStar();g.msg=praise();g.msgCls='good';}else{g.msg=g.cur.w;g.msgCls='bad';}
+      speak(g.cur.w);render();
+      later(function(){g.msg='';g.msgCls='';if(g.i+1<g.n){g.i++;g.setup();render();}else finish();},1500);}
+  };
+  return true;
+}
+
+/* ---------- Game 3: Sort It ---------- */
+function initSort(g){
+  let ss=chosenSets();
+  if(ss.length<2){
+    const first=ss[0];
+    const cand=SETS.filter(function(s){return s!==first&&s.rime===(first?first.rime:true);});
+    const near=cand.filter(function(s){return first&&s.g===first.g;});
+    const add=rnd(near.length?near:cand);ss=first?[first,add]:[add];
+  }else ss=shuffle(ss).slice(0,2);
+  g.sets=ss;
+  const mix=ss.reduce(function(a,s){return a.concat(shuffle(s.words).slice(0,5).map(function(w){return {w:w,set:s};}));},[]);
+  g.order=shuffle(mix);g.n=g.order.length;g.locked=false;g.note=chosenSets().length<2;
+  g.draw=function(){const c=g.order[g.i];
+    return '<div class="stage">'+(g.note?'<p class="how">'+t().needTwo+'</p>':'')+'<button class="say" data-act="say" aria-label="Play word">'+IC_SPEAK+'</button>'+
+    '<div class="wordcard">'+esc(c.w)+'</div><div class="buckets">'+g.sets.map(function(s){let cl='';if(g.picked===s.id)cl=g.picked===c.set.id?' good':' bad';
+      return '<button class="bucket'+cl+'" data-act="bk" data-s="'+s.id+'">'+esc(s.label)+'</button>';}).join('')+'</div>'+
+    '<div class="msg '+g.msgCls+'" id="msg">'+g.msg+'</div></div>';};
+  g.after=function(){if(!g.picked)speak(g.order[g.i].w);};
+  g.act=function(a,b){
+    if(a==='home')return home();
+    if(a==='say')return speak(g.order[g.i].w);
+    if(a==='bk'&&!g.locked){const c=g.order[g.i];g.locked=true;g.picked=b.dataset.s;const ok=g.picked===c.set.id;
+      if(ok){g.score++;addStar();g.msg=praise();g.msgCls='good';}else{g.msg=c.w+' → '+c.set.label;g.msgCls='bad';}
+      render();
+      later(function(){g.locked=false;g.picked=null;g.msg='';g.msgCls='';if(g.i+1<g.n){g.i++;render();}else finish();},1300);}
+  };
+  return true;
+}
+
+/* ---------- Game 4: Memory Match ---------- */
+function initMem(g){
+  const pool=poolWords();const withE=shuffle(pool.filter(function(p){return EMOJI[p.w];}));
+  const pics=withE.length>=6;const pick=(pics?withE:shuffle(pool)).slice(0,Math.min(6,pool.length));
+  const cards=[];pick.forEach(function(p,i){cards.push({id:i+'a',key:i,kind:'w',w:p.w});cards.push({id:i+'b',key:i,kind:pics?'e':'w',w:p.w});});
+  g.cards=shuffle(cards);g.up=[];g.done=new Set();g.n=0;g.total=pick.length;g.locked=false;
+  g.draw=function(){return '<div class="stage"><div class="mem">'+g.cards.map(function(c){
+    const open=g.up.indexOf(c.id)>=0||g.done.has(c.key);const cl='card'+(g.done.has(c.key)?' done':open?' up':'');
+    const face=open?(c.kind==='e'?'<span class="emoji">'+EMOJI[c.w]+'</span>':esc(c.w)):'';
+    return '<button class="'+cl+'" data-act="flip" data-id="'+c.id+'" aria-label="'+(open?esc(c.w):'card')+'">'+face+'</button>';}).join('')+'</div>'+
+    '<div class="round">'+g.done.size+' / '+g.total+'</div><div class="msg '+g.msgCls+'" id="msg">'+g.msg+'</div></div>';};
+  g.act=function(a,b){
+    if(a==='home')return home();
+    if(a!=='flip'||g.locked)return;const id=b.dataset.id;if(g.up.indexOf(id)>=0)return;
+    const c=g.cards.find(function(x){return x.id===id;});if(g.done.has(c.key))return;
+    g.up.push(id);speak(c.w);g.msg='';render();
+    if(g.up.length===2){
+      const pair=g.up.map(function(i){return g.cards.find(function(c2){return c2.id===i;});});const x=pair[0],y=pair[1];g.locked=true;
+      if(x.key===y.key){g.done.add(x.key);g.score++;addStar();g.up=[];g.msg=praise();g.msgCls='good';g.locked=false;render();
+        if(g.done.size===g.total)later(function(){g.n=g.total;finish();},1000);}
+      else{later(function(){g.up=[];g.locked=false;render();},1100);}}
+  };
+  return true;
+}
+
+/* ---------- Game 5: Spell It ---------- */
+function initSpell(g){
+  const all=poolWords();const short=all.filter(function(p){return p.w.length<=8;});
+  const order=shuffle(short.length?short:all).slice(0,8);g.n=order.length;g.order=order;g.locked=false;
+  g.setup=function(){const w=g.order[g.i].w;g.pos=0;g.letters=shuffle(w.split('').map(function(ch,i){return {ch:ch,id:i,used:false};}));g.msg='';g.msgCls='';g.miss=0;};
+  g.setup();
+  g.draw=function(){const w=g.order[g.i].w;
+    return '<div class="stage"><button class="say" data-act="say" aria-label="Play word">'+IC_SPEAK+'</button>'+(EMOJI[w]?'<div class="emoji">'+EMOJI[w]+'</div>':'')+
+    '<div class="slots">'+w.split('').map(function(ch,i){return '<div class="slot'+(i<g.pos?' fill':'')+'">'+(i<g.pos?esc(ch):'')+'</div>';}).join('')+'</div>'+
+    '<div class="tiles" id="tl">'+g.letters.map(function(l){return '<button class="tile-l" data-act="ltr" data-id="'+l.id+'"'+(l.used?' disabled':'')+'>'+esc(l.ch)+'</button>';}).join('')+'</div>'+
+    '<div class="msg '+g.msgCls+'" id="msg">'+g.msg+'</div></div>';};
+  g.after=function(){if(g.pos===0&&!g.miss)speak(g.order[g.i].w);};
+  g.act=function(a,b){
+    if(a==='home')return home();
+    const w=g.order[g.i].w;
+    if(a==='say')return speak(w);
+    if(a==='ltr'&&!g.locked){const l=g.letters.find(function(x){return x.id===+b.dataset.id;});
+      if(l.ch===w[g.pos]){l.used=true;g.pos++;
+        if(g.pos===w.length){g.locked=true;if(!g.miss)g.score++;addStar();g.msg=praise()+' '+w;g.msgCls='good';speak(w);render();
+          later(function(){g.locked=false;if(g.i+1<g.n){g.i++;g.setup();render();}else finish();},1500);}
+        else{g.msg='';render();}}
+      else{g.miss++;g.msg=t().no;g.msgCls='bad';render();const tl=document.getElementById('tl');if(tl)tl.classList.add('shake');}}
+  };
+  return true;
+}
+
+home();
+</script>
+</body>
+</html>
