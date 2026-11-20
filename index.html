@@ -214,6 +214,15 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
 .right-label{font-size:10px;font-weight:700;color:#8878B8;text-transform:uppercase;letter-spacing:0.1em;font-family:'Lato',sans-serif;margin-bottom:5px;}
 .ai-question-box{flex:1;overflow-y:auto;padding:12px;font-size:13px;line-height:1.8;color:#1A1A1A;background:var(--vg-bg);}
 .ai-question-box .live-dot{width:7px;height:7px;border-radius:50%;background:#40C860;display:inline-block;margin-right:5px;animation:pulse 2s infinite;}
+/* Multiple-choice answers (Nov 2026) — solid hex colors only, no rgba() */
+.mc-box{padding:0 12px 10px;flex-shrink:0;background:var(--vg-bg);}
+.mc-label{font-size:10px;font-weight:700;color:#8878B8;text-transform:uppercase;letter-spacing:0.08em;font-family:'Lato',sans-serif;margin:4px 0 6px;}
+.mc-opt{display:block;width:100%;text-align:left;min-height:44px;margin:0 0 7px;padding:9px 14px;font-size:15px;line-height:1.4;font-family:'Lato',sans-serif;color:#F0E8D0;background:#2A2040;border:2px solid #8878B8;border-radius:10px;cursor:pointer;}
+.mc-opt:hover:not(:disabled){background:#3A2E5A;border-color:#F0C830;}
+.mc-opt:disabled{cursor:default;opacity:0.85;}
+.mc-opt.mc-right{background:#1a3a22;color:#d4f0dc;border-color:#2d6b3a;}
+.mc-opt.mc-wrong{background:#3a1a1a;color:#FF9090;border-color:#8B3A30;text-decoration:line-through;}
+.mc-retry{font-size:12px;padding:6px 12px;border-radius:8px;border:1px solid #8878B8;background:#2A2040;color:#F0E8D0;cursor:pointer;}
 /* Student response panel — always dark, never overridden to white */
 .student-response-panel{border-top:2px solid rgba(140,100,220,0.35);padding:12px;background:#1A1228 !important;flex-shrink:0;}
 .student-answer-display{font-size:14px;color:#E8DCC8;line-height:1.6;display:none;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.13);border-radius:var(--radius-sm);padding:8px 10px;margin-top:6px;}
@@ -609,6 +618,7 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
       <div class="ai-question-box" id="ai-question-box">
         <span style="color:var(--vg-text3);font-size:12px;font-family:sans-serif;">Questions and tutor feedback will appear here...</span>
       </div>
+      <div class="mc-box" id="mc-box"></div>
 
       <!-- Student response panel -->
       <div class="student-response-panel">
@@ -1273,6 +1283,7 @@ async function endSessionByTimer(){
     isListening = false;
   }
   stopRead();
+  mcClear();
   // Cancel any pending readAloud() that is still in its 400 ms startup delay
   readGeneration++;
   _pendingReadText = null;
@@ -1872,6 +1883,7 @@ function openSubject(subjectId){
   document.getElementById('ai-question-box').innerHTML = '<span style="color:var(--vg-text3);font-size:12px;font-family:sans-serif;">Questions and tutor feedback will appear here...</span>';
   document.getElementById('response-body').textContent = '';
   document.getElementById('fb-area').innerHTML = '';
+  mcClear();
   document.getElementById('hint-warn').style.display = 'none';
   document.getElementById('img-section').style.display = 'none';
   document.getElementById('img-grid').innerHTML = '';
@@ -2129,6 +2141,7 @@ Respond in plain, natural tutor voice — no markdown, no bullet symbols.`;
     // Extract questions for right panel
     lastQuestion = extractLastQuestion(cleanText);
     if(lastQuestion) sessionAskedQuestions.push(lastQuestion);
+    mcShowFor(lastQuestion); // multiple-choice answers (mic-free option)
     const questions = cleanText.match(/[^.!?]*\?[^?]*/g) || [];
     document.getElementById('ai-question-box').innerHTML = questions.length
       ? questions.map(q=>`<div style="background:rgba(60,120,240,0.12);border:1px solid rgba(80,140,240,0.25);border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:13px;color:#1A1A1A;line-height:1.7;font-family:'Lato',sans-serif;font-weight:400;">${q.trim()}</div>`).join('')
@@ -2958,6 +2971,7 @@ function showNotebookMessage(text){
   fbArea.innerHTML = `<div class="feedback" style="background:#1a3a22;color:#d4f0dc;border:1px solid #2d6b3a;line-height:1.7"><strong>📓 Notebook time</strong><br><br>${text.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>`;
   document.getElementById('ai-question-box').innerHTML = `<div style="background:#FFF6D6;border:1px solid #E8C870;border-radius:6px;padding:10px 12px;margin-bottom:8px;font-size:14px;color:#1A1A1A;line-height:1.6;">${NOTEBOOK_CONFIRM_Q}</div>`;
   lastQuestion = NOTEBOOK_CONFIRM_Q;
+  mcShowNotebook(); // Yes / Not yet buttons (mic-free)
   safeReadAloud(text);
 }
 function enableAnswerButtons(){
@@ -2999,6 +3013,7 @@ function handleNotebookReply(answer){
     document.getElementById('fb-area').innerHTML = `<div class="feedback" style="background:#1a3a22;color:#d4f0dc;border:1px solid #2d6b3a;line-height:1.7">✅ ${msg}</div>`;
     document.getElementById('ai-question-box').innerHTML = `<div style="font-size:13px;color:#1A1A1A;line-height:1.8;">📓 Notebook checked by mother ✓</div>`;
     lastQuestion = '';
+    mcClear();
     safeReadAloud(msg);
   } else {
     msg = `That's okay! Finish writing your 3 examples, then show your notebook to your mother so she can check it. ${NOTEBOOK_CONFIRM_Q} Tell me yes when she has.`;
@@ -3018,6 +3033,7 @@ async function nextQuestion(){
   });
   btn.innerHTML='<span class="spinner"></span>';
   stopRead();
+  mcClear(); // old choices belong to the previous question
   // Show spinner only in the question box — do NOT overwrite ai-response (lesson text)
   document.getElementById('ai-question-box').innerHTML='<span class="spinner"></span> Generating next question...';
   document.getElementById('fb-area').innerHTML='';
@@ -3073,6 +3089,7 @@ async function nextQuestion(){
     const newQ = extractLastQuestion(cleanText);
     if(newQ) sessionAskedQuestions.push(newQ);
     lastQuestion = newQ || lastQuestion;
+    mcShowFor(lastQuestion); // multiple-choice answers (mic-free option)
     fetchImagesForLesson(text);
     sessionQuestionIndex++;
     saveProgress(curStudent, curSubject.id, sessionQuestionIndex, lastQuestion);
@@ -3082,11 +3099,145 @@ async function nextQuestion(){
     // nicely-formatted blue boxes instead of being replaced by raw highlight
     // spans of the full response text.
     safeReadAloud(cleanText);
-  } catch(e){ document.getElementById('ai-question-box').innerHTML='<span style="color:var(--vg-text3)">Connection error. Please try again.</span>'; }
+  } catch(e){ document.getElementById('ai-question-box').innerHTML='<span style="color:var(--vg-text3)">Connection error. Please try again.</span>'; mcShowFor(lastQuestion); }
   ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint','btn-next','mic-btn'].forEach(id=>{
     const el = document.getElementById(id); if(el) el.disabled=false;
   });
   btn.innerHTML='Next →';
+}
+
+// ══════════════════════════════════════════════
+// MULTIPLE-CHOICE ANSWERS (added Nov 20 2026)
+// Microphone fallback: every lesson question (all subjects, all students) also gets
+// 3–4 tappable options shown under the question. The correct option is known, so the
+// tap is graded locally and passed to respondToAnswer() as mcInfo; the normal
+// feedback / reteach / next-question flow then runs unchanged. Mic and typing still work.
+// Buttons are built with the DOM API (no inline onclick strings).
+// ══════════════════════════════════════════════
+let mcState = { key:'', question:'', options:[], correct:'', wrong:[], fixed:false };
+let mcGen = 0;
+const MC_WORKER_URL = 'https://divine-sunset-f2ee.panicovillegas.workers.dev';
+
+function mcNormalize(q){
+  return (q||'').toLowerCase().replace(/[.,;:!?¿¡"'()\[\]]/g,' ').replace(/\s+/g,' ').trim();
+}
+function mcShuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const t=a[i]; a[i]=a[j]; a[j]=t; }
+  return a;
+}
+function mcClear(){
+  mcGen++;
+  mcState = { key:'', question:'', options:[], correct:'', wrong:[], fixed:false };
+  const box = document.getElementById('mc-box');
+  if(box) box.innerHTML = '';
+}
+function mcRender(){
+  const box = document.getElementById('mc-box');
+  if(!box || !mcState.options.length || sessionEndedByTimer) return;
+  box.innerHTML = '';
+  const label = document.createElement('div');
+  label.className = 'mc-label';
+  label.textContent = '✋ Tap your answer (no microphone needed)';
+  box.appendChild(label);
+  mcState.options.forEach(function(opt){
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'mc-opt';
+    b.textContent = opt;
+    if(mcState.wrong.indexOf(opt) !== -1){ b.disabled = true; b.className += ' mc-wrong'; }
+    b.onclick = function(){ mcPick(opt, b); };
+    box.appendChild(b);
+  });
+}
+function mcRenderRetry(question){
+  const box = document.getElementById('mc-box');
+  if(!box) return;
+  box.innerHTML = '';
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'mc-retry';
+  b.textContent = '🔁 Show answer choices';
+  b.onclick = function(){ mcState.key = ''; mcShowFor(question); };
+  box.appendChild(b);
+}
+function mcShowNotebook(){
+  mcGen++;
+  mcState = { key:'notebook', question:NOTEBOOK_CONFIRM_Q, options:['Yes — my mother checked it','Not yet'], correct:'Yes — my mother checked it', wrong:[], fixed:true };
+  mcRender();
+}
+function mcPick(opt, btn){
+  if(sessionEndedByTimer) return;
+  stopMicSilently();
+  const isRight = (opt === mcState.correct);
+  // Freeze all options while the tutor responds
+  const box = document.getElementById('mc-box');
+  if(box) Array.prototype.forEach.call(box.querySelectorAll('.mc-opt'), function(el){ el.disabled = true; });
+  if(btn) btn.className += isRight ? ' mc-right' : ' mc-wrong';
+  if(!isRight && mcState.wrong.indexOf(opt) === -1) mcState.wrong.push(opt);
+  // Show the pick exactly like a typed/spoken answer (reteach reads these elements)
+  document.getElementById('student-answer-display').style.display = 'block';
+  document.getElementById('student-answer-text').textContent = opt;
+  document.getElementById('mic-transcript').textContent = opt;
+  document.getElementById('mic-clear').style.display = 'block';
+  document.getElementById('mic-status').textContent = '✓ Answer received';
+  micAccumulated = '';
+  if(mcState.fixed){ respondToAnswer(opt); return; }
+  respondToAnswer(opt, { right: mcState.correct, correct: isRight });
+}
+async function mcShowFor(question){
+  const box = document.getElementById('mc-box');
+  if(!box) return;
+  question = (question || '').trim();
+  if(!question || !curSubject || sessionEndedByTimer){ if(!question) mcClear(); return; }
+  const key = mcNormalize(question);
+  // Same question re-asked after a wrong answer → keep the same options (wrong ones stay struck out)
+  if(mcState.key === key && mcState.options.length){ mcRender(); return; }
+  const myGen = ++mcGen;
+  mcState = { key:key, question:question, options:[], correct:'', wrong:[], fixed:false };
+  box.innerHTML = '<div class="mc-label"><span class="spinner"></span> Preparing answer choices...</div>';
+  const gradeCtx = {AL:'Grade 9–12',FA:'Grade 1–4',FC:'Grade 1–4',LJ:'Kindergarten with Grade 3 logic'};
+  const n = (curStudent === 'LJ') ? 3 : 4;
+  const lesson = (currentLessonText || '').substring(0, 3500);
+  const prompt = `A ${gradeCtx[curStudent] || 'elementary'} student cannot use a microphone, so turn this lesson question into multiple choice. Subject: ${curSubject.name}.
+
+LESSON (excerpt):
+"${lesson}"
+
+QUESTION just asked:
+"${question}"
+
+Return ONLY JSON, nothing else: {"options":["CORRECT ANSWER","wrong 1","wrong 2"${n === 4 ? ',"wrong 3"' : ''}]}
+Rules:
+- Exactly ${n} options. The FIRST item is the correct answer; the rest are plausible but clearly wrong distractors.
+- Base the correct answer on the lesson and on classical Catholic teaching (pre-Vatican II). Never invent facts.
+- Use the same language as the question. Each option short (max ${curStudent === 'LJ' ? 6 : 12} words), similar length and style. No "A)" / "B)" labels, no "all of the above".
+- Distractors must be reasonable, not silly or offensive, and must never present anything contrary to Catholic teaching as correct.
+- If the question asks the student to read, repeat, or say something aloud, make the options identify the right letter, sound, or word instead.
+- For math, the options are numbers or short answers; use common mistakes as distractors.`;
+  try {
+    const res = await fetchWithTimeout(MC_WORKER_URL, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:300, messages:[{role:'user',content:prompt}] })
+    }, 30000);
+    const data = await res.json();
+    if(myGen !== mcGen) return; // question changed while waiting
+    const txt = (data.content && data.content.find(function(b){ return b.type==='text'; }) || {}).text || '';
+    const m = txt.match(/\{[\s\S]*\}/);
+    const parsed = JSON.parse(m[0]);
+    const seen = {};
+    const opts = (parsed.options || []).map(function(s){ return String(s).trim(); }).filter(function(s){
+      const k = s.toLowerCase(); if(!s || seen[k]) return false; seen[k] = true; return true;
+    }).slice(0, n);
+    if(opts.length < 3) throw new Error('too few options');
+    mcState.correct = opts[0];
+    mcState.options = mcShuffle(opts);
+    mcRender();
+  } catch(e){
+    if(myGen !== mcGen) return;
+    mcRenderRetry(question);
+  }
 }
 
 // ══════════════════════════════════════════════
@@ -3153,7 +3304,7 @@ function extractLastQuestion(text){
 // ══════════════════════════════════════════════
 // AI RESPOND TO STUDENT ANSWER
 // ══════════════════════════════════════════════
-async function respondToAnswer(studentAnswer){
+async function respondToAnswer(studentAnswer, mcInfo){ // mcInfo (optional): {right, correct} when the answer was tapped from the multiple-choice list
   if(sessionEndedByTimer) return; // class time already ended — don't reopen the session
   // Snapshot lastQuestion NOW before any async operation so that if nextQuestion()
   // or a new PDF question fires before this resolves, we still evaluate against the
@@ -3206,7 +3357,7 @@ CRITICAL: The question you asked was "${questionForThisAnswer || lastQuestion}".
 
 The student answered:
 "${studentAnswer}"
-
+${mcInfo ? `(The student tapped this from a multiple-choice list because the microphone is not working. The correct option was "${mcInfo.right}". The student's pick was ${mcInfo.correct ? 'CORRECT' : 'INCORRECT'} — grade accordingly, and if it was incorrect do NOT reveal the correct option.)\n` : ''}
 Respond in this exact order — no labels, no bullet points, plain tutor voice:
 1. Evaluate the answer warmly and specifically (correct, partially correct, or gently incorrect — referring directly to the question you asked).
 2. IF THE ANSWER IS WRONG OR ONLY PARTIALLY RIGHT: briefly explain the correct idea in a DIFFERENT way from the original lesson, then ask this EXACT SAME question again, word for word: "${questionForThisAnswer || lastQuestion}". Do NOT move to a different question or topic — stay on this one until the student answers it correctly. Never say you will repeat the question and then ask a different one.
@@ -3251,8 +3402,10 @@ Never say the student is jumping ahead. Stay within Catholic classical content. 
     // Save lesson progress only on successful AI response
     sessionQuestionIndex++;
     saveProgress(curStudent, curSubject.id, sessionQuestionIndex, lastQuestion);
+    mcShowFor(lastQuestion); // same question re-asked → same options (wrong ones struck out); new question → new options
   } catch(e){
     if(myAnswerGen !== answerGeneration) return; // stale call — a newer answer is already in flight/displayed
+    mcRender(); // let the student tap again after a connection error
     fbArea.innerHTML = `<div class="feedback" style="background:#1E1630;color:#C0B0E0">Connection error. Please check your internet and try again.</div>`;
   }
   if(myAnswerGen !== answerGeneration) return; // stale call — the newer call owns re-enabling the UI
