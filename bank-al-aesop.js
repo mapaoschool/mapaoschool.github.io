@@ -12,6 +12,12 @@ const AQ_INDUCTION = 'Induction reasons from particular cases to a general concl
 window.LESSON_BANKS = window.LESSON_BANKS || {};
 window.LESSON_BANKS['AL-aesop'] = {
   marker: 'Aquinas Fable',
+  student: 'A.L.',
+  unit: 'Fable',
+  grader: 'a high school philosophy student',
+  writingStart: 'Now write a short paragraph in your workbook, Fable {n}, part F:',
+  notYet: "That's okay! Finish your paragraph, then show your workbook to your mother so she can check it.",
+  writingHint: 'Start with the definition from today’s lesson, then apply it to the fable.',
   cite: "Aesop with Aquinas — Teacher's Booklet and A.L. Workbook",
   minutes: 20,
   lessons: [

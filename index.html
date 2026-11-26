@@ -19,6 +19,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="bank-al-aesop.js"></script>
+<script src="bank-fa-aesop.js"></script>
+<script src="bank-fc-aesop.js"></script>
 <script src="lesson-bank.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Lato:wght@300;400;700&display=swap');
@@ -1328,7 +1330,8 @@ async function endSessionByTimer(){
   const isMath = curSubject && curSubject.isMath;
   const isAesop = curSubject && curSubject.isAesop;
   const isBible = curSubject && curSubject.isBible;
-  const limitLabel = (isMath || isAesop || isBible) ? '10-minute' : '15-minute';
+  let limitLabel = (isMath || isAesop || isBible) ? '10-minute' : '15-minute';
+  if(typeof bankState !== 'undefined' && bankState.active) limitLabel = bankState.bank.minutes + '-minute'; // lesson banks: say the real lesson time
   const gradeCtx = {
     AL:'Grade 9–12 — mature, analytical, Thomistic vocabulary',
     FA:'Grade 1–4 — simple warm language, short sentences',
@@ -1360,6 +1363,7 @@ async function endSessionByTimer(){
 function resetClassTimer(){
   clearInterval(classTimerInterval); classTimerInterval=null;
   classTimerTotal = curSubject && (curSubject.isMath || curSubject.isAesop || curSubject.isBible) ? 10*60 : 15*60;
+  if(typeof bankState !== 'undefined' && bankState.active) classTimerTotal = bankState.bank.minutes*60;
   classTimerSeconds = classTimerTotal;
   const playBtn = document.getElementById('class-timer-play');
   const pauseBtn = document.getElementById('class-timer-pause');
@@ -3035,7 +3039,7 @@ function handleNotebookReply(answer){
     safeReadAloud(msg);
   } else {
     msg = `That's okay! Finish writing your 3 examples, then show your notebook to your mother so she can check it. ${NOTEBOOK_CONFIRM_Q} Tell me yes when she has.`;
-    if(typeof bankState !== 'undefined' && bankState.active) msg = "That's okay! Finish your paragraph, then show your workbook to your mother so she can check it. " + NOTEBOOK_CONFIRM_Q;
+    if(typeof bankState !== 'undefined' && bankState.active) msg = bankNotYetText() + ' ' + NOTEBOOK_CONFIRM_Q;
     showNotebookMessage(msg);
   }
   enableAnswerButtons();

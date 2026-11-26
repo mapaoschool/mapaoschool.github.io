@@ -5,6 +5,9 @@
 // bank, or whose bank lessons are all completed, uses the normal AI tutor unchanged.
 // Tapped answers are graded locally; typed/spoken answers are graded by the AI
 // against the manual's answer.
+// GENERAL (Nov 26 2026): works for any student and subject. Wording lives in the bank
+// file (student, unit, sections, grader, gradeNote, writingStart, checkLine, notYet,
+// writingHint, readOptions, sayBlank); the values below are only fallbacks.
 // ══════════════════════════════════════════════
 let bankState = { active:false, bank:null, lesson:null, i:0 };
 
@@ -52,6 +55,27 @@ function bankSetLastLesson(status){
   bankTracker();
 }
 
+// Default order of the lesson text: [heading, lesson field]. Missing fields are skipped.
+const BANK_SECTIONS = [['','story'],['Moral','moral'],['Words','words'],['What Aristotle teaches','aristotle'],['What St. Thomas teaches','thomas'],['What the Bible teaches','bible']];
+const BANK_GRADERS = { AL:'a high school student', FA:'an elementary student', FC:'a young elementary student', LJ:'a kindergarten student' };
+function bankInitials(){ return curStudent.charAt(0) + '.' + curStudent.charAt(1) + '.'; }
+function bankUnit(){ return bankState.bank.unit || 'Lesson'; }
+// A wording field from the bank (or the fallback), with {n} replaced by the lesson number.
+function bankWord(key, fallback){
+  return String(bankState.bank[key] || fallback).replace(/\{n\}/g, bankState.lesson.n);
+}
+function bankLessonText(){
+  const b = bankState.bank, l = bankState.lesson;
+  const parts = ['Hello, ' + (b.student || bankInitials()) + ' Today: ' + bankUnit() + ' ' + l.n + ', ' + l.title + '.'];
+  (b.sections || BANK_SECTIONS).forEach(function(s){
+    if(l[s[1]]) parts.push((s[0] ? s[0] + ': ' : '') + l[s[1]]);
+  });
+  return parts.join('\n\n');
+}
+function bankNotYetText(){
+  return bankWord('notYet', "That's okay! Finish your writing, then show your workbook to your mother so she can check it.");
+}
+
 // Shows question number bankState.i with its answer buttons; returns the text to read aloud.
 function bankShowQuestion(){
   const qs = bankState.lesson.questions;
@@ -69,13 +93,20 @@ function bankShowQuestion(){
   mcState = { key:mcNormalize(q.q), question:q.q, options:mcShuffle(q.options), correct:q.options[0], wrong:[], fixed:false };
   mcRender();
   bankSavePos();
-  return ((q.concept && q.concept !== prev) ? 'Learn first. ' + q.concept + ' ' : '') + label + '. ' + q.q;
+  // Young students: say "blank" for the gap and read the choices in the order shown
+  let spokenQ = q.q;
+  if(bankState.bank.sayBlank) spokenQ = spokenQ.replace(/_{2,}/g, 'blank');
+  if(bankState.bank.readOptions) spokenQ += ' Your choices are: ' + mcState.options.map(function(o){ return o.replace(/\.$/,''); }).join('. Or: ') + '.';
+  return ((q.concept && q.concept !== prev) ? 'Learn first. ' + q.concept + ' ' : '') + label + '. ' + spokenQ;
 }
 
-// After the last question: the written paragraph, checked by the mother.
+// After the last question: the written work, checked by the mother.
 function bankWritingText(){
   const l = bankState.lesson;
-  return (l.writingConcept ? 'Learn first. ' + l.writingConcept + ' ' : '') + 'Now write a short paragraph in your workbook, Fable ' + l.n + ', part F: ' + l.writing + ' Then memorize this: ' + l.memorize + ' Show your workbook to your mother so she can correct it. ' + NOTEBOOK_CONFIRM_Q;
+  return (l.writingConcept ? 'Learn first. ' + l.writingConcept + ' ' : '')
+    + bankWord('writingStart', 'Now open your workbook, ' + bankUnit() + ' {n}:') + ' ' + l.writing
+    + (l.memorize ? ' Then memorize this: ' + l.memorize : '')
+    + ' ' + bankWord('checkLine', 'Show your workbook to your mother so she can correct it.') + ' ' + NOTEBOOK_CONFIRM_Q;
 }
 function bankStartWriting(prefix){
   notebookStage = 1;
@@ -92,7 +123,7 @@ function bankAdvance(prefix){
   safeReadAloud((prefix ? prefix + ' ' : '') + spoken);
 }
 
-// Called by handleNotebookReply() when the mother has checked the paragraph.
+// Called by handleNotebookReply() when the mother has checked the written work.
 function bankComplete(){
   bankSetLastLesson('completed');
   try{ localStorage.removeItem(bankPosKey()); }catch(e){}
@@ -107,12 +138,7 @@ async function bankBegin(){
   bankState = { active:true, bank:pick.bank, lesson:l, i:bankLoadPos(l.n, l.questions.length) };
   notebookStage = 0;
   sessionAskedQuestions = [];
-  const lessonText = 'Hello, A.L. Today: Fable ' + l.n + ', ' + l.title + '.\n\n'
-    + l.story + '\n\nMoral: ' + l.moral
-    + '\n\nWords: ' + l.words
-    + '\n\nWhat Aristotle teaches: ' + l.aristotle
-    + '\n\nWhat St. Thomas teaches: ' + l.thomas
-    + '\n\nWhat the Bible teaches: ' + l.bible;
+  const lessonText = bankLessonText();
   currentLessonText = lessonText;
 
   const body = document.getElementById('ai-response');
@@ -121,7 +147,7 @@ async function bankBegin(){
     if(/\S/.test(part)) return '<span class="hl-word" id="hw' + (wordIdx++) + '">' + bankEsc(part) + '</span>';
     return part.replace(/\n/g,'<br>');
   }).join('');
-  document.getElementById('ai-cite').textContent = 'Source: ' + pick.bank.cite + ', Fable ' + l.n;
+  document.getElementById('ai-cite').textContent = 'Source: ' + pick.bank.cite + ', ' + bankUnit() + ' ' + l.n;
   document.getElementById('fb-area').innerHTML = '';
   document.getElementById('book-page-btn-wrap').style.display = 'none';
   document.getElementById('diag-banner').style.display = 'none';
@@ -144,7 +170,7 @@ async function bankBegin(){
     const spoken = lessonText + '\n\n' + bankShowQuestion();
     if(!NEEDS_GESTURE_FOR_TTS) readAloud(spoken); else promptTapToListen(spoken);
   }
-  fetchImagesForLesson(l.title + '. ' + l.story);
+  fetchImagesForLesson(l.title + '. ' + (l.story || l.text || ''));
 }
 
 // "Next →" button
@@ -165,7 +191,7 @@ function bankNext(){
 
 function bankHint(){
   const q = bankState.lesson.questions[bankState.i];
-  const hint = (notebookStage === 0 && q) ? q.hint : 'Start with the definition from today’s lesson, then apply it to the fable.';
+  const hint = (notebookStage === 0 && q) ? q.hint : bankWord('writingHint', 'Look back at today’s lesson, then answer in your own words.');
   document.getElementById('fb-area').innerHTML = '<div class="feedback" style="background:#0D2040;color:#A8D0FF"><strong>Hint ' + sessionHints + ':</strong> ' + bankEsc(hint) + '</div>';
   safeReadAloud(hint);
 }
@@ -196,7 +222,7 @@ async function bankRespond(answer, mcInfo, myGen){
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:300, messages:[{role:'user',content:
-`Grade a high school philosophy student's answer. The teacher's manual answer is the standard.
+`Grade ${bankState.bank.grader || BANK_GRADERS[curStudent] || 'a student'}'s answer. The teacher's manual answer is the standard.
 
 LESSON:
 "${currentLessonText.substring(0,2500)}"
@@ -208,7 +234,7 @@ STUDENT ANSWER: "${answer}"
 
 Judge by meaning, not exact wording: a synonym or paraphrase of the manual answer is CORRECT.
 Line 1 must be exactly one of: VERDICT: CORRECT / VERDICT: PARTIAL / VERDICT: WRONG
-Then 1–2 warm sentences to the student in plain text. If PARTIAL or WRONG, do NOT reveal the manual answer. Do not ask any question. Do not start with "I".` }] })
+Then 1–2 warm sentences to the student in plain text. If PARTIAL or WRONG, do NOT reveal the manual answer. Do not ask any question. Do not start with "I".${bankState.bank.gradeNote ? '\n' + bankState.bank.gradeNote : ''}` }] })
       }, 30000);
       const data = await res.json();
       if(myGen !== answerGeneration || sessionEndedByTimer) return;
