@@ -154,7 +154,7 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
 .img-section-left{margin-top:4px;}
 .img-grid-left{display:flex;flex-direction:column;gap:5px;}
 .img-card-left{border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--vg-border2);}
-.img-card-left img{width:100%;height:160px;object-fit:cover;display:block;}
+.img-card-left img{width:100%;height:160px;object-fit:contain;display:block;}
 .img-card{border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--vg-border2);width:100%;max-width:100%;}
 .img-card img{width:100%;height:90px;object-fit:cover;display:block;}
 .img-card canvas{width:100%!important;height:auto!important;max-width:100%;display:block;}
@@ -901,7 +901,7 @@ UNIVERSAL RULES (apply to every subject):
 2. SESSION LENGTH: Maximum 15 minutes for all subjects; maximum 10 minutes for Math and Arithmetic. End the session as soon as the student has finished the reading and answered all questions — do NOT fill remaining time with extra activities or new topics — the ONLY exception is the NOTEBOOK ACTIVITY (write 3 examples of today's topic in the notebook, show it to the mother), which the app requests when the book has no more questions and time remains. Summarize what was covered and preview the next session, then close.
 3. CONTENT RESTRICTIONS: NEVER discuss gender ideology, sex education, DEI ideology, evolution, Darwinism, ecology (as ideology), vulgarity, critical race theory, or anti-Catholic content. Redirect gently.
 4. ADAPTIVE TEACHING: If struggling, present concept in a DIFFERENT way (analogy, story, visual). Do not repeat the same explanation.
-5. VISUAL SUPPORT: Generate images when needed. If unable, say: "Ask your teacher to show you a picture of [X]."
+5. VISUAL SUPPORT — APPROVED PICTURES ONLY (this replaces every other picture instruction below): The app does NOT search for or create pictures. Never write [SHOW_IMAGE:] or [IMAGE:] tags, and never say that a picture is on the screen or will appear, except for a book page you show with [SHOW_PAGE: N]. Describe things in words, use real objects or a small drawing, and if a picture is really needed say: "Ask your teacher to show you a picture of [X]."
 6. FRIENDLY CORRECTIONS: Always kind and encouraging. "Great try! Let me help you…"
 7. SPEECH RECOGNITION TOLERANCE: Accept phonetically close mic answers. 3 retries max.
 8. GRADING: After each session provide assessment: "Today: Lesson 12 — Reading: Good. Vocabulary: Needs review."
@@ -1948,6 +1948,8 @@ function showBookCover(){
   img.style.cssText = '';
   img.className = 'book-cover-img';
   img.textContent = curSubject.icon;
+
+  if (APPROVED_PICTURES_ONLY) return; // keep the subject icon, no web cover
 
   // Try Wikipedia for a book/subject image
   const coverFor = curSubject.id;
@@ -3587,6 +3589,8 @@ async function renderBookPage(pageNum, pdfUrl, bookLabel) {
 
 // WEB IMAGE SEARCH
 // ══════════════════════════════════════════════
+// Teacher's choice (Nov 26 2026): show only approved pictures and her own book pages.
+const APPROVED_PICTURES_ONLY = true;
 async function fetchImagesForLesson(lessonText) {
   // FIX (Sep 23 2026): generation token — a slow image search from an earlier
   // question/subject must never pop up later on top of the current lesson.
@@ -3628,7 +3632,8 @@ async function fetchImagesForLesson(lessonText) {
     if (bookCoverEl && images[0]) {
       bookCoverEl.textContent = '';
       bookCoverEl.style.backgroundImage = `url('${images[0].url}')`;
-      bookCoverEl.style.backgroundSize = 'cover';
+      bookCoverEl.style.backgroundSize = 'contain';
+      bookCoverEl.style.backgroundRepeat = 'no-repeat';
       bookCoverEl.style.backgroundPosition = 'center';
     }
   }
@@ -3657,6 +3662,9 @@ async function fetchImagesForLesson(lessonText) {
       return;
     }
   }
+
+  // APPROVED PICTURES ONLY: nothing below this line runs (no web picture searches)
+  if (APPROVED_PICTURES_ONLY) return;
 
   // Art: only show [SHOW_IMAGE:] tagged objects
   if (isArt) {
@@ -3812,37 +3820,25 @@ async function searchImages(keywords) {
   return images;
 }
 
-// Hand-picked, public-domain pictures for lesson-bank fables (Nov 26 2026).
-// {file} = exact Wikimedia Commons file name; {page} = exact Wikipedia article title.
+// APPROVED PICTURES ONLY (Nov 26 2026): every picture is a file supplied by the teacher
+// and uploaded beside index.html. {src} = exact file name. No web addresses.
 // A bank lesson may also list its own `pictures` in the same form.
 const FABLE_PICTURES = {
-  'The Wolf and the Lamb': [
-    {file:'Fables-22-loup&agneau.jpg', label:'The Wolf and the Lamb — Benjamin Rabier'},
-    {file:'Le loup et agneau G-F Townsend 1867 GB.png', label:'The Wolf and the Lamb — 1867'}],
-  'The Bat and the Weasels': [
-    {file:'Rabier - Fables de La Fontaine - La Chauve-souris et les deux belettes.jpg', label:'The Bat and the Weasels — Benjamin Rabier'},
-    {file:'Vimar - Fables de La Fontaine - 02-04 . La Chauve-souris et les Deux Belettes.jpg', label:'The Bat and the Weasels — Auguste Vimar'}],
-  'The Ass and the Grasshopper': [
-    {page:'Donkey', label:'An ass (donkey)'},
-    {page:'Grasshopper', label:'A grasshopper'}],
-  'The Lion and the Mouse': [
-    {file:'The Lion and the Mouse - Project Gutenberg etext 19994.jpg', label:'The Lion and the Mouse — Milo Winter'},
-    {file:'Leo et mus.jpg', label:'The Lion and the Mouse — 1870s'}],
-  'The Charcoal-Burner and the Fuller': [
-    {page:'Charcoal burner', label:'A charcoal-burner at work'},
-    {page:'Fulling', label:'The work of a fuller: cleaning cloth'}]
+  'The Wolf and the Lamb': [{src:'fable-01.jpg', label:'The Wolf and the Lamb — Ernest Griset'}],
+  'The Bat and the Weasels': [{src:'fable-02.jpg', label:'The Bat and the Weasels — Grandville'}],
+  'The Ass and the Grasshopper': [{src:'fable-03.jpg', label:'The Ass and the Grasshopper'}],
+  'The Lion and the Mouse': [{src:'fable-04.jpg', label:'The Lion and the Mouse — Ernest Griset'}],
+  'The Charcoal-Burner and the Fuller': [{src:'fable-05.jpg', label:'The Charcoal-Burner and the Fuller'}]
 };
 async function lessonPictures(lesson) {
   const list = lesson.pictures || FABLE_PICTURES[lesson.title] || [];
-  const found = await Promise.all(list.map(async p => {
-    if (p.file) return { url: 'https://commons.wikimedia.org/wiki/Special:FilePath/' + encodeURIComponent(p.file).replace(/'/g, '%27') + '?width=500', label: p.label };
-    try {
-      const r = await fetch(`https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(p.page)}&redirects=1&prop=pageimages&pithumbsize=500&format=json&origin=*`);
-      const d = await r.json();
-      const src = Object.values(d.query?.pages || {})[0]?.thumbnail?.source;
-      return src ? { url: src, label: p.label } : null;
-    } catch(e) { return null; }
-  }));
+  // only files in the app's own folder; a file that is missing shows nothing
+  const found = await Promise.all(list.filter(p => p.src && !/^([a-z]+:|\/\/)/i.test(p.src)).map(p => new Promise(resolve => {
+    const test = new Image();
+    test.onload = () => resolve({url: p.src, label: p.label});
+    test.onerror = () => resolve(null);
+    test.src = p.src;
+  })));
   return found.filter(Boolean);
 }
 
