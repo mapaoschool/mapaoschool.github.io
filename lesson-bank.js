@@ -36,6 +36,7 @@ function bankEsc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
 function bankFeedback(html, good){
   const style = good ? 'background:#1a3a22;color:#d4f0dc;border:1px solid #2d6b3a' : 'background:#2A0A08;color:#FFBBB0;border:1px solid #8B3A30';
   document.getElementById('fb-area').innerHTML = '<div class="feedback" style="' + style + ';line-height:1.7">' + html + '</div>';
+  if(!good) document.getElementById('fb-area').scrollIntoView({block:'nearest'});
 }
 function bankTracker(){
   const sess = getSession(curStudent, curSubject.id);
@@ -57,7 +58,10 @@ function bankShowQuestion(){
   const q = qs[bankState.i];
   const label = 'Question ' + (bankState.i + 1) + ' of ' + qs.length + ' (' + q.part + ')';
   const box = document.getElementById('ai-question-box');
-  box.innerHTML = '<div style="background:rgba(60,120,240,0.12);border:1px solid rgba(80,140,240,0.25);border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:13px;color:#1A1A1A;line-height:1.7;font-family:\'Lato\',sans-serif;"><strong>' + bankEsc(label) + '</strong><br>' + bankEsc(q.q) + '</div>';
+  // TEACH BEFORE ASKING: show the concept this question needs; read it aloud only the first time in a row
+  const prev = bankState.i > 0 ? qs[bankState.i - 1].concept : '';
+  const learn = q.concept ? '<div style="background:#FFF6D6;border:1px solid #E8C870;border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:13px;color:#1A1A1A;line-height:1.7;font-family:\'Lato\',sans-serif;"><strong>📘 Learn first</strong><br>' + bankEsc(q.concept) + '</div>' : '';
+  box.innerHTML = learn + '<div style="background:rgba(60,120,240,0.12);border:1px solid rgba(80,140,240,0.25);border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:13px;color:#1A1A1A;line-height:1.7;font-family:\'Lato\',sans-serif;"><strong>' + bankEsc(label) + '</strong><br>' + bankEsc(q.q) + '</div>';
   lastQuestion = q.q;
   const panel = document.querySelector('.tutor-right');
   if(panel) panel.scrollTop = 0;
@@ -65,13 +69,13 @@ function bankShowQuestion(){
   mcState = { key:mcNormalize(q.q), question:q.q, options:mcShuffle(q.options), correct:q.options[0], wrong:[], fixed:false };
   mcRender();
   bankSavePos();
-  return label + '. ' + q.q;
+  return ((q.concept && q.concept !== prev) ? 'Learn first. ' + q.concept + ' ' : '') + label + '. ' + q.q;
 }
 
 // After the last question: the written paragraph, checked by the mother.
 function bankWritingText(){
   const l = bankState.lesson;
-  return 'Now write a short paragraph in your workbook, Fable ' + l.n + ', part F: ' + l.writing + ' Then memorize this: ' + l.memorize + ' Show your workbook to your mother so she can correct it. ' + NOTEBOOK_CONFIRM_Q;
+  return (l.writingConcept ? 'Learn first. ' + l.writingConcept + ' ' : '') + 'Now write a short paragraph in your workbook, Fable ' + l.n + ', part F: ' + l.writing + ' Then memorize this: ' + l.memorize + ' Show your workbook to your mother so she can correct it. ' + NOTEBOOK_CONFIRM_Q;
 }
 function bankStartWriting(prefix){
   notebookStage = 1;
@@ -196,6 +200,7 @@ async function bankRespond(answer, mcInfo, myGen){
 
 LESSON:
 "${currentLessonText.substring(0,2500)}"
+${q.concept ? '\nCONCEPT TAUGHT: ' + q.concept : ''}
 
 QUESTION: "${q.q}"
 MANUAL ANSWER: "${q.options[0]}"

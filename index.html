@@ -18,6 +18,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="bank-al-aesop.js"></script>
+<script src="lesson-bank.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Lato:wght@300;400;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -209,10 +211,11 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
 #btn-next:hover:not(:disabled){background:rgba(120,80,200,0.5);color:#D8C0FF;}
 
 /* RIGHT SIDEBAR */
-.tutor-right{border-left:1px solid var(--vg-border);display:flex;flex-direction:column;overflow:hidden;background:var(--vg-bg);}
+.tutor-right{border-left:1px solid var(--vg-border);display:flex;flex-direction:column;overflow-x:hidden;overflow-y:auto;background:var(--vg-bg);}
 .right-section{padding:10px 10px 0;flex-shrink:0;}
 .right-label{font-size:10px;font-weight:700;color:#8878B8;text-transform:uppercase;letter-spacing:0.1em;font-family:'Lato',sans-serif;margin-bottom:5px;}
-.ai-question-box{flex:1;overflow-y:auto;padding:12px;font-size:13px;line-height:1.8;color:#1A1A1A;background:var(--vg-bg);}
+.ai-question-box{flex:1 0 auto;overflow-y:auto;padding:12px;font-size:13px;line-height:1.8;color:#1A1A1A;background:var(--vg-bg);}
+.ai-question-box div{font-size:16px !important;line-height:1.65 !important;}
 .ai-question-box .live-dot{width:7px;height:7px;border-radius:50%;background:#40C860;display:inline-block;margin-right:5px;animation:pulse 2s infinite;}
 /* Multiple-choice answers (Nov 2026) — solid hex colors only, no rgba() */
 .mc-box{padding:0 12px 10px;flex-shrink:0;background:var(--vg-bg);}
@@ -910,6 +913,7 @@ UNIVERSAL RULES (apply to every subject):
 16. NO REPETITIVE QUESTIONS: After a student answers a question correctly, move to the NEXT question or topic. Do NOT ask the same concept again "to go deeper" or "explore further" — only reteach if the student answered incorrectly.
 17. MIC RULE — CRITICAL: You cannot hear the student in real time. You only receive their response AFTER they tap the mic button and submit it. NEVER say "I can hear you", "I hear you reading", "reading with me", "I'm listening", or any phrase implying you are listening live. If you ask the student to read aloud, tell them to tap the mic button when they are done, then wait. Never acknowledge or comment on reading until an answer is actually submitted.
 18. ANSWER EQUIVALENCE — CRITICAL: For comprehension, reading, and discussion questions, grade by MEANING, not exact wording. If a student's answer uses a synonym, a paraphrase, or a different word/detail that still captures the same underlying idea, mark it fully CORRECT — never "close" or "almost." Example: if a fable's point is that a dog lost its bone by dropping it in the water out of greed, an answer of "it fell in the water" is just as correct as "it fell in the river" — the specific noun does not matter when the concept (loss caused by greed) is right. Only use "close" for answers that are incomplete, partially inaccurate, or miss the actual concept — not for correct ideas expressed in different words.
+19. TEACH BEFORE ASKING — CRITICAL (all subjects, all students): Never ask about a concept, term, definition or author's teaching (for example "telos" in Aristotle) unless it has ALREADY been explained to the student in this lesson. If it has not, FIRST teach it in 2–4 simple sentences with one example (do not use the answer to your question as the example), THEN ask the question. A word merely mentioned is not explained.
 `;
 
 // ══════════════════════════════════════════════
@@ -1255,6 +1259,7 @@ function logGameOpened(gameName){
 function startClassTimer(){
   if(classTimerInterval) return;
   classTimerTotal = curSubject && (curSubject.isMath || curSubject.isAesop || curSubject.isBible) ? 10*60 : 15*60;
+  if(typeof bankState !== 'undefined' && bankState.active) classTimerTotal = bankState.bank.minutes*60;
   if(classTimerSeconds === 0 || classTimerSeconds === classTimerTotal) classTimerSeconds = classTimerTotal;
   const playBtn = document.getElementById('class-timer-play');
   const pauseBtn = document.getElementById('class-timer-pause');
@@ -1795,6 +1800,7 @@ function openSubject(subjectId){
   sessionEndedByTimer = false;
   currentLessonText = '';
   notebookStage = 0;
+  if(typeof bankReset === 'function') bankReset();
   lessonImageGen++;
   stopRead();
   clearInterval(classTimerInterval); classTimerInterval = null;
@@ -1962,6 +1968,12 @@ async function beginSession(){
   // loading before we calculate the session number — prevents a returning student
   // being treated as "session 1" due to a Supabase sync race on slow/mobile connections.
   if(window._cloudSyncPromise){ try{ await window._cloudSyncPromise; } catch(e){} }
+
+  // LESSON BANK (Nov 26 2026): teach from the teacher's manuals when a bank lesson is available
+  if(typeof bankPick === 'function'){
+    bankReset();
+    if(bankPick()){ bankBegin(); return; }
+  }
 
   const btn = document.getElementById('btn-begin-top');
 
@@ -2142,7 +2154,9 @@ Respond in plain, natural tutor voice — no markdown, no bullet symbols.`;
     lastQuestion = extractLastQuestion(cleanText);
     if(lastQuestion) sessionAskedQuestions.push(lastQuestion);
     mcShowFor(lastQuestion); // multiple-choice answers (mic-free option)
-    const questions = cleanText.match(/[^.!?]*\?[^?]*/g) || [];
+    // FIX (Nov 26 2026): show only the paragraph holding the tutor's question — not every "?" in the story
+    const questions = cleanText.split(/\n+/).filter(p => p.includes('?')).slice(-1);
+    document.querySelector('.tutor-right').scrollTop = 0;
     document.getElementById('ai-question-box').innerHTML = questions.length
       ? questions.map(q=>`<div style="background:rgba(60,120,240,0.12);border:1px solid rgba(80,140,240,0.25);border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:13px;color:#1A1A1A;line-height:1.7;font-family:'Lato',sans-serif;font-weight:400;">${q.trim()}</div>`).join('')
       : `<div style="font-size:13px;color:#1A1A1A;line-height:1.8;font-weight:400;">${cleanText.substring(0,300)}...</div>`;
@@ -2363,7 +2377,8 @@ function sanitizeForTTS(text){
     .replace(/\bct\.?\b/gi, 'cents')
     .replace(/\bc\b(?=\s*[\d,])/g, 'cents')   // lone "c" before a number
     .replace(/\bft\.?\b/gi, 'feet')
-    .replace(/\bin\.?\b/gi, 'inches')
+    // FIX (Nov 26 2026): "in" is inches only as a unit after a number ("5 in.", "12 in = 1 ft"), never the English word
+    .replace(/(\d)\s*in(?:\.(?=\s+[a-z])|(?=\.|\s*[=+,;:?!)×]|\s+x\s|\s*$))/g, '$1 inches')
     .replace(/\byd\.?\b/gi, 'yards')
     .replace(/\boz\.?\b/gi, 'ounces')
     .replace(/\blb\.?\b/gi, 'pounds')
@@ -2867,6 +2882,7 @@ function markResponse(type){
 async function reteachConcept(){
   if(sessionEndedByTimer) return; // class time already ended — don't reopen the session
   if(notebookStage === 1){ handleNotebookReply(''); return; } // notebook activity: just remind, no reteach
+  if(typeof bankState !== 'undefined' && bankState.active){ bankReteach(); return; }
   stopMicSilently(); // don't let TTS play over a still-listening mic
   const btn = document.getElementById('btn-wrong');
   ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint','mic-btn'].forEach(id=>{
@@ -2916,6 +2932,7 @@ async function giveHint(){
     document.getElementById('hint-warn').style.display='flex';
     document.getElementById('hint-ct').textContent = sessionHints;
   }
+  if(typeof bankState !== 'undefined' && bankState.active){ bankHint(); return; }
   const btn = document.getElementById('btn-hint');
   ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint','mic-btn'].forEach(id=>{
     const el = document.getElementById(id); if(el) el.disabled=true;
@@ -3009,6 +3026,7 @@ function handleNotebookReply(answer){
   let msg;
   if(YES.test(a) && !STARTS_NO.test(a)){
     notebookStage = 2;
+    if(typeof bankState !== 'undefined' && bankState.active) bankComplete();
     msg = 'Wonderful! Thank you for showing your notebook to your mother. You worked very hard today — well done!';
     document.getElementById('fb-area').innerHTML = `<div class="feedback" style="background:#1a3a22;color:#d4f0dc;border:1px solid #2d6b3a;line-height:1.7">✅ ${msg}</div>`;
     document.getElementById('ai-question-box').innerHTML = `<div style="font-size:13px;color:#1A1A1A;line-height:1.8;">📓 Notebook checked by mother ✓</div>`;
@@ -3017,6 +3035,7 @@ function handleNotebookReply(answer){
     safeReadAloud(msg);
   } else {
     msg = `That's okay! Finish writing your 3 examples, then show your notebook to your mother so she can check it. ${NOTEBOOK_CONFIRM_Q} Tell me yes when she has.`;
+    if(typeof bankState !== 'undefined' && bankState.active) msg = "That's okay! Finish your paragraph, then show your workbook to your mother so she can check it. " + NOTEBOOK_CONFIRM_Q;
     showNotebookMessage(msg);
   }
   enableAnswerButtons();
@@ -3026,6 +3045,7 @@ function handleNotebookReply(answer){
 // NEXT QUESTION (AI)
 // ══════════════════════════════════════════════
 async function nextQuestion(){
+  if(typeof bankState !== 'undefined' && bankState.active){ bankNext(); return; }
   stopMicSilently(); // don't let TTS play over a still-listening mic
   const btn = document.getElementById('btn-next');
   ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint','btn-next','mic-btn'].forEach(id=>{
@@ -3064,8 +3084,8 @@ async function nextQuestion(){
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-6',max_tokens:400,
-        messages:[{role:'user',content:`${UNIVERSAL_RULES}\n${curSubject.prompt}\nSTUDENT: ${studentNames[curStudent]}\n${alreadyAsked}\nTODAY'S LESSON (already read to the student — do NOT read it again, do NOT greet, do NOT restart the lesson):\n"${lessonCtx}"\n\nContinue the session with ONE NEXT question about today's lesson above. Ask a DIFFERENT question — never repeat any question already asked. Be specific, cite the source, never give away the answer. ${notebookStage === 0 && notebookTimeLeft() ? 'If today\'s lesson has NO more new questions to ask, do not invent a repeat — instead give the ' + notebookInstructions() : ''} Subject: ${curSubject.name}.`}]
+        model:'claude-sonnet-4-6',max_tokens:600,
+        messages:[{role:'user',content:`${UNIVERSAL_RULES}\n${curSubject.prompt}\nSTUDENT: ${studentNames[curStudent]}\n${alreadyAsked}\nTODAY'S LESSON (already read to the student — do NOT read it again, do NOT greet, do NOT restart the lesson):\n"${lessonCtx}"\n\nContinue the session with ONE NEXT question about today's lesson above. Ask a DIFFERENT question — never repeat any question already asked. Be specific, cite the source, never give away the answer. TEACH BEFORE ASKING: if the question uses any concept or term that the lesson text above does not explain, first teach it in 2–4 simple sentences, then ask. ${notebookStage === 0 && notebookTimeLeft() ? 'If today\'s lesson has NO more new questions to ask, do not invent a repeat — instead give the ' + notebookInstructions() : ''} Subject: ${curSubject.name}.`}]
       })
     });
     const data = await res.json();
@@ -3085,6 +3105,11 @@ async function nextQuestion(){
     document.getElementById('ai-question-box').innerHTML = newQs.length
       ? newQs.map(q=>`<div style="background:rgba(60,120,240,0.12);border:1px solid rgba(80,140,240,0.25);border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:13px;color:#1A1A1A;line-height:1.7;font-family:'Lato',sans-serif;font-weight:400;">${q.trim()}</div>`).join('')
       : `<div style="font-size:13px;color:#1A1A1A;line-height:1.8;font-weight:400;">${cleanText.substring(0,300)}</div>`;
+    document.querySelector('.tutor-right').scrollTop = 0;
+    // TEACH BEFORE ASKING (Nov 26 2026): also SHOW any explanation that comes before the question
+    if(cleanText.trim() !== extractLastQuestion(cleanText)){
+      document.getElementById('fb-area').innerHTML = `<div class="feedback" style="background:#0D2040;color:#A8D0FF;line-height:1.7"><strong>📘 Learn first</strong><br>${cleanText.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>`;
+    }
     // Track this question to avoid repeating it
     const newQ = extractLastQuestion(cleanText);
     if(newQ) sessionAskedQuestions.push(newQ);
@@ -3320,6 +3345,7 @@ async function respondToAnswer(studentAnswer, mcInfo){ // mcInfo (optional): {ri
 
   // NOTEBOOK ACTIVITY (Sep 23 2026): student is confirming the mother checked the notebook
   if(notebookStage === 1){ handleNotebookReply(studentAnswer); return; }
+  if(typeof bankState !== 'undefined' && bankState.active){ bankRespond(studentAnswer, mcInfo, myAnswerGen); return; }
 
   const fbArea = document.getElementById('fb-area');
   fbArea.innerHTML = `<div class="feedback" style="background:#1E1630;color:#C0B0E0"><span class="spinner"></span> Thinking...</div>`;
@@ -3347,7 +3373,7 @@ async function respondToAnswer(studentAnswer, mcInfo){ // mcInfo (optional): {ri
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-6', max_tokens:400,
+        model:'claude-sonnet-4-6', max_tokens:600,
         messages:[{role:'user',content:`You are a tutor for a ${gradeCtx[curStudent]} student. Subject: ${curSubject.name}.
 
 The lesson content was:
@@ -3364,6 +3390,8 @@ Respond in this exact order — no labels, no bullet points, plain tutor voice:
 3. IF THE ANSWER IS FULLY CORRECT: praise them specifically, then ${(notebookStage === 0 && notebookTimeLeft() && notebookBudgetReached())
       ? 'the book has no more questions for today, so do NOT ask a new question — instead give the ' + notebookInstructions()
       : 'ask a NEW, DIFFERENT question to keep the session going — never repeat a question already answered correctly this session (see list above). Do NOT re-read the lesson.' + ((notebookStage === 0 && notebookTimeLeft()) ? ' If today\'s lesson has NO more new questions to ask, instead give the ' + notebookInstructions() : '')}
+
+TEACH BEFORE ASKING: if a NEW question uses any concept or term that the lesson content above does not explain, first teach it in 2–4 simple sentences, then ask it.
 
 Never say the student is jumping ahead. Stay within Catholic classical content. Do not start with "I".`}]
       })
@@ -3399,6 +3427,7 @@ Never say the student is jumping ahead. Stay within Catholic classical content. 
     // _doReadAloud to overwrite its innerHTML with plain word spans, stripping
     // all styling, bold markers, and emoji.
     safeReadAloud(cleanReply);
+    fbArea.scrollIntoView({block:'nearest'}); // keep the tutor's feedback in view
     // Save lesson progress only on successful AI response
     sessionQuestionIndex++;
     saveProgress(curStudent, curSubject.id, sessionQuestionIndex, lastQuestion);
