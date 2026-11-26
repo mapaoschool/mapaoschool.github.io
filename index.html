@@ -1897,6 +1897,10 @@ function openSubject(subjectId){
   document.getElementById('hint-warn').style.display = 'none';
   document.getElementById('img-section').style.display = 'none';
   document.getElementById('img-grid').innerHTML = '';
+  // FIX (Nov 26 2026): also clear the previous subject's pictures from the center panel
+  document.getElementById('lesson-images').style.display = 'none';
+  document.getElementById('lesson-images-loading').style.display = 'none';
+  document.getElementById('lesson-images-grid').innerHTML = '';
   document.getElementById('book-page-btn-wrap').style.display = 'none';
   document.getElementById('student-input').value = '';
   document.getElementById('student-answer-display').style.display = 'none';
@@ -1946,12 +1950,13 @@ function showBookCover(){
   img.textContent = curSubject.icon;
 
   // Try Wikipedia for a book/subject image
+  const coverFor = curSubject.id;
   const searchQuery = curSubject.book.replace(/—.*$/, '').replace(/PDF|Español/gi,'').trim();
   fetch(`https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(searchQuery)}&prop=pageimages&pithumbsize=160&format=json&origin=*`)
     .then(r=>r.json())
     .then(d=>{
       const pages = d.query?.pages;
-      if(!pages) return;
+      if(!pages || !curSubject || curSubject.id !== coverFor) return;
       for(const p of Object.values(pages)){
         if(p.thumbnail?.source){
           img.textContent = '';
@@ -3599,7 +3604,7 @@ async function fetchImagesForLesson(lessonText) {
   // Helper: display images prominently in the center reading panel
   function showCenterImages(images, sectionLabel) {
     if (myImgGen !== lessonImageGen) return; // stale search — a newer lesson/question owns the panel
-    if (!images || images.length === 0) return;
+    if (!images || images.length === 0) { document.getElementById('lesson-images').style.display = 'none'; return; }
     const panel = document.getElementById('lesson-images');
     const grid = document.getElementById('lesson-images-grid');
     const lbl = document.getElementById('img-section-label');
@@ -3628,12 +3633,29 @@ async function fetchImagesForLesson(lessonText) {
     }
   }
 
+  // FIX (Nov 26 2026): lesson banks show ONLY hand-picked pictures — never a web search
+  if (typeof bankState !== 'undefined' && bankState.active && bankState.lesson) {
+    const picked = await lessonPictures(bankState.lesson);
+    showCenterImages(picked, '🖼️ Lesson Pictures');
+    return;
+  }
+
   // UNIVERSAL: any subject can show a book page with [SHOW_PAGE: N]
   const pageMatch = lessonText.match(/\[SHOW_PAGE:\s*(\d+)\]/i);
   if (pageMatch && curSubject && curSubject.bookUrl) {
     const pageNum = parseInt(pageMatch[1], 10);
     await renderBookPage(pageNum, curSubject.bookUrl, curSubject.book || curSubject.name);
     return;
+  }
+
+  // Aesop lessons written by the AI: use the hand-picked pictures when today's fable has them
+  if (curSubject && curSubject.id.includes('aesop')) {
+    const today = ' ' + imgWords((lessonText.match(/\[LESSON:\s*([^\]]+)\]/i) || [])[1]).join(' ') + ' ';
+    const title = Object.keys(FABLE_PICTURES).find(t => today.includes(' ' + imgWords(t).join(' ') + ' '));
+    if (title) {
+      showCenterImages(await lessonPictures({title: title}), '🖼️ Lesson Pictures');
+      return;
+    }
   }
 
   // Art: only show [SHOW_IMAGE:] tagged objects
@@ -3680,16 +3702,8 @@ async function fetchImagesForLesson(lessonText) {
       showCenterImages(images, '\U0001f52c Science Images');
       return;
     }
-    // No [IMAGE:] tag — fire immediate search using first capitalized noun from lesson text
-    // so the student sees something right away while AI keyword extraction runs in parallel
-    const firstNounMatch = lessonText.match(/(?:about|the|a)\s+([A-Z][a-z]+(?:\s+[a-z]+)?)/);
-    const quickQuery = firstNounMatch ? firstNounMatch[1] : (curSubject.name || 'insect');
-    document.getElementById('lesson-images-loading').style.display = 'block';
-    document.getElementById('lesson-images').style.display = 'block';
-    searchImages([quickQuery]).then(quickImgs => {
-      if (quickImgs.length > 0) showCenterImages(quickImgs, '\U0001f52c Science Images');
-    });
-    // Fall through to auto-keyword extraction below for better/more specific results
+    // No [IMAGE:] tag — use the AI keyword step below (FIX Nov 26 2026: the old
+    // first-word guess could show unrelated pictures)
   }
 
   // ALL subjects: auto-extract image keywords from lesson text via AI
@@ -3710,7 +3724,7 @@ async function fetchImagesForLesson(lessonText) {
       body: JSON.stringify({
         model:'claude-sonnet-4-6',
         max_tokens: 100,
-        messages: [{role: 'user', content: `${subjectHint}\n\nLesson text: "${lessonText.substring(0,500)}"\n\nExtract 2 short Wikipedia-friendly image search queries (3-5 words each) that would show a student the main visual subject of this lesson. Focus on concrete nouns — animals, objects, people, places. Reply with ONLY a JSON array of 2 strings, no other text. Example: ["garden spider web","spider anatomy diagram"]`}]
+        messages: [{role: 'user', content: `${subjectHint}\n\nLesson text: "${lessonText.substring(0,2500)}"\n\nName up to 2 concrete things this lesson is mainly about, each as the exact title of an English Wikipedia article (1 to 3 words): an animal, plant, object, place, or historical person or event. For an animal, name the living animal (for example "Sheep"), never food, a band, a film or a brand. Choose from TODAY's new lesson only, never the greeting or the review of last time. No action phrases. Never choose a subject usually pictured with nudity. If nothing concrete fits, reply []. Reply with ONLY a JSON array of strings, no other text. Example: ["Wolf","Stream"]`}]
       })
     });
     const kwData = await kwRes.json();
@@ -3737,24 +3751,54 @@ async function fetchImagesForLesson(lessonText) {
 }
 
 const IMG_JUNK_RE = /quick[\s_%20-]*brown[\s_%20-]*fox|lazy[\s_%20-]*dog|pangram|typeface|(?:^|[^a-z])fonts?(?:[^a-z]|$)|specimen|glyph/i;
+// FIX (Nov 26 2026): pictures must match the topic and suit children. A search result is
+// used only if its title matches what was searched for; bands, films, celebrities and
+// other unsuitable subjects are refused. No picture is better than a wrong picture.
+const IMG_BLOCK_RE = /\b(bands?|albums?|songs?|singers?|songwriter|musicians?|rapper|dj|concerts?|festival|record label|discography|films?|movies?|television|tv series|video games?|anime|manga|actors?|actress|wrestler|wrestling|footballer|basketball|baseball|politician|company|brand|disambiguation|porn\w*|erotic\w*|nude|nudity|naked|sex|sexual\w*|lingerie|bikini|swimsuit|stripper|burlesque|playboy|breastfeeding|childbirth|pregnan\w*|puberty|reproduc\w*|gender|lgbt\w*|transgender|homosexual\w*|queer|occult|tarot|massacre|torture|corpse|evolution\w*|darwin\w*)\b/i;
+// Articles whose main picture is often unclothed art or otherwise unsuitable for children
+const IMG_BLOCK_TITLES = ['human','human body','human anatomy','man','woman','adam','eve','adam and eve','garden of eden','fall of man',
+  'the creation of adam','cain and abel','bathsheba','susanna','susanna and the elders','venus (mythology)','aphrodite','apollo','ares',
+  'hermes','eros','cupid','dionysus','bacchus','poseidon','neptune (mythology)','zeus','heracles','hercules','achilles','leda and the swan',
+  'judgement of paris','three graces','charites','nymph','satyr','discobolus','prometheus'];
+const IMG_STOP_WORDS = ['a','an','the','of','and','in','on','at','to','with','from','for'];
+function imgWords(text) {
+  return String(text || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/['\u2019]s\b/g, '')
+    .split(/[^a-z0-9]+/).filter(w => w && !IMG_STOP_WORDS.includes(w))
+    .map(w => w.length > 3 ? w.replace(/(ches|shes|xes|sses)$/, m => m.slice(0, -2)).replace(/([^s])s$/, '$1') : w);
+}
+function imgMatchesTopic(title, query) {
+  // every word of the title (including any "(...)" part) must be in the search
+  const t = imgWords(title);
+  const q = imgWords(query);
+  if (!t.length || !q.length) return false;
+  if (t.every(w => q.includes(w))) return true;
+  const joined = t.join(''); // "Honey bee" = "honeybee"
+  return q.some((_, i) => q.slice(i).some((__, n) => q.slice(i, i + n + 1).join('') === joined));
+}
+function imgIsSuitable(title, description) {
+  return !IMG_BLOCK_TITLES.includes(String(title || '').toLowerCase()) && !IMG_BLOCK_RE.test(title || '') && !IMG_BLOCK_RE.test(description || '') && !IMG_JUNK_RE.test(title || '');
+}
+
 async function searchImages(keywords) {
   const images = [];
-  // Strategy 1: Wikipedia article search with pageimages (most reliable)
+  // Wikipedia article search with pageimages
   for (const kw of keywords) {
     if (images.length >= 2) break;
     try {
       const encoded = encodeURIComponent(kw);
-      const url = `https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encoded}&gsrnamespace=0&gsrlimit=3&prop=pageimages&pithumbsize=400&piprop=thumbnail&format=json&origin=*`;
+      const url = `https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encoded}&gsrnamespace=0&gsrlimit=5&prop=pageimages%7Cdescription&pithumbsize=400&piprop=thumbnail&format=json&origin=*`;
       const r = await fetch(url);
       const d = await r.json();
       const pages = d.query?.pages;
       if (pages) {
-        for (const page of Object.values(pages)) {
+        // best search result first (the API does not return them in order)
+        for (const page of Object.values(pages).sort((x, y) => (x.index || 0) - (y.index || 0))) {
           const imgUrl = page?.thumbnail?.source;
           // FIX (Sep 23 2026): skip font/typeface specimen pictures — e.g. the Wikipedia
           // article "The quick brown fox jumps over the lazy dog" (hit by fox fables)
           // returned a picture of that sentence instead of a lesson image.
-          if (IMG_JUNK_RE.test(page?.title || '') || IMG_JUNK_RE.test(imgUrl || '')) continue;
+          if (IMG_JUNK_RE.test(imgUrl || '')) continue;
+          if (!imgMatchesTopic(page?.title, kw) || !imgIsSuitable(page?.title, page?.description)) continue;
           if (imgUrl && !imgUrl.includes('Icon') && !imgUrl.includes('placeholder')) {
             images.push({url: imgUrl, label: kw});
             break;
@@ -3763,30 +3807,43 @@ async function searchImages(keywords) {
       }
     } catch(e) {}
   }
-  // Strategy 2: Wikimedia Commons file search (fallback)
-  if (images.length === 0) {
-    for (const kw of keywords) {
-      try {
-        const encoded = encodeURIComponent(kw);
-        const url = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encoded}&gsrnamespace=6&prop=imageinfo&iiprop=url|mime&format=json&origin=*&gsrlimit=3`;
-        const r = await fetch(url);
-        const d = await r.json();
-        const pages = d.query?.pages;
-        if (pages) {
-          for (const page of Object.values(pages)) {
-            const imgUrl = page?.imageinfo?.[0]?.url;
-            const mime = page?.imageinfo?.[0]?.mime;
-            if (IMG_JUNK_RE.test(page?.title || '') || IMG_JUNK_RE.test(imgUrl || '')) continue;
-            if (imgUrl && mime && mime.startsWith('image/') && !mime.includes('svg') && !imgUrl.includes('Icon')) {
-              images.push({ url: imgUrl, label: kw });
-              break;
-            }
-          }
-        }
-      } catch(e) {}
-    }
-  }
+  // (FIX Nov 26 2026: the free Wikimedia Commons file search was removed — it could show
+  // any uploaded photo. If no article matches, no picture is shown.)
   return images;
+}
+
+// Hand-picked, public-domain pictures for lesson-bank fables (Nov 26 2026).
+// {file} = exact Wikimedia Commons file name; {page} = exact Wikipedia article title.
+// A bank lesson may also list its own `pictures` in the same form.
+const FABLE_PICTURES = {
+  'The Wolf and the Lamb': [
+    {file:'Fables-22-loup&agneau.jpg', label:'The Wolf and the Lamb — Benjamin Rabier'},
+    {file:'Le loup et agneau G-F Townsend 1867 GB.png', label:'The Wolf and the Lamb — 1867'}],
+  'The Bat and the Weasels': [
+    {file:'Rabier - Fables de La Fontaine - La Chauve-souris et les deux belettes.jpg', label:'The Bat and the Weasels — Benjamin Rabier'},
+    {file:'Vimar - Fables de La Fontaine - 02-04 . La Chauve-souris et les Deux Belettes.jpg', label:'The Bat and the Weasels — Auguste Vimar'}],
+  'The Ass and the Grasshopper': [
+    {page:'Donkey', label:'An ass (donkey)'},
+    {page:'Grasshopper', label:'A grasshopper'}],
+  'The Lion and the Mouse': [
+    {file:'The Lion and the Mouse - Project Gutenberg etext 19994.jpg', label:'The Lion and the Mouse — Milo Winter'},
+    {file:'Leo et mus.jpg', label:'The Lion and the Mouse — 1870s'}],
+  'The Charcoal-Burner and the Fuller': [
+    {page:'Charcoal burner', label:'A charcoal-burner at work'},
+    {page:'Fulling', label:'The work of a fuller: cleaning cloth'}]
+};
+async function lessonPictures(lesson) {
+  const list = lesson.pictures || FABLE_PICTURES[lesson.title] || [];
+  const found = await Promise.all(list.map(async p => {
+    if (p.file) return { url: 'https://commons.wikimedia.org/wiki/Special:FilePath/' + encodeURIComponent(p.file).replace(/'/g, '%27') + '?width=500', label: p.label };
+    try {
+      const r = await fetch(`https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(p.page)}&redirects=1&prop=pageimages&pithumbsize=500&format=json&origin=*`);
+      const d = await r.json();
+      const src = Object.values(d.query?.pages || {})[0]?.thumbnail?.source;
+      return src ? { url: src, label: p.label } : null;
+    } catch(e) { return null; }
+  }));
+  return found.filter(Boolean);
 }
 
 // ══════════════════════════════════════════════
