@@ -261,6 +261,18 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
 .tl-note{font-size:12px;color:#6B3A00;padding:3px 0;}
 .tl-btn{margin-top:6px;font-size:12px;padding:5px 10px;border:1px solid #8A7440;border-radius:5px;background:#F3E6BE;color:#1A1A1A;cursor:pointer;font-family:'Lato',sans-serif;}
 .tl-credit{font-size:10px;color:#6B6B6B;margin-top:4px;}
+/* Timeline starts small so the lesson text is near the top (teacher, Nov 27 2026) */
+.tl-head{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+.tl-head .tl-title{flex:1;margin-bottom:0;}
+.tl-toggle{font-size:12px;padding:3px 10px;border:1px solid #8A7440;border-radius:5px;background:#F3E6BE;color:#1A1A1A;cursor:pointer;font-family:'Lato',sans-serif;white-space:nowrap;}
+.tl-box:not(.tl-open){padding:5px 10px;}
+.tl-box:not(.tl-open) .tl-title{font-size:13px;}
+.tl-box:not(.tl-open) .tl-era{padding:0 2px;}
+.tl-box:not(.tl-open) .tl-track{height:6px;margin-bottom:0;}
+.tl-box:not(.tl-open) .tl-credit{margin-top:0;}
+.tl-box:not(.tl-open) .tl-era-dates,.tl-box:not(.tl-open)>.tl-note,.tl-box:not(.tl-open)>.tl-list,.tl-box:not(.tl-open)>.tl-btn{display:none;}
+/* Room under the lesson so its last lines can also scroll up while being read */
+@media(min-width:901px){ .session-scroll{padding-bottom:180px;} }
 /* Answer key at the end of a lesson (Nov 27 2026) — solid hex colors only */
 #answer-key:not(:empty){margin-top:10px;background:#FFFDF5;border:2px solid #E8C870;border-radius:8px;padding:10px 12px;font-family:'Lato',sans-serif;color:#1A1A1A;}
 .key-title{font-size:14px;font-weight:700;margin-bottom:6px;color:#412402;}
@@ -2467,6 +2479,23 @@ function stripDirectiveTags(text){
 }
 
 
+// Keep the word being read in the upper part of the lesson area, not at its bottom edge
+function followWord(el){
+  const box = el.closest('.session-scroll');
+  if(box && getComputedStyle(box).overflowY !== 'visible'){
+    const b = box.getBoundingClientRect(), w = el.getBoundingClientRect();
+    const top = w.top - b.top;
+    if(top < 0 || top > b.height * 0.5) box.scrollTo({top: box.scrollTop + top - b.height * 0.2, behavior:'smooth'});
+    return;
+  }
+  if(box){ // phones: the whole page scrolls
+    const w = el.getBoundingClientRect();
+    if(w.top < window.innerHeight * 0.1 || w.bottom > window.innerHeight * 0.65) el.scrollIntoView({behavior:'smooth', block:'center'});
+    return;
+  }
+  el.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
 function _doReadAloud(text, targetEl, startChunk, preservePaused){
   if(readingStopped) return;
   text = sanitizeForTTS(text);   // fix symbols/abbreviations before TTS
@@ -2589,7 +2618,7 @@ function _doReadAloud(text, targetEl, startChunk, preservePaused){
             const el = document.getElementById('hw' + currentWordIndex);
             if(el){
               el.classList.add('reading-word');
-              el.scrollIntoView({behavior:'smooth', block:'nearest'});
+              followWord(el);
               currentWordIndex++;
             }
           }, msPerWord);
@@ -2621,7 +2650,7 @@ function _doReadAloud(text, targetEl, startChunk, preservePaused){
       if(el){
         el.classList.add('reading-word');
         // Autoscroll so highlighted word is visible
-        el.scrollIntoView({behavior:'smooth', block:'nearest'});
+        followWord(el);
         currentWordIndex++;
       }
     };

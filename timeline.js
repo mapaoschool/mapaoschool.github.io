@@ -192,7 +192,12 @@ function tlDraw(opts){
   function el(parent, cls, text){ const d = document.createElement('div'); d.className = cls; if(text !== undefined) d.textContent = text; parent.appendChild(d); return d; }
   const box = el(panel, 'tl-box');
   const when = opts.when || (range ? tlSpan(range[0], range[1]) : (hit.length ? tlSpan(TL_EVENTS[hit[0]][1], TL_EVENTS[hit[hit.length - 1]][1]) : ''));
-  el(box, 'tl-title', '🕰 Timeline' + (when ? ' — this lesson: ' + when : ''));
+  const head = el(box, 'tl-head');
+  el(head, 'tl-title', '🕰 Timeline' + (when ? ' — this lesson: ' + when : ''));
+  const toggle = document.createElement('button');
+  toggle.type = 'button'; toggle.className = 'tl-toggle'; toggle.textContent = 'Show timeline ▾';
+  toggle.onclick = function(){ const open = box.classList.toggle('tl-open'); toggle.textContent = open ? 'Hide timeline ▴' : 'Show timeline ▾'; };
+  head.appendChild(toggle);
 
   const bar = el(box, 'tl-bar');
   TL_ERAS.forEach(function(e){
