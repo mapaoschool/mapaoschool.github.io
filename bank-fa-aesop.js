@@ -254,7 +254,7 @@ window.LESSON_BANKS['FA-aesop'] = {
     aristotle:'The family is the first community we belong to. Friendship and being of one mind hold people together. A family is like the bundle: each child is one stick, and love ties them together.',
     thomas:'St. Thomas repeats the words of St. Augustine: peace is the calm of good order. When there is peace, people agree in what they want, and each person’s own wishes are in good order too.',
     bible:'“Behold how good and how pleasant it is for brethren to dwell together in unity” (Psalm 132:1). Brethren means brothers. Unity means being one.',
-    pictures:[{src:'fable-06.jpg', label:'The Father and His Sons'}],
+    pictures:[{src:'https://upload.wikimedia.org/wikipedia/commons/7/78/Pater_et_Filii_Litigantes.jpg', label:'The Father and His Sons — Jacob Gole, Dutch book, 1685'}],
     questions:[
       { part:'1 · See', concept:SEE, q:'What did the father do with the sticks, and what did the sons learn?',
         options:['He showed that a bundle cannot be broken but one stick can. United they are strong.','He showed that one stick cannot be broken but a bundle can. Alone they are strong.','He used the sticks to make a fire. Sticks keep them warm.','He gave the strongest son all the sticks. The strongest should rule.'],
@@ -299,7 +299,7 @@ window.LESSON_BANKS['FA-aesop'] = {
     aristotle:'To choose well we need to look closely and think before we act. Experience helps us learn how.',
     thomas:'Prudence uses good reason to decide what to do. A wise person thinks before he acts. Truth is when our mind matches the thing as it really is.',
     bible:'Jesus asks: who would build a tower without first sitting down to count what it will cost (Luke 14:28)? A wise person looks and counts before he begins.',
-    pictures:[{src:'fable-07.jpg', label:'The Boy Hunting Locusts'}],
+    pictures:[{src:'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d4/1911_Britannica-Arachnida-Buthusaustralis.png/960px-1911_Britannica-Arachnida-Buthusaustralis.png', label:'A scorpion — Encyclopaedia Britannica, 1911'}],
     questions:[
       { part:'1 · See', concept:SEE, q:'What did the boy think the scorpion was? What was it really?',
         options:['He thought it was a locust. It was a scorpion.','He thought it was a scorpion. It was a locust.','He thought it was a stick. It was a snake.','He thought it was a locust. It was a grasshopper.'],
@@ -344,7 +344,7 @@ window.LESSON_BANKS['FA-aesop'] = {
     aristotle:'Things that we use only to get something else are not the best thing. Money is like that.',
     thomas:'Some good things are useful, some are pleasant, and some are good and worthy for their own sake. A wise person loves what is truly valuable. Riches cannot make a person truly happy.',
     bible:'Jesus says the kingdom of heaven is like a merchant who found one pearl of great price and sold all he had to buy it (Matthew 13:45–46). He also says: “Seek ye therefore first the kingdom of God, and his justice” (Matthew 6:33). The most precious thing is to know and love God and to be with Him in heaven.',
-    pictures:[{src:'fable-08.jpg', label:'The Cock and the Jewel'}],
+    pictures:[{src:'https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e6/Chauveau_-_Fables_de_La_Fontaine_-_01-20.png/960px-Chauveau_-_Fables_de_La_Fontaine_-_01-20.png', label:'The Cock and the Jewel — François Chauveau, French book, 1668'}],
     questions:[
       { part:'1 · See', concept:SEE, q:'What did the rooster find, and what did he say he would rather have?',
         options:['He found a jewel, but said he would rather have a grain of barley.','He found barley, but said he would rather have a jewel.','He found a jewel and gave it to a rich man.','He found a worm and said he would rather have a pearl.'],
@@ -389,7 +389,7 @@ window.LESSON_BANKS['FA-aesop'] = {
     aristotle:'Rules help us, but people become good by practicing good habits again and again.',
     thomas:'A good law is made with reason for the good of everyone, and it is meant to help people become good. A king can announce peace, but his people must also be just. A promise does not change a wolf’s heart.',
     bible:'“The wolf shall dwell with the lamb: and the leopard shall lie down with the kid” (Isaiah 11:6). That peace is fully true only in the kingdom of Christ. “And the work of justice shall be peace” (Isaiah 32:17).',
-    pictures:[{src:'fable-09.jpg', label:'The Kingdom of the Lion'}],
+    pictures:[{src:'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d0/Allart_van_Everdingen_%28Dutch%2C_1621-1675%29_-_Reynard_the_Fox%2C_The_Lion%27s_Court_-_1982.179.2_-_Cleveland_Museum_of_Art.jpg/960px-Allart_van_Everdingen_%28Dutch%2C_1621-1675%29_-_Reynard_the_Fox%2C_The_Lion%27s_Court_-_1982.179.2_-_Cleveland_Museum_of_Art.jpg', label:'The beasts gathered before the lion — Allart van Everdingen, Dutch, 1600s'}],
     questions:[
       { part:'1 · See', concept:SEE, q:'What did the Lion promise, and what did the hare do?',
         options:['The Lion promised peace between the strong and the weak. The hare ran away.','The Lion promised food to the strong. The hare stayed to eat.','The Lion promised peace. The hare lay down beside the wolf.','The Lion promised a race. The hare won it.'],
@@ -434,7 +434,7 @@ window.LESSON_BANKS['FA-aesop'] = {
     aristotle:'When someone helps us, we should be kind in return. Returning kindness holds people together.',
     thomas:'Gratitude is a good habit. First we notice the kindness, then we say thank you, then we repay it when we can. Helping someone in need is good, but we should also be wise about whom we trust.',
     bible:'Jesus healed ten lepers, and only one came back to give thanks. He asked: “Were not ten made clean? and where are the nine?” (Luke 17:17).',
-    pictures:[{src:'fable-10.jpg', label:'The Wolf and the Crane'}],
+    pictures:[{src:'https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b9/Page_11_illustration_from_The_Fables_of_%C3%86sop_%28Jacobs%29.png/960px-Page_11_illustration_from_The_Fables_of_%C3%86sop_%28Jacobs%29.png', label:'The Wolf and the Crane — Richard Heighway, English book'}],
     questions:[
       { part:'1 · See', concept:SEE, q:'What did the crane do for the wolf, and what did the wolf say?',
         options:['She pulled the bone from his throat. He said getting her head out safely was her reward.','She pulled the bone from his throat. He thanked her and gave her a gift.','She put a bone in his throat. He asked her for a reward.','She brought him food. He said it was not enough.'],

@@ -223,7 +223,7 @@ window.LESSON_BANKS['AL-aesop'] = {
     aristotle:'The whole comes before its parts. Aristotle says this of the city, which is whole in a way that a single household or person is not; the family is the first community (Politics I.2). Friendship and concord, or being of one mind, hold a community together (Nicomachean Ethics VIII.1).',
     thomas:'Peace is the tranquility of order, in the words of St. Augustine (ST II-II q.29 a.1). Peace includes concord, the agreement of the wills of different persons, and adds something more: the ordering of a person’s own desires. Discord is contrary to peace (q.37).',
     bible:'“Behold how good and how pleasant it is for brethren to dwell together in unity” (Ps. 132:1).',
-    pictures:[{src:'fable-06.jpg', label:'The Father and His Sons'}],
+    pictures:[{src:'https://upload.wikimedia.org/wikipedia/commons/7/78/Pater_et_Filii_Litigantes.jpg', label:'The Father and His Sons — Jacob Gole, Dutch book, 1685'}],
     questions:[
       { part:'A · Apprehension', concept:AQ_APPREHENSION, q:'Which sentence states what happened, with no opinion?',
         options:['A father showed his quarreling sons that a bundle of sticks resists breaking while a single stick snaps.','A wise father cleverly cured his wicked sons of quarreling.','The sons broke the whole bundle after their father untied it.','Quarreling sons deserve to be broken like sticks.'],
@@ -264,7 +264,7 @@ window.LESSON_BANKS['AL-aesop'] = {
     aristotle:'Prudence deals with particular actions, so it needs experience and good deliberation before we choose (Nicomachean Ethics VI).',
     thomas:'Prudence is right reason applied to action (ST II-II q.47 a.2). Acting on impulse before due deliberation is precipitation, or rashness (q.53 a.3). Truth is the conformity of the intellect to the thing (ST I q.16 a.1–2). The boy’s mind did not match the thing.',
     bible:'“For which of you having a mind to build a tower, doth not first sit down, and reckon the charges that are necessary, whether he have wherewithal to finish it” (Luke 14:28).',
-    pictures:[{src:'fable-07.jpg', label:'The Boy Hunting Locusts'}],
+    pictures:[{src:'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d4/1911_Britannica-Arachnida-Buthusaustralis.png/960px-1911_Britannica-Arachnida-Buthusaustralis.png', label:'A scorpion — Encyclopaedia Britannica, 1911'}],
     questions:[
       { part:'A · Apprehension', concept:AQ_APPREHENSION, q:'Which sentence states what happened, with no opinion?',
         options:['A boy hunting locusts mistook a scorpion for a locust and reached for it; the scorpion warned him of the loss and harm.','A careless boy foolishly nearly got the sting he deserved.','A scorpion stung a boy and took all his locusts.','A kind scorpion saved a silly boy from a locust.'],
@@ -302,7 +302,7 @@ window.LESSON_BANKS['AL-aesop'] = {
     aristotle:'Wealth is evidently not the good we are looking for, because it is only useful, wanted for the sake of something else (Nicomachean Ethics I.5).',
     thomas:'Good is divided into the honorable (worth seeking for its own sake), the useful (wanted as a means) and the pleasant (wanted for delight) (ST I q.5 a.6). Man’s happiness cannot consist in wealth, because riches are sought for the sake of something else and cannot satisfy the will (I-II q.2 a.1).',
     bible:'Jesus says the kingdom of heaven is like a merchant who found one pearl of great price and sold all that he had to buy it (Matt. 13:45–46). “Seek ye therefore first the kingdom of God, and his justice” (Matt. 6:33).',
-    pictures:[{src:'fable-08.jpg', label:'The Cock and the Jewel'}],
+    pictures:[{src:'https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e6/Chauveau_-_Fables_de_La_Fontaine_-_01-20.png/960px-Chauveau_-_Fables_de_La_Fontaine_-_01-20.png', label:'The Cock and the Jewel — François Chauveau, French book, 1668'}],
     questions:[
       { part:'A · Apprehension', concept:AQ_APPREHENSION, q:'Which sentence states what happened, with no opinion?',
         options:['A rooster found a jewel while scratching for food and said he would rather have a barleycorn.','A foolish rooster threw away a treasure.','A rich man lost a jewel and a rooster ate it.','A humble rooster wisely refused to be greedy.'],
@@ -343,7 +343,7 @@ window.LESSON_BANKS['AL-aesop'] = {
     aristotle:'Lawmakers make citizens good by forming good habits in them (Nicomachean Ethics II.1). A decree is only a beginning; the habit has to be practiced.',
     thomas:'Law is an ordinance of reason for the common good, made by him who has care of the community, and promulgated, that is, made known (ST I-II q.90 a.4). The proper effect of law is to make those to whom it is given good (q.92 a.1). Peace is the tranquility of order (II-II q.29 a.1).',
     bible:'“The wolf shall dwell with the lamb: and the leopard shall lie down with the kid” (Isa. 11:6). That peace is fully true only in the kingdom of Christ. “And the work of justice shall be peace” (Isa. 32:17).',
-    pictures:[{src:'fable-09.jpg', label:'The Kingdom of the Lion'}],
+    pictures:[{src:'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d0/Allart_van_Everdingen_%28Dutch%2C_1621-1675%29_-_Reynard_the_Fox%2C_The_Lion%27s_Court_-_1982.179.2_-_Cleveland_Museum_of_Art.jpg/960px-Allart_van_Everdingen_%28Dutch%2C_1621-1675%29_-_Reynard_the_Fox%2C_The_Lion%27s_Court_-_1982.179.2_-_Cleveland_Museum_of_Art.jpg', label:'The beasts gathered before the lion — Allart van Everdingen, Dutch, 1600s'}],
     questions:[
       { part:'A · Apprehension', concept:AQ_APPREHENSION, q:'Which sentence states what happened, with no opinion?',
         options:['A just lion-king proclaimed peace among all the animals; the hare praised the day, then ran.','A silly hare spoiled a wonderful peace by being a coward.','A cunning lion tricked the weak animals into coming to him.','The wolf attacked the lamb during the assembly.'],
@@ -380,7 +380,7 @@ window.LESSON_BANKS['AL-aesop'] = {
     aristotle:'Returning kindness for kindness holds a community together (Nicomachean Ethics V.5). Those who give a benefit often love more warmly than those who receive it, who stand like debtors (IX.7).',
     thomas:'Gratitude is a special virtue by which we give thanks to our benefactors and repay them (ST II-II q.106 a.1). It has degrees: to recognize the favor, to express thanks, and to repay it at a fitting time (q.107 a.2). Ingratitude is the opposed vice. Even toward the ungrateful we should not quickly stop doing good (q.107 a.4).',
     bible:'Of ten lepers healed, only one came back to give thanks: “Were not ten made clean? and where are the nine?” (Luke 17:17). Our Lord also says to do good, “hoping for nothing thereby” (Luke 6:35).',
-    pictures:[{src:'fable-10.jpg', label:'The Wolf and the Crane'}],
+    pictures:[{src:'https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b9/Page_11_illustration_from_The_Fables_of_%C3%86sop_%28Jacobs%29.png/960px-Page_11_illustration_from_The_Fables_of_%C3%86sop_%28Jacobs%29.png', label:'The Wolf and the Crane — Richard Heighway, English book'}],
     questions:[
       { part:'A · Apprehension', concept:AQ_APPREHENSION, q:'Which sentence states what happened, with no opinion?',
         options:['A crane removed a bone from a wolf’s throat at risk to herself; the wolf refused a reward, saying her safe escape was enough.','A wicked wolf shamefully cheated a generous crane.','A crane removed a bone and the wolf paid her the reward.','A foolish crane got nothing, as she deserved.'],

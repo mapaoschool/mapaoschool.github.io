@@ -255,7 +255,7 @@ window.LESSON_BANKS['FC-aesop'] = {
     aristotle:'A family is like the bundle. Each child is one stick. Love ties them together.',
     thomas:'Peace is the calm of good order. In peace, people get along.',
     bible:'“Behold how good and how pleasant it is for brethren to dwell together in unity” (Psalm 132:1). It is good when brothers and sisters live as one.',
-    pictures:[{src:'fable-06.jpg', label:'The Father and His Sons'}],
+    pictures:[{src:'https://upload.wikimedia.org/wikipedia/commons/7/78/Pater_et_Filii_Litigantes.jpg', label:'The Father and His Sons — Jacob Gole, Dutch book, 1685'}],
     questions:[
       { part:'1 · See', concept:SEE, q:'What did the sons learn from the sticks?',
         options:['Together they are strong.','Alone they are strong.','Sticks are good for fires.'],
@@ -300,7 +300,7 @@ window.LESSON_BANKS['FC-aesop'] = {
     aristotle:'Look closely first. Then act.',
     thomas:'A wise person thinks before he acts. Truth is when our mind matches the thing as it really is.',
     bible:'Jesus says a wise man who wants to build a tower first sits down and counts what it will cost (Luke 14:28). Think before you begin.',
-    pictures:[{src:'fable-07.jpg', label:'The Boy Hunting Locusts'}],
+    pictures:[{src:'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d4/1911_Britannica-Arachnida-Buthusaustralis.png/960px-1911_Britannica-Arachnida-Buthusaustralis.png', label:'A scorpion — Encyclopaedia Britannica, 1911'}],
     questions:[
       { part:'1 · See', concept:SEE, q:'What did the boy think the scorpion was?',
         options:['A locust','A stone','A bird'],
@@ -345,7 +345,7 @@ window.LESSON_BANKS['FC-aesop'] = {
     aristotle:'Things we use just to get something else are not the best thing.',
     thomas:'A wise person loves what is truly valuable. Valuable means worth very much.',
     bible:'Jesus says the kingdom of heaven is like a pearl of great price (Matthew 13:45–46). The most precious thing is to know and love God and to be with Him in heaven.',
-    pictures:[{src:'fable-08.jpg', label:'The Cock and the Jewel'}],
+    pictures:[{src:'https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e6/Chauveau_-_Fables_de_La_Fontaine_-_01-20.png/960px-Chauveau_-_Fables_de_La_Fontaine_-_01-20.png', label:'The Cock and the Jewel — François Chauveau, French book, 1668'}],
     questions:[
       { part:'1 · See', concept:SEE, q:'What would the rooster rather have?',
         options:['A grain of barley','All the jewels','A rich man'],
@@ -390,7 +390,7 @@ window.LESSON_BANKS['FC-aesop'] = {
     aristotle:'Rules help. But everyone must practice being good.',
     thomas:'A king can promise peace. But everyone must be just too. A promise does not change a wolf’s heart.',
     bible:'“And the work of justice shall be peace” (Isaiah 32:17). When we are fair, there is peace.',
-    pictures:[{src:'fable-09.jpg', label:'The Kingdom of the Lion'}],
+    pictures:[{src:'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d0/Allart_van_Everdingen_%28Dutch%2C_1621-1675%29_-_Reynard_the_Fox%2C_The_Lion%27s_Court_-_1982.179.2_-_Cleveland_Museum_of_Art.jpg/960px-Allart_van_Everdingen_%28Dutch%2C_1621-1675%29_-_Reynard_the_Fox%2C_The_Lion%27s_Court_-_1982.179.2_-_Cleveland_Museum_of_Art.jpg', label:'The beasts gathered before the lion — Allart van Everdingen, Dutch, 1600s'}],
     questions:[
       { part:'1 · See', concept:SEE, q:'The Lion promised peace. What did the hare do?',
         options:['He ran away.','He slept by the wolf.','He became king.'],
@@ -435,7 +435,7 @@ window.LESSON_BANKS['FC-aesop'] = {
     aristotle:'When someone helps us, we say thank you.',
     thomas:'Gratitude is a good habit. We notice the kindness, say thank you, and are kind back. Helping is good, but we are wise about whom we trust.',
     bible:'Jesus healed ten lepers. Only one came back to say thank you. He asked: “Were not ten made clean? and where are the nine?” (Luke 17:17).',
-    pictures:[{src:'fable-10.jpg', label:'The Wolf and the Crane'}],
+    pictures:[{src:'https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b9/Page_11_illustration_from_The_Fables_of_%C3%86sop_%28Jacobs%29.png/960px-Page_11_illustration_from_The_Fables_of_%C3%86sop_%28Jacobs%29.png', label:'The Wolf and the Crane — Richard Heighway, English book'}],
     questions:[
       { part:'1 · See', concept:SEE, q:'What did the crane do for the wolf?',
         options:['She pulled a bone from his throat.','She gave him a bone.','She sang him a song.'],

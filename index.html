@@ -3821,9 +3821,11 @@ async function searchImages(keywords) {
   return images;
 }
 
-// APPROVED PICTURES ONLY (Nov 26 2026): every picture is a file supplied by the teacher
-// and uploaded beside index.html. {src} = exact file name. No web addresses.
+// APPROVED PICTURES ONLY (Nov 26 2026, updated Nov 27 2026): {src} is either a file
+// uploaded beside index.html, or the exact Wikimedia address of an old-book picture that
+// was looked at before it was listed. Never a web search.
 // A bank lesson may also list its own `pictures` in the same form.
+const OLD_BOOK_PICTURE = /^https:\/\/(upload|thumb)\.wikimedia\.org\/wikipedia\/commons\//;
 const FABLE_PICTURES = {
   'The Wolf and the Lamb': [{src:'fable-01.jpg', label:'The Wolf and the Lamb — Ernest Griset'}],
   'The Bat and the Weasels': [{src:'fable-02.jpg', label:'The Bat and the Weasels — Grandville'}],
@@ -3833,8 +3835,8 @@ const FABLE_PICTURES = {
 };
 async function lessonPictures(lesson) {
   const list = lesson.pictures || FABLE_PICTURES[lesson.title] || [];
-  // only files in the app's own folder; a file that is missing shows nothing
-  const found = await Promise.all(list.filter(p => p.src && !/^([a-z]+:|\/\/)/i.test(p.src)).map(p => new Promise(resolve => {
+  // only the app's own files and listed Wikimedia pictures; one that fails to load shows nothing
+  const found = await Promise.all(list.filter(p => p.src && (OLD_BOOK_PICTURE.test(p.src) || !/^([a-z]+:|\/\/)/i.test(p.src))).map(p => new Promise(resolve => {
     const test = new Image();
     test.onload = () => resolve({url: p.src, label: p.label});
     test.onerror = () => resolve(null);

@@ -190,7 +190,7 @@ window.LESSON_BANKS['LJ-aesop'] = {
     habits:'The good habit is peace. Peace means living together in love.',
     thomas:'A family that loves each other is strong, like the bundle.',
     bible:'“Behold how good and how pleasant it is for brethren to dwell together in unity” (Psalm 132:1). It is good when brothers and sisters live as one.',
-    pictures:[{src:'fable-06.jpg', label:'The Father and His Sons'}],
+    pictures:[{src:'https://upload.wikimedia.org/wikipedia/commons/7/78/Pater_et_Filii_Litigantes.jpg', label:'The Father and His Sons — Jacob Gole, Dutch book, 1685'}],
     questions:[
       { part:'See', concept:SEE, q:'What could the boys not break?',
         options:['The whole bundle','One little stick','A cookie'],
@@ -222,7 +222,7 @@ window.LESSON_BANKS['LJ-aesop'] = {
     habits:'The good habit is prudence. Prudence means thinking carefully before we act.',
     thomas:'A wise person looks and thinks first.',
     bible:'Jesus says a wise man who wants to build a tower first sits down and counts what it will cost (Luke 14:28). Think before you begin.',
-    pictures:[{src:'fable-07.jpg', label:'The Boy Hunting Locusts'}],
+    pictures:[{src:'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d4/1911_Britannica-Arachnida-Buthusaustralis.png/960px-1911_Britannica-Arachnida-Buthusaustralis.png', label:'A scorpion — Encyclopaedia Britannica, 1911'}],
     questions:[
       { part:'See', concept:SEE, q:'What did the boy reach for?',
         options:['A scorpion','A puppy','A flower'],
@@ -254,7 +254,7 @@ window.LESSON_BANKS['LJ-aesop'] = {
     habits:'The good habit is wisdom. Wisdom means knowing what is truly best.',
     thomas:'God is more precious than any jewel.',
     bible:'Jesus says the kingdom of heaven is like a pearl of great price (Matthew 13:45–46). The most precious thing is to know and love God and to be with Him in heaven.',
-    pictures:[{src:'fable-08.jpg', label:'The Cock and the Jewel'}],
+    pictures:[{src:'https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e6/Chauveau_-_Fables_de_La_Fontaine_-_01-20.png/960px-Chauveau_-_Fables_de_La_Fontaine_-_01-20.png', label:'The Cock and the Jewel — François Chauveau, French book, 1668'}],
     questions:[
       { part:'See', concept:SEE, q:'What did the rooster find?',
         options:['A shiny jewel','A red ball','A little shoe'],
@@ -286,7 +286,7 @@ window.LESSON_BANKS['LJ-aesop'] = {
     habits:'The good habit is justice. Justice means giving everyone what is fair.',
     thomas:'Nice words are not enough. Everyone must be good and fair.',
     bible:'“And the work of justice shall be peace” (Isaiah 32:17). When we are fair, there is peace.',
-    pictures:[{src:'fable-09.jpg', label:'The Kingdom of the Lion'}],
+    pictures:[{src:'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d0/Allart_van_Everdingen_%28Dutch%2C_1621-1675%29_-_Reynard_the_Fox%2C_The_Lion%27s_Court_-_1982.179.2_-_Cleveland_Museum_of_Art.jpg/960px-Allart_van_Everdingen_%28Dutch%2C_1621-1675%29_-_Reynard_the_Fox%2C_The_Lion%27s_Court_-_1982.179.2_-_Cleveland_Museum_of_Art.jpg', label:'The beasts gathered before the lion — Allart van Everdingen, Dutch, 1600s'}],
     questions:[
       { part:'See', concept:SEE, q:'Who was the king?',
         options:['The lion','The hare','The rooster'],
@@ -318,7 +318,7 @@ window.LESSON_BANKS['LJ-aesop'] = {
     habits:'The good habit is gratitude. Gratitude means thanking those who help us.',
     thomas:'When someone helps us, we notice it, say thank you, and are kind back.',
     bible:'Jesus healed ten lepers. Only one came back to say thank you. He asked: “Were not ten made clean? and where are the nine?” (Luke 17:17).',
-    pictures:[{src:'fable-10.jpg', label:'The Wolf and the Crane'}],
+    pictures:[{src:'https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b9/Page_11_illustration_from_The_Fables_of_%C3%86sop_%28Jacobs%29.png/960px-Page_11_illustration_from_The_Fables_of_%C3%86sop_%28Jacobs%29.png', label:'The Wolf and the Crane — Richard Heighway, English book'}],
     questions:[
       { part:'See', concept:SEE, q:'Who helped the wolf?',
         options:['The crane','The lion','The hare'],
