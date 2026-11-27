@@ -1,0 +1,192 @@
+// ══════════════════════════════════════════════
+// HISTORY OF CHRISTENDOM, VOLUME 1 — lesson outlines (added Nov 27 2026)
+// One unit per chapter, written in our own words from the teacher's student worksheets for
+// Warren H. Carroll, The Founding of Christendom. The writing prompts and grammar rules
+// for A.L. come from the teacher's A.L. study plan. No book text is copied here.
+// facts = taught to every student · more = high school (A.L.) only
+// years = period shown on the timeline (BC is negative) · note = shown under the timeline
+// young = writing task for F.A. and F.C. · little = task for L.J.
+// ══════════════════════════════════════════════
+window.CHRISTENDOM_UNITS = [
+  { n:1, ch:'Introduction and Prologue', title:'Why We Tell This History', years:null, when:'the very beginning',
+    note:'Creation and the Fall come before the first date on this timeline.',
+    facts:['Christendom means the part of the world and of history where people openly proclaim Jesus Christ as Lord and let him shape their life together.',
+      'God created the world and the first man and woman.','They disobeyed God. Because of this sin, death came into human life.',
+      'Mankind needed a Savior, and God promised to help.','A good history is true, and it is also a good story.'],
+    more:['Carroll writes openly as an orthodox Catholic: every historian has a point of view, and honesty means stating it.',
+      'He sees the third chapter of Genesis as the one adequate explanation of death.',
+      'The series covers six phases: Founding (to AD 324), Building (324–1100), Glory (1100–1517), Cleaving (1517–1774), Revolution Against (1774–1815) and Crisis (1815 onward).',
+      'Words: Christendom, Incarnation, Providence, Original Sin.'],
+    story:'A young Sumerian scribe records the myths of his people and senses a longing that no god of stone can fill.', type:'Letter or journal', words:'300–400', rule:'Proper and common nouns (Harvey ch. 1–3)',
+    young:'Write 3 sentences about why people needed a Savior.', little:'Draw the world God made. Copy: God made the world.' },
+  { n:2, ch:'Chapter 1', title:'A Darkling Plain', years:[-3500,-2000], when:'before and up to about 2000 BC',
+    facts:['Long ago there were great cities in Mesopotamia, in Egypt and in the Indus Valley.','People built wonderful things, but they did not know the true God well and many worshipped many false gods.',
+      'In Mesopotamia people told the story of the hero Gilgamesh, who searched for a way to escape death and could not find it.','In Egypt the king was called Pharaoh. People treated him as a god and built great tombs called pyramids.',
+      'From the earliest times people buried their dead with care.','God was about to call Abraham, a man from Mesopotamia.'],
+    more:['Carroll reads the Gilgamesh epic as eloquent proof of the reality of original sin: without Genesis, its people still saw that death seemed inescapable.',
+      'Mesopotamia faced the horror of death honestly; Egypt built its civilization around denying it.','It was fitting that Abraham came from Mesopotamia, because hope begins with facing the truth.',
+      'Words: Mesopotamia, Gilgamesh, polytheism, Pharaoh.'],
+    story:'A wandering Amorite comes upon ruins and asks an elder about the city and what broke it.', type:'Dialogue', words:'300–400', rule:'Pronouns and clear antecedents (Harvey ch. 4–5)',
+    young:'Pretend you live in a city in Mesopotamia. Write 3 sentences about what you see.', little:'Draw a pyramid. Copy: There is one true God.' },
+  { n:3, ch:'Chapter 2', title:'Father in Faith', years:[-2000,-1700], when:'about 2000–1700 BC',
+    facts:['God called Abraham to leave the city of Ur, and Abraham obeyed.','God made a covenant, a solemn promise, with Abraham: a land, many descendants, and a blessing for all nations. That blessing comes through Jesus.',
+      'Abraham, his son Isaac and his grandson Jacob are called the patriarchs.','Jacob wrestled through the night and God gave him the new name Israel.','Joseph, a son of Jacob, went to Egypt, and later his family came there too.'],
+    more:['Carroll calls Jacob’s wrestling the prototype of conversion: God does not force the will, yet the soul struggles before giving itself.',
+      'At Bethel Jacob ordered the idols destroyed, the start of a long struggle against idolatry in Israel.','Carroll finds the Joseph account credible because its details fit Egypt in the Hyksos period.',
+      'Words: patriarch, covenant, Israel, Hyksos.'],
+    story:'Abram’s servant tells of the night his master obeyed God’s call to leave Ur.', type:'Narrative', words:'300–400', rule:'Past tense in narrative (Harvey ch. 6–8)',
+    young:'Write 3 or 4 sentences as Abraham’s helper on the day you leave home.', little:'Draw the stars God showed Abraham. Copy: Abraham obeyed God.' },
+  { n:4, ch:'Chapter 3', title:'Fire on Sinai', years:[-1290,-1250], keys:['Life of Moses','Hebrew Exodus'], when:'about 1290–1250 BC (Carroll)',
+    note:'Carroll dates these events about 1290–1250 BC. The CLAA list dates the Exodus 1450–1410 BC.',
+    facts:['God sent Moses to lead the people of Israel out of slavery in Egypt. This is called the Exodus.','Before they left, the people kept the first Passover.','They crossed the Red Sea.','God fed them in the desert with bread from heaven called manna.',
+      'At Mount Sinai God gave Moses the Ten Commandments.','The people promised to do all that the Lord had said.'],
+    more:['At Sinai God came with majesty, smoke and thunder, giving his Law to a whole people.','Israel often broke its promise and needed prophets, judges and kings to call it back.',
+      'Natural food sources could not have fed so great a multitude; God supplied them, as Christ later multiplied the loaves.','Words: Exodus, manna, Decalogue, Passover.'],
+    story:'An elder tells children what his grandfather saw on the night the cloud came down on Sinai.', type:'Oral tale in the third person', words:'350–450', rule:'Simple and compound sentences; conjunctions (Harvey ch. 9–11)',
+    young:'Write 3 or 4 sentences about what happened at Mount Sinai.', little:'Draw the two tablets. Copy: God gave us his law.' },
+  { n:5, ch:'Chapter 4', title:'The Promised Land', years:[-1250,-960], when:'about 1250–960 BC',
+    facts:['Israel came into the land God had promised.','Saul was the first king, then David, then Solomon.','David captured Jerusalem and brought the Ark of the Covenant there.',
+      'God promised David that his throne would last forever. This promise is fulfilled in Jesus, the Son of David.','King Solomon built the Temple in Jerusalem.'],
+    more:['David’s men took Jerusalem by way of a water channel.','The promise came through the prophet Nathan.','In Psalm 110 David calls the Messiah “my Lord”, pointing to One who is more than a human king.',
+      'After David’s victory in the Valley of Rephaim the Philistines went from conquerors to subjects.','Words: Ark of the Covenant, Jerusalem, messianic hope.'],
+    story:'Two scouts argue after returning from Canaan: faith against fear of walled cities.', type:'Dialogue', words:'350–450', rule:'Punctuation of dialogue (Harvey ch. 12–14)',
+    young:'Write 3 or 4 sentences about King David.', little:'Draw King David’s crown. Copy: David loved God.' },
+  { n:6, ch:'Chapter 5', title:'The Divided Kingdom', years:[-930,-721], when:'about 922–721 BC (Carroll)',
+    note:'Carroll dates the division 922 BC. The CLAA list prints 930 BC.',
+    facts:['After King Solomon died, the kingdom split in two: Israel in the north and Judah in the south.','Some kings, such as Ahab with Queen Jezebel, turned to false gods.',
+      'God sent prophets to call the people back.','The prophet Elijah prayed on Mount Carmel and God sent fire from heaven, showing that he is the true God.','At last the Assyrians conquered the northern kingdom.'],
+    more:['Solomon’s sins and heavy taxes, and Rehoboam’s harshness, led the ten northern tribes to follow Jeroboam.',
+      'The Black Obelisk of the Assyrian king Shalmaneser III shows King Jehu paying tribute.','Carroll sees a repeated pattern: idolatry, disaster, a prophet, partial repentance, rescue.','Words: schism, Elijah, Jezebel, Assyria.'],
+    story:'A Levite priest writes to his cousin, grieving over the golden calf at Bethel and urging him to flee.', type:'Letter', words:'350–450', rule:'Adjectives, modifiers and agreement (Harvey ch. 15–16)',
+    young:'Write 3 or 4 sentences about the prophet Elijah.', little:'Draw fire coming from heaven. Copy: The Lord is God.' },
+  { n:7, ch:'Chapter 6', title:'The Holy City', years:[-721,-582], when:'about 721–582 BC',
+    facts:['The Assyrians came against Jerusalem when Hezekiah was king.','God saved the city: a sudden disaster struck the enemy army in the night and it went home.','The prophet Isaiah warned that the people would one day be taken to Babylon.',
+      'Isaiah also wrote about a Servant who would suffer to save others. This is Jesus.','Later the Babylonians took Jerusalem and led many people away.'],
+    more:['Carroll suggests a pestilence struck the Assyrian army.','Isaiah 53 foreshadows the scourging, the death, the rich man’s tomb and the Resurrection.',
+      'Isaiah foretold the desolation of Babylon when it was a great city.','Words: Hezekiah, Isaiah, Babylon, Suffering Servant.'],
+    story:'A scribe hides the sacred scrolls and writes a last prayer the night before Nebuchadnezzar arrives.', type:'Journal or prayer', words:'400–500', rule:'Subordinate clauses and complex sentences (Harvey ch. 17–18)',
+    young:'Write a short prayer King Hezekiah might have said.', little:'Draw the city of Jerusalem. Copy: God protects his people.' },
+  { n:8, ch:'Chapter 7', title:'The Quest and the Chosen', years:[-582,-499], keys:['King Cyrus sets the Jews free','Second Temple completed'], when:'about 582–499 BC',
+    facts:['While God’s people were in Babylon, the prophet Daniel stayed faithful to God.','Long before, Isaiah had named Cyrus as the man who would set them free.',
+      'Cyrus, king of the Persians, conquered Babylon and let the Jews go home.','They built the Temple again.'],
+    more:['Carroll holds that Daniel’s prophecies are true foresight, while noting the scholarly debate.',
+      'True prophecy is neither so detailed that it denies free will nor so vague that it denies God’s foreknowledge.','The Second Temple was finished about 516–515 BC.','Words: Cyrus the Great, remnant, Daniel, Second Temple.'],
+    story:'A Jewish exile writes: Cyrus has issued his decree. Return to ruined Jerusalem or stay in Babylon?', type:'Letter', words:'400–500', rule:'Semicolons and colons (Harvey ch. 19–20)',
+    young:'Write 3 or 4 sentences about going home to Jerusalem.', little:'Draw people walking home. Copy: God brought them home.' },
+  { n:9, ch:'Chapter 8', title:'Two Hopes', years:[-499,-404], when:'499–404 BC',
+    facts:['In Greece the city of Athens made beautiful buildings, such as the Parthenon, and had wise thinkers such as Socrates.','In Jerusalem, Nehemiah led the people to rebuild the city wall.',
+      'The priest Ezra read God’s Law to the people.','Greek wisdom could not take away sin or death. Israel had the promise of the living God.'],
+    more:['Pericles built for beauty and human glory; Nehemiah built to guard the people through whom the Messiah would come.',
+      'Neighbors opposed the wall because it secured the returned Jews in their land.','The wall was finished in 52 days because the fallen stones were still at hand.',
+      'With David’s royal line in obscurity, the high priest led the people for about 300 years.','Words: Nehemiah, Ezra, Socrates, Pericles.'],
+    story:'A Greek soldier dictates his testament, marveling at Marathon, and tells how the gods felt hollow afterward.', type:'Third-person narrative', words:'400–500', rule:'Active and passive voice (Harvey ch. 21–22)',
+    young:'Write 3 or 4 sentences about Nehemiah’s wall.', little:'Draw a strong wall. Copy: They worked together.' },
+  { n:10, ch:'Chapter 9', title:'The March Across the World', years:[-336,-323], when:'336–323 BC',
+    facts:['Alexander the Great was a young king from Macedonia.','He conquered the Persian Empire and marched all the way to India.','He died when he was only 32.',
+      'Because of him many lands learned the Greek language. Later the Gospel was written and preached in Greek.'],
+    more:['His great battles include the Granicus, Issus and Gaugamela, against Darius III.','He crossed the Hindu Kush in winter in pursuit of Bessus.',
+      'He hoped to join Greeks and Persians as equals.','Persepolis, the Persian capital, was burned; Carroll sees in its ashes the end of that empire.','Words: Hellenization, Gaugamela, Darius III.'],
+    story:'A Roman soldier’s wife tells how Rome was brought to the edge of ruin and did not break.', type:'First-person narrative', words:'450–550', rule:'Review of all rules so far (study plan: chapters 9–10)',
+    young:'Write 3 or 4 sentences about Alexander’s long journey.', little:'Draw Alexander on his horse. Copy: Alexander traveled far.' },
+  { n:11, ch:'Chapter 10', title:'The Fortitude of Rome', years:[-390,-146], keys:['Punic Wars'], when:'up to 146 BC',
+    facts:['Rome grew from one city into a strong power.','The Romans were brave and did not give up. This virtue is called fortitude.','Rome fought long wars against Carthage, called the Punic Wars.',
+      'Hannibal of Carthage crossed the mountains called the Alps.','At last Rome won. God was preparing the world for the coming of Jesus.'],
+    more:['Carroll compares Rome’s recovery after defeats with Israel’s pattern of fall and rescue.','He sees the war as more than political: Carthage inherited the Canaanite practice of child sacrifice.',
+      'He quotes Chesterton on the totality of the fall of Carthage.','Words: fortitude, Carthage, Hannibal, Punic Wars.'],
+    story:'A Roman soldier’s wife tells how Rome was brought to the edge of ruin and did not break.', type:'First-person narrative', words:'450–550', rule:'Review of all rules so far (study plan: chapters 9–10)',
+    young:'Write 3 or 4 sentences about a time you did not give up, like the Romans.', little:'Draw a mountain. Copy: Be brave.' },
+  { n:12, ch:'Chapter 11', title:'Rome Ascendant, the Temple Regained', years:[-201,-135], keys:['Maccabees in Israel'], when:'about 201–135 BC',
+    facts:['A wicked king, Antiochus, put an idol in God’s Temple and forbade the Jews to keep God’s Law.','An old priest, Mattathias, and his five sons bravely resisted. They are called the Maccabees.',
+      'Judas Maccabeus took back the Temple and made it holy again in 165 BC.'],
+    more:['The revolt began at Modein, when Mattathias struck down a man about to sacrifice to Zeus, and the officer who demanded it.',
+      'Mattathias ruled that self-defense on the Sabbath was lawful in that crisis.','His last charge to his sons: be zealous for the Law and trust God.','None of the five brothers broke faith.','Words: Antiochus IV Epiphanes, Maccabees, Mattathias, Hanukkah.'],
+    story:'A Jewish elder describes the Maccabean revolt and Pompey’s entry into the Holy of Holies.', type:'Journal and essay paragraph', words:'450–550', rule:'Reliable and unreliable narrator; the essay paragraph',
+    young:'Write 3 or 4 sentences about the brave Maccabees.', little:'Draw a lamp in the Temple. Copy: They were faithful.' },
+  { n:13, ch:'Chapter 12', title:'Rome and Caesar', years:[-135,-44], when:'up to 44 BC',
+    facts:['The Roman general Pompey took Jerusalem in 63 BC.','Romans fought one another for power.','Julius Caesar became the ruler of Rome and was later killed.',
+      'God was guiding history toward a time of peace, when Jesus would be born.'],
+    more:['Pompey entered the Holy of Holies and found it empty.','The quarrel of the brothers Hyrcanus II and Aristobulus II gave Rome its opening in Judea.',
+      'Sulla saw in the young Caesar “many Mariuses”: the same gifts and ambition.','Words: Pompey, Holy of Holies, Julius Caesar, Sanhedrin.'],
+    story:'A Jewish elder describes the Maccabean revolt and Pompey’s entry into the Holy of Holies.', type:'Journal and essay paragraph', words:'450–550', rule:'Reliable and unreliable narrator; the essay paragraph',
+    young:'Write 3 or 4 sentences about Julius Caesar.', little:'Draw a Roman helmet. Copy: God guides history.' },
+  { n:14, ch:'Chapter 13', title:'The Winning of the Roman Peace', years:[-44,-5], keys:['Reign of Augustus Caesar'], when:'44 BC to the birth of Christ',
+    facts:['Octavian won the battle of Actium in 31 BC.','He became Augustus, the first Roman emperor.','He brought a long time of peace, called the Roman Peace.','Soon the Prince of Peace, Jesus, would be born.'],
+    more:['Augustus closed the doors of the Temple of Janus, a sign of peace.','In 27 BC he “restored the Republic”: he gave up his powers and the Senate returned them, so one man still ruled.',
+      'He confirmed the privileges of the Jews in Rome.','Carroll contrasts him with his four successors, who were ruined by absolute power.','Words: Augustus, Actium, Pax Romana, Janus.'],
+    story:'A Roman centurion writes to a friend in Rome: he cannot explain why the night in Bethlehem felt different.', type:'Short story', words:'500–600', rule:'All rules together',
+    young:'Write 3 or 4 sentences about why peace is good.', little:'Draw a dove. Copy: Jesus is the Prince of Peace.' },
+  { n:15, ch:'Chapter 14', title:'The Incarnation of the Lord', years:[-5,1], keys:['Life of Jesus Christ'], when:'about 5–4 BC',
+    facts:['The angel Gabriel told the priest Zachary that he would have a son, John the Baptist.','The same angel came to the Virgin Mary in Nazareth.','Mary freely said yes to God, and the Son of God became man.',
+      'Jesus was born in Bethlehem.','King Herod wished to harm the Child, so the Holy Family fled to Egypt.'],
+    more:['The history as we can see it begins with Zachary’s prayer in the sanctuary.','On Mary’s free consent depended the salvation of countless souls: God does not force the will.',
+      'Herod was a great builder of the Temple and also a murderer, even of his own family and of the Holy Innocents.','Words: Annunciation, Incarnation, Zachary, Herod the Great.'],
+    story:'A Roman centurion writes to a friend in Rome: he cannot explain why the night in Bethlehem felt different.', type:'Short story', words:'500–600', rule:'All rules together',
+    young:'Write 3 or 4 sentences about the Annunciation.', little:'Draw the manger. Copy: Jesus is born.' },
+  { n:16, ch:'Chapter 15', title:'God in Galilee', years:[28,29], keys:['Life of Jesus Christ'], when:'about AD 28–29',
+    facts:['Jesus called his Apostles.','He preached the Sermon on the Mount and worked miracles, such as feeding thousands with a few loaves.','He taught that he is the Bread of Life.',
+      'Peter said that Jesus is the Christ, the Son of God, and Jesus gave Peter the keys of the kingdom.','At the Transfiguration three Apostles saw his glory.'],
+    more:['Carroll builds a chronology to show that the Gospels are history, with real dates and places.','After the Bread of Life discourse many left; Christ did not soften his teaching to keep them.',
+      'Words: Transfiguration, Caesarea Philippi, Capharnaum.'],
+    story:'An old fisherman tells his apprentice how a stranger called him one morning by the shore.', type:'Short story', words:'500–600', rule:'All rules together',
+    young:'Write 3 or 4 sentences about one miracle of Jesus.', little:'Draw loaves and fishes. Copy: Jesus fed the people.' },
+  { n:17, ch:'Chapter 16', title:'I Am the Resurrection and the Life', years:[29,30], keys:['Life of Jesus Christ'], when:'about AD 30 (Carroll)',
+    note:'Carroll dates the Crucifixion AD 30. The CLAA list prints AD 33.',
+    facts:['Jesus rode into Jerusalem on Palm Sunday.','At the Last Supper he gave us the Holy Eucharist.','He suffered and died on the Cross to save us.','On the third day he rose from the dead.'],
+    more:['Christ condemned the pride of those Scribes and Pharisees who closed their hearts to the truth.','He foretold the destruction of Jerusalem and the Temple.',
+      'Carroll argues for the bodily Resurrection from the empty tomb, the many witnesses and the changed Apostles who died for their testimony.','The Last Supper fulfills the promise of the Bread of Life.'],
+    story:'An old fisherman tells his apprentice how a stranger called him one morning by the shore.', type:'Short story', words:'500–600', rule:'All rules together',
+    young:'Write 3 or 4 sentences about Easter morning.', little:'Draw the empty tomb. Copy: He is risen.' },
+  { n:18, ch:'Chapter 17', title:'He Chose Twelve, and Paul', years:[30,67], when:'from about AD 30 to 67',
+    facts:['At Pentecost the Holy Ghost came upon the Apostles.','Peter led the Church.','Saul was converted and became the Apostle Paul, who traveled to preach.','Saint Stephen was the first martyr.',
+      'An old tradition says the Apostle Thomas preached in India.'],
+    more:['Peter’s baptism of the centurion Cornelius opened the Church to the Gentiles.','For Thomas in India, Carroll points to King Gundofarr, known from coins and an inscription, Syriac tradition and the Thomas Christians.',
+      'Carroll presents his account of the Shroud of Turin’s journey to King Abgar of Edessa, folded so that only the face showed.','Paul spent time in retreat before his missions.','Words: Pentecost, Apostle, martyr.'],
+    story:'A Roman official’s daughter explains to her mother why she will not give up her faith at the tribunal.', type:'Letter and essay', words:'550–650', rule:'All rules and the essay paragraph',
+    young:'Write 3 or 4 sentences about Saint Peter or Saint Paul.', little:'Draw a flame for Pentecost. Copy: Come, Holy Ghost.' },
+  { n:19, ch:'Chapter 18', title:'The Seed in the Earth', years:[64,250], when:'the first to the third century',
+    facts:['The Church grew even though Christians were often persecuted.','A martyr is someone who dies rather than give up faith in Christ.','Saint Blandina was a young slave girl who stayed faithful in Lyons in the year 177.',
+      'Great teachers, such as Saint Polycarp and Saint Irenaeus, defended the true faith.'],
+    more:['At Lyons the beasts would not touch Blandina.','The persecutors threw the martyrs’ ashes into the Rhône, hoping to destroy hope in the resurrection.',
+      'Montanism preached an imminent end and extreme austerity, and set private prophecy against Church authority.','Fathers and writers: Polycarp, Irenaeus, Tertullian, Origen, Cyprian.'],
+    story:'A Roman official’s daughter explains to her mother why she will not give up her faith at the tribunal.', type:'Letter and essay', words:'550–650', rule:'All rules and the essay paragraph',
+    young:'Write 3 or 4 sentences about Saint Blandina’s courage.', little:'Draw a seed growing. Copy: The Church grew.' },
+  { n:20, ch:'Chapter 19', title:'Blood of the Martyrs', years:[250,313], keys:['Life of St. Constantine','Edict of Milan'], when:'about AD 250–313',
+    facts:['Some emperors, such as Diocletian, persecuted Christians very harshly.','Many Christians stayed faithful.','In 312 Constantine saw a sign of the Cross and won the battle of the Milvian Bridge.',
+      'In 313 the Edict of Milan let Christians worship freely.'],
+    more:['Persecutions under Decius, Valerian and Diocletian were the worst yet.','The official Philoromus defended Bishop Phileas and died with him.','Constantine was proclaimed by the army at York in 306.',
+      'Galerius issued an edict of toleration in 311: persecution had failed.','Constantine was plunged into affairs of state with no time of retreat after his conversion.'],
+    story:'A Roman official’s daughter explains to her mother why she will not give up her faith at the tribunal.', type:'Letter and essay', words:'550–650', rule:'All rules and the essay paragraph',
+    young:'Write 3 or 4 sentences about Constantine and the Cross.', little:'Draw a cross in the sky. Copy: The Cross wins.' },
+  { n:21, ch:'Chapter 20', title:'Triumph of the Cross', years:[311,325], when:'about AD 311–325',
+    facts:['The emperor Constantine protected the Church.','A group called the Donatists broke away and would not obey the Pope.','Pope Miltiades and councils of bishops judged the question.',
+      'Christendom had been founded. Soon the great Council of Nicaea would meet.'],
+    more:['The Council of Rome (313) and the Council of Arles (314) judged against the Donatists, who refused to submit.','Constantine was at first naive, expecting bishops and priests always to act like Christians.',
+      'Violence and pride lay behind the Donatists’ claim to strictness.','Volume 1 closes with religious freedom won, a crisis unsettled and Nicaea (325) ahead.','Words: Donatism, schism, council.'],
+    story:'Three generations of a Roman Christian family: the grandmother (Diocletian), the father (Milvian Bridge) and the daughter (Edict of Milan).', type:'Capstone story', words:'700–900', rule:'All Harvey rules together',
+    young:'Write 4 sentences about your favorite part of this whole story.', little:'Draw a church. Copy: Christ is King.' }
+];
+
+// Which unit comes next, from the "last lesson" record: "Christendom Unit 3 — Title (in progress|completed)".
+// The teacher can type e.g. "Christendom Unit 3 completed" on the Dashboard to jump ahead.
+function chrPick(){
+  if(!curSubject || !curSubject.isChristendom) return null;
+  const last = getSession(curStudent, curSubject.id).lastLesson || '';
+  const m = last.match(/Christendom Unit\s*(\d+)/i);
+  let n = 1;
+  if(m) n = /in progress/i.test(last) ? Number(m[1]) : Number(m[1]) + 1;
+  return window.CHRISTENDOM_UNITS.find(function(u){ return u.n === n; }) || null;
+}
+function chrLabel(u, status){ return 'Christendom Unit ' + u.n + ' — ' + u.title + ' (' + status + ')'; }
+// The only content the tutor may teach for this unit.
+function chrBlock(u){
+  const older = curStudent === 'AL';
+  return '\n\nTODAY\'S UNIT — ' + u.ch + ': "' + u.title + '" (Warren H. Carroll, The Founding of Christendom). Period: ' + u.when + '.\n'
+    + 'TEACH ONLY THESE FACTS, in your own words at the student\'s level. Add no other dates, names, quotations or events, and never claim to quote the book:\n- '
+    + u.facts.concat(older ? u.more : []).join('\n- ')
+    + '\nAsk questions only about these facts.';
+}
+// The writing activity for this unit (used instead of "write 3 examples").
+function chrTask(u){
+  if(curStudent === 'AL') return 'Work on your story for ' + u.ch + ': ' + u.story + ' Type: ' + u.type + ', ' + u.words + ' words. Practice: ' + u.rule + '.';
+  return curStudent === 'LJ' ? u.little : u.young;
+}

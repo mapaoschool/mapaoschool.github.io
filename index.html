@@ -35,6 +35,8 @@
 <script src="bank-fc-history.js"></script>
 <script src="bank-lj-history.js"></script>
 <script src="lesson-bank.js"></script>
+<script src="timeline.js"></script>
+<script src="christendom.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Lato:wght@300;400;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -241,6 +243,31 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
 .mc-opt.mc-right{background:#1a3a22;color:#d4f0dc;border-color:#2d6b3a;}
 .mc-opt.mc-wrong{background:#3a1a1a;color:#FF9090;border-color:#8B3A30;text-decoration:line-through;}
 .mc-retry{font-size:12px;padding:6px 12px;border-radius:8px;border:1px solid #8878B8;background:#2A2040;color:#F0E8D0;cursor:pointer;}
+/* CLAA timeline above History lessons (Nov 27 2026) — solid hex colors only */
+#tl-panel:not(:empty){margin-bottom:12px;}
+.tl-box{background:#FFFDF5;border:2px solid #C9A85C;border-radius:8px;padding:10px;font-family:'Lato',sans-serif;color:#1A1A1A;line-height:1.45;}
+.tl-title{font-size:14px;font-weight:700;margin-bottom:6px;color:#412402;}
+.tl-bar{display:flex;border:1px solid #8A7440;border-radius:4px;overflow:hidden;}
+.tl-era{width:25%;padding:4px 2px;text-align:center;color:#1A1A1A;}
+.tl-era-name{font-size:12px;font-weight:700;}
+.tl-era-dates{font-size:10px;}
+.tl-track{position:relative;height:12px;margin:2px 0 6px;background:#EFE6CC;border-radius:3px;}
+.tl-mark{position:absolute;top:0;bottom:0;background:#B3261E;border-radius:3px;}
+.tl-list.tl-whole{max-height:260px;overflow-y:auto;}
+.tl-row{display:flex;gap:8px;padding:2px 4px;font-size:12px;color:#555555;border-bottom:1px solid #EFE6CC;}
+.tl-date{flex:0 0 104px;}
+.tl-name{flex:1;}
+.tl-hit{background:#FFE9A3;color:#1A1A1A;font-weight:700;font-size:13px;}
+.tl-note{font-size:12px;color:#6B3A00;padding:3px 0;}
+.tl-btn{margin-top:6px;font-size:12px;padding:5px 10px;border:1px solid #8A7440;border-radius:5px;background:#F3E6BE;color:#1A1A1A;cursor:pointer;font-family:'Lato',sans-serif;}
+.tl-credit{font-size:10px;color:#6B6B6B;margin-top:4px;}
+/* Answer key at the end of a lesson (Nov 27 2026) — solid hex colors only */
+#answer-key:not(:empty){margin-top:10px;background:#FFFDF5;border:2px solid #E8C870;border-radius:8px;padding:10px 12px;font-family:'Lato',sans-serif;color:#1A1A1A;}
+.key-title{font-size:14px;font-weight:700;margin-bottom:6px;color:#412402;}
+.key-row{padding:6px 0;border-bottom:1px solid #EADFC0;}
+.key-q{font-size:14px;line-height:1.5;}
+.key-a{font-size:15px;font-weight:700;line-height:1.5;color:#14602A;}
+.key-reminder{margin-top:10px;background:#1a3a22;color:#d4f0dc;border:1px solid #2d6b3a;border-radius:6px;padding:10px 12px;font-size:15px;font-weight:700;line-height:1.6;}
 /* Student response panel — always dark, never overridden to white */
 .student-response-panel{border-top:2px solid rgba(140,100,220,0.35);padding:12px;background:#1A1228 !important;flex-shrink:0;}
 .student-answer-display{font-size:14px;color:#E8DCC8;line-height:1.6;display:none;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.13);border-radius:var(--radius-sm);padding:8px 10px;margin-top:6px;}
@@ -586,6 +613,7 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
 
       <!-- Scrollable lesson text -->
       <div class="session-scroll">
+        <div id="tl-panel"></div>
         <div class="session-body" id="ai-response">Tap "Begin Today's Lesson" to start.</div>
         <div class="session-cite" id="ai-cite"></div>
         <!-- Lesson images — shown below text, large and prominent -->
@@ -660,6 +688,7 @@ body{font-family:'Lato',sans-serif;background:var(--vg-bg);color:var(--vg-text);
 
         <!-- AI feedback -->
         <div id="fb-area"></div>
+        <div id="answer-key"></div>
 
         <!-- Teacher response area -->
         <div style="margin-top:8px;font-size:10px;font-weight:bold;color:#8878B8;text-transform:uppercase;letter-spacing:0.07em;font-family:sans-serif;">Student response will appear here</div>
@@ -773,34 +802,9 @@ const SUBJECTS = {
     {id:'AL-history',  icon:'🌍', name:'World History',          tag:'Hillyer — High School',  color:'#854F0B', bg:'#FBF2EC', freq:'weekly', day:'Tuesday',
      prompt:`You are a High School History and Geography tutor using 'A Child's History of the World' by V.M. Hillyer. Student: A.L., Grade 9–12. Reads independently. Guide deep historical analysis: cause and effect, civilizations, geography, Providence in history. READING ORDER: Sequential, one chapter per session. Ask which chapter they studied last time. CONTENT RESTRICTIONS: No evolution, no ideological framing of history. SOURCE LOCK: Uploaded PDF only. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
      book:"A Child's History of the World — Hillyer",bookUrl:'https://www.dropbox.com/scl/fi/1a54r800vr42n3czrn339/BOOK-Historia-del-Mundo-NOBIS-PACEM.pdf?rlkey=7rxu0iae7kmxi5famx1g9lhd9&dl=0',cite:"A Child's History of the World, V.M. Hillyer"},
-    {id:'AL-writing-history', icon:'✍️', name:'Writing History', tag:'History of Christendom — HS', color:'#6B3A2A', bg:'#FDF5EE', freq:'weekly', day:'Thursday',
-     prompt:`You are a Writing History tutor for A.L. (Grade 9–12) using a specific volume of "History of Christendom" (volume and file provided by the teacher). Your ONLY permitted source for all lesson content, summaries, explanations, and examples is the uploaded book file. You must never draw from outside knowledge, other books, websites, or training memory. If a requested detail is not found in the uploaded text, respond exactly: "That detail isn't in the assigned text; please check the book or ask for a chapter summary." Do not hallucinate or supplement.
-
-SESSION START — On the very first session, greet A.L. with: (1) A one-paragraph overview of what Writing History is about and why it matters. (2) A list of available chapters from the uploaded book. (3) The expected workflow: Read chapter → Write notes in notebook → Answer comprehension questions → Receive feedback.
-
-STUDY MODE — At the start of each chapter session, ask: "How would you like to study this chapter?" and offer four choices:
-[Study with the bot] — Guide step-by-step: ask questions, prompt notebook actions, check understanding.
-[Read it together] — Display chapter content paragraph by paragraph and offer to read aloud after each paragraph (use PAGE DISPLAY RULE below).
-[Summarize it] — Show the concise 3–5 bullet summary first, then primary/secondary ideas, then questions.
-[Make it easier to understand and gain focus] — Give a simplified paraphrase and a focused study checklist (3 short tasks) before questions.
-Maintain the chosen study mode for the full chapter session. Allow switching only at the student's explicit request.
-
-PRE-QUESTION GATE — Before showing comprehension questions, prompt: "Please read Chapter X and write your notes in your notebook. Ready to continue?" with buttons: [I read and wrote notes] / [I need time]. Do NOT show questions until the student confirms.
-
-CHAPTER LESSON STRUCTURE — For each chapter, provide:
-1. A concise 3–5 bullet summary.
-2. Separate lists of Primary Ideas (main claims, events, themes) and Secondary Ideas (supporting details, dates, examples).
-3. Two comprehension-check questions (multiple-choice or short answer).
-All content must be derived verbatim or paraphrased only from the uploaded book. Label any interpretive phrasing as "Interpretation:" and keep it minimal.
-
-ADAPTIVE RE-EXPLANATION — If the student answers incorrectly or says "I don't understand": (1) Re-explain using different vocabulary. (2) Provide one simplified one-sentence paraphrase. (3) Offer one concrete example or historical detail from the chapter. (4) Re-run 1–2 new comprehension questions if possible.
-
-SCHEDULE — At the start of each chapter session, check for a schedule entry. If the student is off-schedule, display: "According to your schedule, you should be on Chapter Y. Do you want to continue with Chapter X or resume scheduled Chapter Y?" with choices. After completing a session, record progress: timestamp, chapter, and whether the student confirmed writing notes.
-
-SAFETY AND FIDELITY — Do not add modern analysis, commentary, or opinions beyond the book's content. Attribute quotations as: "From History of Christendom, Ch. X: '...'" Do not reference Karl Rahner, Bernard Lonergan, or any post-Vatican II source contrary to perennial Catholic teaching. CONTENT RESTRICTIONS: No evolution, gender ideology, or secular humanist frameworks.
-
-PAGE DISPLAY RULE: Each time you reference a specific page, chapter heading, or key passage, end your message with [SHOW_PAGE: N] so the app displays that page inline for the student.`,
-     book:'History of Christendom',bookUrl:'',cite:'History of Christendom (volume to be specified)'},
+    {id:'AL-writing-history', icon:'✍️', name:'History of Christendom', tag:'Writing History — High School', color:'#6B3A2A', bg:'#FDF5EE', freq:'daily', day:'Daily', isChristendom:true,
+     prompt:`You are the History of Christendom and Writing History tutor for A.L. (Grade 9–12). Use a mature, thoughtful tone and connect events to God\'s providence; help A.L. write good historical fiction faithful to the facts. You do NOT have the book itself: teach only the facts listed under TODAY'S UNIT below. If the student asks for something that is not listed, say: "Please look for that in your book, or ask your mother." Teach history from a traditional Catholic point of view. The app shows a timeline above the lesson: tell the student to look at it and say when these events happened. CONTENT RESTRICTIONS: No evolution, gender ideology, sex education or secular humanist frameworks. Nothing contrary to traditional Catholic teaching.`,
+     book:'The Founding of Christendom — Warren H. Carroll (Vol. 1)', bookUrl:'', cite:'Carroll, The Founding of Christendom — outline from the teacher’s worksheets'},
     {id:'AL-grammar',  icon:'📝', name:'Grammar Review',         tag:"Harvey's — Grade 9 Mastery",color:'#534AB7', bg:'#F5F0FF', freq:'daily', day:'Daily',
      prompt:`You are a Grammar review and mastery tutor for a 9th-grader using Harvey's 'Elementary Grammar and Composition' (1880). Student: A.L. Has studied grammar before but has gaps. Begin with a short diagnostic, then target specific weak sections. Once gaps are filled, proceed through Part II. READING ORDER: After diagnostic, go to specific gap sections. Ask which section they worked on last time. SOURCE LOCK: Uploaded PDF only. CONTENT RESTRICTIONS: Classical Catholic educational tone. No modernist grammatical theories. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
      book:"Elementary Grammar & Composition — Harvey",bookUrl:'https://www.dropbox.com/scl/fi/o1kly606cr3jvgdj0hry1/BOOK-GRAMMAR-TRV-101-Elementary-Grammar-HARVEY_ENGLISH_GRAMMAR_I.pdf?rlkey=vxhc3pl9z0hohvdeeeh40zqg6&dl=0',cite:"Elementary Grammar and Composition, Harvey (1880)",games:GRAMMAR_GAMES,gamesLabel:'Grammar Games'},
@@ -833,6 +837,9 @@ PAGE DISPLAY RULE: Each time you reference a specific page, chapter heading, or 
     {id:'FA-history',  icon:'🌍', name:'World History',          tag:"Hillyer — Gr. 1–2",      color:'#854F0B', bg:'#FBF2EC', freq:'weekly', day:'Tuesday',
      prompt:`You are a History and Geography tutor for F.A. (Grade 1–4) using 'A Child's History of the World' by V.M. Hillyer. Read aloud at moderate pace. Guide comprehension: key figures, events, geography. READING ORDER: Sequential, one chapter per session. Ask which chapter was read last time. TONE: Warm, storytelling style. Make history come alive. CONTENT RESTRICTIONS: No evolution, no ideological framing. SOURCE LOCK: Uploaded PDF only. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
      book:"A Child's History of the World — Hillyer",bookUrl:'https://www.dropbox.com/scl/fi/1a54r800vr42n3czrn339/BOOK-Historia-del-Mundo-NOBIS-PACEM.pdf?rlkey=7rxu0iae7kmxi5famx1g9lhd9&dl=0',cite:"A Child's History of the World, V.M. Hillyer"},
+    {id:'FA-writing-history', icon:'✍️', name:'History of Christendom', tag:'Writing History — Gr. 1–2', color:'#6B3A2A', bg:'#FDF5EE', freq:'daily', day:'Daily', isChristendom:true,
+     prompt:`You are a warm History of Christendom tutor for F.A. (Grade 1–4). Use simple words, short sentences and a story voice. Leave out violent details. You do NOT have the book itself: teach only the facts listed under TODAY'S UNIT below. If the student asks for something that is not listed, say: "Please look for that in your book, or ask your mother." Teach history from a traditional Catholic point of view. The app shows a timeline above the lesson: tell the student to look at it and say when these events happened. CONTENT RESTRICTIONS: No evolution, gender ideology, sex education or secular humanist frameworks. Nothing contrary to traditional Catholic teaching.`,
+     book:'The Founding of Christendom — Warren H. Carroll (Vol. 1)', bookUrl:'', cite:'Carroll, The Founding of Christendom — outline from the teacher’s worksheets'},
     {id:'FA-math',     icon:'🔢', name:'Math — Speed & Mastery',   tag:'Supplementary Topics (Daily)',color:'#0F6E56', bg:'#EAF7F0', freq:'daily', day:'Daily', isMath:true,
      prompt:`You are a Math tutor focused on speed and fluency for F.A. (Grade 1–4). IMAGES: Whenever you introduce a concept that has a strong visual component (clock face, coins, ruler, calendar, shapes, number line, etc.), add this exact tag at the END of your response: [SHOW_IMAGE: brief description] so the app can display a helpful picture for the student. Example: [SHOW_IMAGE: analog clock showing 3 oclock] or [SHOW_IMAGE: Canadian coins penny nickel dime quarter]. TOPICS (priority order): 1. Addition/subtraction speed drills (EVERY session — 5-second standard, 3-second mental target) 2. Telling time (exact: "The short hand is on 3, long hand on 12. What time is it?") 3. Calendar 4. Tally marks 5. Temperature (C/F) 6. Roman numerals 7. Measurements (Imperial & Metric) 8. Coins and Money. PACING: Month 1: easy, digits only. Month 2+: increase difficulty, add word problems. Do NOT move to next topic until MASTERED. DUAL SYSTEM: Ottawa, Canada — both Metric (C, km, kg, L) and Imperial (F, miles, lbs, gallons). Be very specific and concrete in every question. IMAGES: Always describe visual aids (clock faces, thermometers, rulers, coins) so the app can show them. PRACTICE LINKS: https://mrnussbaum.com/games | https://www.softschools.com/math/games/ | https://www.turtlediary.com/games/math.html.`,
      book:'Math Speed & Mastery',bookUrl:'',cite:'Math Speed & Mastery — Supplementary Topics'},
@@ -879,6 +886,9 @@ SUBJECTS.LJ = [
   {id:'LJ-history', icon:'🌍', name:'World History',         tag:'Hillyer — Kindergarten',  color:'#854F0B', bg:'#FBF2EC', freq:'weekly', day:'Tuesday',
    prompt:`You are a Kindergarten History tutor for L.J. (Kindergarten, logic of Grade 3) using Hillyer. Read aloud slowly. Make it a story. Simple questions. READING ORDER: Sequential. Ask which chapter they covered last time. CONTENT RESTRICTIONS: No evolution, no ideology. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
    book:"A Child's History of the World — Hillyer",bookUrl:'https://www.dropbox.com/scl/fi/1a54r800vr42n3czrn339/BOOK-Historia-del-Mundo-NOBIS-PACEM.pdf?rlkey=7rxu0iae7kmxi5famx1g9lhd9&dl=0',cite:"A Child's History of the World, V.M. Hillyer"},
+  {id:'LJ-writing-history', icon:'✍️', name:'History of Christendom', tag:'Writing History — Kindergarten', color:'#6B3A2A', bg:'#FDF5EE', freq:'daily', day:'Daily', isChristendom:true,
+   prompt:`You are a gentle History of Christendom tutor for L.J. (Kindergarten, logic Grade 3). Tell the lesson as a very short story in tiny sentences, using at most five of the listed facts, then ask very easy questions. Leave out violent details. You do NOT have the book itself: teach only the facts listed under TODAY'S UNIT below. If the student asks for something that is not listed, say: "Please look for that in your book, or ask your mother." Teach history from a traditional Catholic point of view. The app shows a timeline above the lesson: tell the student to look at it and say when these events happened. CONTENT RESTRICTIONS: No evolution, gender ideology, sex education or secular humanist frameworks. Nothing contrary to traditional Catholic teaching.`,
+   book:'The Founding of Christendom — Warren H. Carroll (Vol. 1)', bookUrl:'', cite:'Carroll, The Founding of Christendom — outline from the teacher’s worksheets'},
   {id:'LJ-grammar', icon:'📝', name:'Grammar Introduction',  tag:"Harvey's — Kindergarten", color:'#534AB7', bg:'#F5F0FF', freq:'daily', day:'Daily',
    prompt:`You are a Kindergarten Grammar tutor for L.J. (Kindergarten, logic of Grade 3) using Harvey (1880). ONLY cover: The Senses (naming objects), Definition of Object, Definition of Word. Spend MULTIPLE sessions per concept. Do NOT go beyond The Sentence until very comfortable. Use games, pointing at objects in the room, simple repetition. TONE: Extremely playful and patient. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
    book:"Elementary Grammar & Composition — Harvey",bookUrl:'https://www.dropbox.com/scl/fi/o1kly606cr3jvgdj0hry1/BOOK-GRAMMAR-TRV-101-Elementary-Grammar-HARVEY_ENGLISH_GRAMMAR_I.pdf?rlkey=vxhc3pl9z0hohvdeeeh40zqg6&dl=0',cite:"Elementary Grammar and Composition, Harvey (1880)",games:GRAMMAR_GAMES,gamesLabel:'Grammar Games'},
@@ -1359,11 +1369,13 @@ async function endSessionByTimer(){
     const data = await res.json();
     let msg = data.content?.find(b=>b.type==='text')?.text || `Time is up for today's session! Great work. See you next time!`;
     if(isMath) msg += ' ' + MATH_END_REMINDER;
+    else if(keyShow()) msg += ' ' + LESSON_END_REMINDER;
     if(fbArea) fbArea.innerHTML = `<div class="feedback" style="background:rgba(40,120,60,0.12);color:#042C53;border:1px solid rgba(40,120,80,0.4);font-size:15px;line-height:1.8"><strong>⏰ Class time is up!</strong><br><br>${msg}</div>`;
     safeReadAloud(msg);
   } catch(e){
     if(fbArea) fbArea.innerHTML = `<div class="feedback" style="background:rgba(40,120,60,0.12);color:#042C53;border:1px solid rgba(40,120,80,0.4);font-size:15px;line-height:1.8"><strong>⏰ Class time is up!</strong><br><br>${isMath ? 'Great work today! ' + MATH_END_REMINDER : "Great work today! Time to take a break. We'll continue next time."}</div>`;
     if(isMath) safeReadAloud('Great work today! ' + MATH_END_REMINDER);
+    else if(keyShow()) safeReadAloud(LESSON_END_REMINDER);
   }
 }
 function resetClassTimer(){
@@ -1810,7 +1822,10 @@ function openSubject(subjectId){
   sessionEndedByTimer = false;
   currentLessonText = '';
   notebookStage = 0;
+  keyReset();
   if(typeof bankReset === 'function') bankReset();
+  chrAttach();
+  if(typeof tlLesson === 'function') tlLesson(); // CLAA timeline for the coming lesson
   lessonImageGen++;
   stopRead();
   clearInterval(classTimerInterval); classTimerInterval = null;
@@ -1986,10 +2001,18 @@ async function beginSession(){
   // being treated as "session 1" due to a Supabase sync race on slow/mobile connections.
   if(window._cloudSyncPromise){ try{ await window._cloudSyncPromise; } catch(e){} }
 
+  keyReset();
+  chrAttach();
+  if(curSubject && curSubject.isChristendom && !curSubject.unit){
+    document.getElementById('ai-response').textContent = 'You have finished Volume 1 of History of Christendom. Ask your mother which lesson to review.';
+    return;
+  }
+  if(typeof tlLesson === 'function') tlLesson();
+
   // LESSON BANK (Nov 26 2026): teach from the teacher's manuals when a bank lesson is available
   if(typeof bankPick === 'function'){
     bankReset();
-    if(bankPick()){ bankBegin(); return; }
+    if(bankPick()){ bankBegin(); if(typeof tlLesson === 'function') tlLesson(); return; }
   }
 
   const btn = document.getElementById('btn-begin-top');
@@ -2037,7 +2060,9 @@ async function beginSession(){
   const isAesop = curSubject && curSubject.isAesop;
   const isBible = curSubject && curSubject.isBible;
 
-  const lessonInstruction = isNarnia
+  const lessonInstruction = curSubject.unit
+    ? `4. TEACH today's unit in your own words as a clear, interesting history lesson that stays strictly within the facts listed under TODAY'S UNIT. This is not a reading of the book, so do not say you are reading it. The exact words you write ARE what will be read aloud AND shown on screen.`
+    : isNarnia
     ? `4. RETELL the chapter in your own words, as a warm storyteller — vivid, engaging, age-appropriate, covering all key events, characters, and details. The student is listening and has no other way to follow the story. IMPORTANT: The exact words you write ARE what will be read aloud AND displayed on screen — do not paraphrase separately.`
     : isArt
     ? `4. Present the lesson content using the exact words you want read aloud and displayed. Do NOT write one thing and narrate something different. The text you generate IS the lesson text AND the audio script — they must be identical.`
@@ -2160,7 +2185,8 @@ Respond in plain, natural tutor voice — no markdown, no bullet symbols.`;
     notebookStage = 0;
     const sess = getSession(curStudent, curSubject.id);
     if(!sessionCountedThisOpen){ sess.sessionCount++; sessionCountedThisOpen = true; }
-    sess.lastLesson = lessonTitle.trim().substring(0, 120);
+    sess.lastLesson = curSubject.unit ? chrLabel(curSubject.unit, 'in progress') : lessonTitle.trim().substring(0, 120);
+    if(!curSubject.unit && typeof tlLesson === 'function') tlLesson(cleanText + ' ' + lessonTitle);
     saveSession(curStudent, curSubject.id, sess);
     const t = `Session ${sess.sessionCount} · Last: ${sess.lastLesson}`;
     document.getElementById('tracker-text') && (document.getElementById('tracker-text').textContent = t);
@@ -2177,7 +2203,7 @@ Respond in plain, natural tutor voice — no markdown, no bullet symbols.`;
     document.getElementById('ai-question-box').innerHTML = questions.length
       ? questions.map(q=>`<div style="background:rgba(60,120,240,0.12);border:1px solid rgba(80,140,240,0.25);border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:13px;color:#1A1A1A;line-height:1.7;font-family:'Lato',sans-serif;font-weight:400;">${q.trim()}</div>`).join('')
       : `<div style="font-size:13px;color:#1A1A1A;line-height:1.8;font-weight:400;">${cleanText.substring(0,300)}...</div>`;
-    document.getElementById('ai-cite').textContent = 'Source: ' + curSubject.cite;
+    document.getElementById('ai-cite').textContent = 'Source: ' + curSubject.cite + (curSubject.unit ? ', ' + curSubject.unit.ch : '');
     ['btn-correct','btn-partial','btn-wrong','btn-hint','btn-next'].forEach(id=>{
       document.getElementById(id).disabled = false;
     });
@@ -2870,6 +2896,7 @@ function markResponse(type){
   stopMicSilently(); // don't let TTS play over a still-listening mic
   const sess = getSession(curStudent, curSubject.id);
   if(type==='correct'){
+    keyNoteAnswered(lastQuestion);
     const msg = {text:'✓ Correct! Well done. Session recorded.',bg:'#0A2A12',tc:'#60E080'};
     document.getElementById('fb-area').innerHTML = `<div class="feedback" style="background:${msg.bg};color:${msg.tc}">${msg.text}</div>`;
     if(!sessionCountedThisOpen){ sess.sessionCount++; sessionCountedThisOpen = true; }
@@ -2979,6 +3006,69 @@ async function giveHint(){
   btn.textContent='Hint';
 }
 
+// History of Christendom (Nov 27 2026): give a copy of the subject today's unit, so every
+// tutor call (lesson, next question, grading, hint) sees the same approved facts.
+function chrAttach(){
+  if(!curSubject || !curSubject.isChristendom || typeof chrPick !== 'function') return;
+  const base = SUBJECTS[curStudent].find(function(s){ return s.id === curSubject.id; });
+  curSubject = base;
+  const u = chrPick();
+  if(u) curSubject = Object.assign({}, base, { unit:u, prompt:base.prompt + chrBlock(u) });
+}
+
+// ══════════════════════════════════════════════
+// LESSON ENDING: ANSWER KEY + REMINDER (Nov 27 2026) — every subject except Math
+// After the questions (writing/notebook step, or when class time ends) the student sees
+// each question with its correct answer, followed by the teacher's reminder.
+// The writing activity and the mother's check stay as before.
+// The reminder wording is the teacher's: keep it exactly as written.
+// ══════════════════════════════════════════════
+const LESSON_END_REMINDER = 'After answering the multiple-choice questions, copy the answers in cursive into your workbook and give it to your mom.';
+let keyOptions = {};   // question key -> correct choice from the tappable answers
+let keyAnswered = [];  // questions the student answered in AI lessons, in order
+function keyReset(){
+  keyOptions = {}; keyAnswered = [];
+  const box = document.getElementById('answer-key'); if(box) box.innerHTML = '';
+}
+function keyApplies(){ return !!curSubject && !curSubject.isMath; }
+function keyNoteAnswered(question){
+  const q = (question || '').trim();
+  if(!q || q === NOTEBOOK_CONFIRM_Q) return;
+  const k = mcNormalize(q);
+  if(!keyAnswered.some(function(x){ return x.k === k; })) keyAnswered.push({ k:k, q:q });
+}
+function keyItems(){
+  if(typeof bankState !== 'undefined' && bankState.active){
+    const qs = bankState.lesson.questions;
+    return qs.slice(0, notebookStage ? qs.length : bankState.i).map(function(x){ return { q:x.q, a:x.options[0] }; });
+  }
+  return keyAnswered.map(function(x){ return { q:x.q, a:keyOptions[x.k] || '' }; });
+}
+// Draws the key with the reminder last. Returns false when this lesson has no ending (Math, or nothing done yet).
+function keyShow(){
+  const box = document.getElementById('answer-key');
+  if(!box || !keyApplies()) return false;
+  const items = keyItems();
+  if(!items.length && !notebookStage) return false;
+  box.innerHTML = '';
+  function add(parent, cls, text){ const d = document.createElement('div'); d.className = cls; d.textContent = text; parent.appendChild(d); return d; }
+  if(items.length){
+    add(box, 'key-title', '🔑 Questions and correct answers');
+    items.forEach(function(it, i){
+      const row = add(box, 'key-row', '');
+      add(row, 'key-q', (i + 1) + '. ' + it.q);
+      add(row, 'key-a', it.a ? '✓ ' + it.a : 'Ask your mother to check this answer.');
+    });
+  }
+  add(box, 'key-reminder', LESSON_END_REMINDER);
+  return true;
+}
+function keyWrapUp(){
+  if(typeof bankState !== 'undefined' && bankState.active) return 'Today you finished ' + bankUnit() + ' ' + bankState.lesson.n + ': ' + bankState.lesson.title + '.';
+  if(curSubject.unit) return 'Today you finished ' + curSubject.name + ', ' + curSubject.unit.ch + ': ' + curSubject.unit.title + '.';
+  return 'Today you finished your ' + curSubject.name + ' lesson.';
+}
+
 // ══════════════════════════════════════════════
 // NOTEBOOK ACTIVITY (added Sep 23 2026)
 // When the book has no more questions for today and class time remains, the
@@ -2998,6 +3088,7 @@ function notebookBudgetReached(){
 }
 function notebookTimeLeft(){ return !sessionEndedByTimer && classTimerSeconds > 60; }
 function notebookInstructions(){
+  if(curSubject && curSubject.unit) return `NOTEBOOK ACTIVITY: tell the student to open their notebook and do today's writing task, word for word: "${chrTask(curSubject.unit)}" Tell the student to show the notebook to their mother so she can correct it. End with exactly this question: "${NOTEBOOK_CONFIRM_Q}" Then add the tag [NOTEBOOK] at the very end.`;
   const drawOk = curStudent === 'LJ' ? ' (L.J. may write single words or draw a small picture for each example)' : '';
   return `NOTEBOOK ACTIVITY: tell the student to open their notebook and write down 3 examples of today's topic${drawOk} — name the topic clearly. Give 1 or 2 short, clear examples first so the student understands what to write (these do not count as their 3). Tell the student to show the notebook to their mother so she can correct it. End with exactly this question: "${NOTEBOOK_CONFIRM_Q}" Then add the tag [NOTEBOOK] at the very end.`;
 }
@@ -3007,7 +3098,8 @@ function showNotebookMessage(text){
   document.getElementById('ai-question-box').innerHTML = `<div style="background:#FFF6D6;border:1px solid #E8C870;border-radius:6px;padding:10px 12px;margin-bottom:8px;font-size:14px;color:#1A1A1A;line-height:1.6;">${NOTEBOOK_CONFIRM_Q}</div>`;
   lastQuestion = NOTEBOOK_CONFIRM_Q;
   mcShowNotebook(); // Yes / Not yet buttons (mic-free)
-  safeReadAloud(text);
+  const keyed = keyShow();
+  safeReadAloud(keyed ? text + ' ' + LESSON_END_REMINDER : text);
 }
 function enableAnswerButtons(){
   ['btn-send','btn-correct','btn-partial','btn-wrong','btn-hint','btn-next','mic-btn'].forEach(id=>{
@@ -3045,8 +3137,14 @@ function handleNotebookReply(answer){
   if(YES.test(a) && !STARTS_NO.test(a)){
     notebookStage = 2;
     if(typeof bankState !== 'undefined' && bankState.active) bankComplete();
+    if(curSubject && curSubject.unit){
+      const sess = getSession(curStudent, curSubject.id);
+      sess.lastLesson = chrLabel(curSubject.unit, 'completed');
+      saveSession(curStudent, curSubject.id, sess);
+    }
     msg = 'Wonderful! Thank you for showing your notebook to your mother. You worked very hard today — well done!';
     if(curSubject && curSubject.isMath) msg += ' ' + MATH_END_REMINDER;
+    else if(keyShow()) msg += ' ' + keyWrapUp() + ' ' + LESSON_END_REMINDER;
     document.getElementById('fb-area').innerHTML = `<div class="feedback" style="background:#1a3a22;color:#d4f0dc;border:1px solid #2d6b3a;line-height:1.7">✅ ${msg}</div>`;
     document.getElementById('ai-question-box').innerHTML = `<div style="font-size:13px;color:#1A1A1A;line-height:1.8;">📓 Notebook checked by mother ✓</div>`;
     lastQuestion = '';
@@ -3055,6 +3153,7 @@ function handleNotebookReply(answer){
   } else {
     msg = `That's okay! Finish writing your 3 examples, then show your notebook to your mother so she can check it. ${NOTEBOOK_CONFIRM_Q} Tell me yes when she has.`;
     if(typeof bankState !== 'undefined' && bankState.active) msg = bankNotYetText() + ' ' + NOTEBOOK_CONFIRM_Q;
+    else if(curSubject && curSubject.unit) msg = `That's okay! Finish your writing, then show your notebook to your mother so she can check it. ${NOTEBOOK_CONFIRM_Q}`;
     showNotebookMessage(msg);
   }
   enableAnswerButtons();
@@ -3276,6 +3375,7 @@ Rules:
     }).slice(0, n);
     if(opts.length < 3) throw new Error('too few options');
     mcState.correct = opts[0];
+    keyOptions[key] = opts[0];
     mcState.options = mcShuffle(opts);
     mcRender();
   } catch(e){
@@ -3365,6 +3465,7 @@ async function respondToAnswer(studentAnswer, mcInfo){ // mcInfo (optional): {ri
   // NOTEBOOK ACTIVITY (Sep 23 2026): student is confirming the mother checked the notebook
   if(notebookStage === 1){ handleNotebookReply(studentAnswer); return; }
   if(typeof bankState !== 'undefined' && bankState.active){ bankRespond(studentAnswer, mcInfo, myAnswerGen); return; }
+  keyNoteAnswered(questionForThisAnswer);
 
   const fbArea = document.getElementById('fb-area');
   fbArea.innerHTML = `<div class="feedback" style="background:#1E1630;color:#C0B0E0"><span class="spinner"></span> Thinking...</div>`;
