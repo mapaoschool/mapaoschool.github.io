@@ -11,7 +11,7 @@ window.LESSON_BANKS['AL-history'] = {
   unit: "Lesson",
   sections: [["", "story"], ["", "more"], ["Where in the world", "geo"], ["Words", "words"], ["Faith", "faith"]],
   cite: "Hillyer, A Child's History of the World — Teacher's Manual and History and Geography Worksheets",
-  minutes: 20,
+  minutes: 15,
   sayBlank: true,
   grader: "a high school student studying history and geography",
   writingStart: "Now open your History and Geography workbook to Lesson {n}.",

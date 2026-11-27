@@ -248,8 +248,16 @@ function tlDraw(opts){
 function tlLesson(text){
   tlClear();
   if(!tlApplies()) return;
-  const u = curSubject.unit;
-  if(u){ tlDraw({ range:u.years, keys:u.keys, when:u.when, note:u.note, events:u.years ? null : [] }); return; }
+  if(curSubject.isChristendom){
+    const now = (typeof bankState !== 'undefined' && bankState.active) ? bankState : bankPick();
+    const tl = now && now.lesson && now.lesson.tl;
+    if(tl){
+      const hit = [];
+      TL_EVENTS.forEach(function(e, i){ if(tl.names.indexOf(e[3]) > -1) hit.push(i); });
+      tlDraw({ events:hit, when:tl.when, note:tl.note });
+    }
+    return;
+  }
   if(/-history$/.test(curSubject.id) && window.LESSON_BANKS && window.LESSON_BANKS[curSubject.id]){
     const pick = (typeof bankState !== 'undefined' && bankState.active) ? bankState : bankPick();
     if(pick && pick.lesson){

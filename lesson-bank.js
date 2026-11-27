@@ -108,7 +108,27 @@ function bankWritingText(){
     + (l.memorize ? ' Then memorize this: ' + l.memorize : '')
     + ' ' + bankWord('checkLine', 'Show your workbook to your mother so she can correct it.') + ' ' + NOTEBOOK_CONFIRM_Q;
 }
+// Subjects with noWriting (History of Christendom, Nov 27 2026): teach and multiple choice only.
+// The lesson is completed right after the last question: answer key, no mother check.
+function bankFinish(prefix){
+  notebookStage = 2;
+  // Mark the subject done for today first, so the save below also records it in the cloud
+  try{ localStorage.setItem(getDoneKey(curStudent, curSubject.id), '1'); }catch(e){}
+  bankComplete();
+  clearInterval(classTimerInterval); classTimerInterval = null;
+  clearProgress(curStudent, curSubject.id);
+  renderSubjects(curStudent);
+  mcClear();
+  lastQuestion = '';
+  const done = keyWrapUp();
+  const msg = (prefix ? prefix + ' ' : '') + done;
+  document.getElementById('ai-question-box').innerHTML = '<div style="font-size:14px;color:#1A1A1A;line-height:1.8;">✅ ' + bankEsc(done) + '</div>';
+  bankFeedback('✅ ' + bankEsc(msg), true);
+  keyShow();
+  safeReadAloud(keyReminder() ? msg + ' ' + keyReminder() : msg);
+}
 function bankStartWriting(prefix){
+  if(bankState.bank.noWriting){ bankFinish(prefix); return; }
   notebookStage = 1;
   mcClear();
   bankSavePos();
@@ -191,6 +211,7 @@ function bankNext(){
 
 function bankHint(){
   const q = bankState.lesson.questions[bankState.i];
+  if(notebookStage === 2 && bankState.bank.noWriting){ bankFeedback('✅ This lesson is finished. Well done!', true); return; }
   const hint = (notebookStage === 0 && q) ? q.hint : bankWord('writingHint', 'Look back at today’s lesson, then answer in your own words.');
   document.getElementById('fb-area').innerHTML = '<div class="feedback" style="background:#0D2040;color:#A8D0FF"><strong>Hint ' + sessionHints + ':</strong> ' + bankEsc(hint) + '</div>';
   safeReadAloud(hint);

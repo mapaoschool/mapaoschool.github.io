@@ -23,7 +23,7 @@ window.LESSON_BANKS['AL-science'] = {
   unit: 'Lesson',
   sections: [['','story'],['Words','words'],['Faith and reason','faith']],
   cite: "Fabre, The Story-Book of Science — Teacher's Manual and A.L. Workbook",
-  minutes: 20,
+  minutes: 15,
   grader: 'a high school student studying natural science',
   writingStart: 'Now write in your science workbook, Lesson {n}, A.L. challenge question:',
   notYet: "That's okay! Finish your paragraph, then show your workbook to your mother so she can check it.",

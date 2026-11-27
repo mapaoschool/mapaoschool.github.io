@@ -20,7 +20,7 @@ window.LESSON_BANKS['AL-aesop'] = {
   notYet: "That's okay! Finish your paragraph, then show your workbook to your mother so she can check it.",
   writingHint: 'Start with the definition from today’s lesson, then apply it to the fable.',
   cite: "Aesop with Aquinas — Teacher's Booklet and A.L. Workbook",
-  minutes: 20,
+  minutes: 15,
   lessons: [
   { n:1, title:'The Wolf and the Lamb',
     story:'A hungry wolf saw a lamb drinking at a stream and wanted to eat it. First he said, “You muddied my water!” But the lamb stood downstream, so that could not be true. Then he said, “Your father insulted me last year!” But the lamb had not even been born. “I do not care,” said the wolf, “I will eat you anyway.”',

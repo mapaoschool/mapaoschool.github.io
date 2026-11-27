@@ -1,192 +1,217 @@
-// ══════════════════════════════════════════════
-// HISTORY OF CHRISTENDOM, VOLUME 1 — lesson outlines (added Nov 27 2026)
-// One unit per chapter, written in our own words from the teacher's student worksheets for
-// Warren H. Carroll, The Founding of Christendom. The writing prompts and grammar rules
-// for A.L. come from the teacher's A.L. study plan. No book text is copied here.
-// facts = taught to every student · more = high school (A.L.) only
-// years = period shown on the timeline (BC is negative) · note = shown under the timeline
-// young = writing task for F.A. and F.C. · little = task for L.J.
-// ══════════════════════════════════════════════
-window.CHRISTENDOM_UNITS = [
-  { n:1, ch:'Introduction and Prologue', title:'Why We Tell This History', years:null, when:'the very beginning',
-    note:'Creation and the Fall come before the first date on this timeline.',
-    facts:['Christendom means the part of the world and of history where people openly proclaim Jesus Christ as Lord and let him shape their life together.',
-      'God created the world and the first man and woman.','They disobeyed God. Because of this sin, death came into human life.',
-      'Mankind needed a Savior, and God promised to help.','A good history is true, and it is also a good story.'],
-    more:['Carroll writes openly as an orthodox Catholic: every historian has a point of view, and honesty means stating it.',
-      'He sees the third chapter of Genesis as the one adequate explanation of death.',
-      'The series covers six phases: Founding (to AD 324), Building (324–1100), Glory (1100–1517), Cleaving (1517–1774), Revolution Against (1774–1815) and Crisis (1815 onward).',
-      'Words: Christendom, Incarnation, Providence, Original Sin.'],
-    story:'A young Sumerian scribe records the myths of his people and senses a longing that no god of stone can fill.', type:'Letter or journal', words:'300–400', rule:'Proper and common nouns (Harvey ch. 1–3)',
-    young:'Write 3 sentences about why people needed a Savior.', little:'Draw the world God made. Copy: God made the world.' },
-  { n:2, ch:'Chapter 1', title:'A Darkling Plain', years:[-3500,-2000], when:'before and up to about 2000 BC',
-    facts:['Long ago there were great cities in Mesopotamia, in Egypt and in the Indus Valley.','People built wonderful things, but they did not know the true God well and many worshipped many false gods.',
-      'In Mesopotamia people told the story of the hero Gilgamesh, who searched for a way to escape death and could not find it.','In Egypt the king was called Pharaoh. People treated him as a god and built great tombs called pyramids.',
-      'From the earliest times people buried their dead with care.','God was about to call Abraham, a man from Mesopotamia.'],
-    more:['Carroll reads the Gilgamesh epic as eloquent proof of the reality of original sin: without Genesis, its people still saw that death seemed inescapable.',
-      'Mesopotamia faced the horror of death honestly; Egypt built its civilization around denying it.','It was fitting that Abraham came from Mesopotamia, because hope begins with facing the truth.',
-      'Words: Mesopotamia, Gilgamesh, polytheism, Pharaoh.'],
-    story:'A wandering Amorite comes upon ruins and asks an elder about the city and what broke it.', type:'Dialogue', words:'300–400', rule:'Pronouns and clear antecedents (Harvey ch. 4–5)',
-    young:'Pretend you live in a city in Mesopotamia. Write 3 sentences about what you see.', little:'Draw a pyramid. Copy: There is one true God.' },
-  { n:3, ch:'Chapter 2', title:'Father in Faith', years:[-2000,-1700], when:'about 2000–1700 BC',
-    facts:['God called Abraham to leave the city of Ur, and Abraham obeyed.','God made a covenant, a solemn promise, with Abraham: a land, many descendants, and a blessing for all nations. That blessing comes through Jesus.',
-      'Abraham, his son Isaac and his grandson Jacob are called the patriarchs.','Jacob wrestled through the night and God gave him the new name Israel.','Joseph, a son of Jacob, went to Egypt, and later his family came there too.'],
-    more:['Carroll calls Jacob’s wrestling the prototype of conversion: God does not force the will, yet the soul struggles before giving itself.',
-      'At Bethel Jacob ordered the idols destroyed, the start of a long struggle against idolatry in Israel.','Carroll finds the Joseph account credible because its details fit Egypt in the Hyksos period.',
-      'Words: patriarch, covenant, Israel, Hyksos.'],
-    story:'Abram’s servant tells of the night his master obeyed God’s call to leave Ur.', type:'Narrative', words:'300–400', rule:'Past tense in narrative (Harvey ch. 6–8)',
-    young:'Write 3 or 4 sentences as Abraham’s helper on the day you leave home.', little:'Draw the stars God showed Abraham. Copy: Abraham obeyed God.' },
-  { n:4, ch:'Chapter 3', title:'Fire on Sinai', years:[-1290,-1250], keys:['Life of Moses','Hebrew Exodus'], when:'about 1290–1250 BC (Carroll)',
-    note:'Carroll dates these events about 1290–1250 BC. The CLAA list dates the Exodus 1450–1410 BC.',
-    facts:['God sent Moses to lead the people of Israel out of slavery in Egypt. This is called the Exodus.','Before they left, the people kept the first Passover.','They crossed the Red Sea.','God fed them in the desert with bread from heaven called manna.',
-      'At Mount Sinai God gave Moses the Ten Commandments.','The people promised to do all that the Lord had said.'],
-    more:['At Sinai God came with majesty, smoke and thunder, giving his Law to a whole people.','Israel often broke its promise and needed prophets, judges and kings to call it back.',
-      'Natural food sources could not have fed so great a multitude; God supplied them, as Christ later multiplied the loaves.','Words: Exodus, manna, Decalogue, Passover.'],
-    story:'An elder tells children what his grandfather saw on the night the cloud came down on Sinai.', type:'Oral tale in the third person', words:'350–450', rule:'Simple and compound sentences; conjunctions (Harvey ch. 9–11)',
-    young:'Write 3 or 4 sentences about what happened at Mount Sinai.', little:'Draw the two tablets. Copy: God gave us his law.' },
-  { n:5, ch:'Chapter 4', title:'The Promised Land', years:[-1250,-960], when:'about 1250–960 BC',
-    facts:['Israel came into the land God had promised.','Saul was the first king, then David, then Solomon.','David captured Jerusalem and brought the Ark of the Covenant there.',
-      'God promised David that his throne would last forever. This promise is fulfilled in Jesus, the Son of David.','King Solomon built the Temple in Jerusalem.'],
-    more:['David’s men took Jerusalem by way of a water channel.','The promise came through the prophet Nathan.','In Psalm 110 David calls the Messiah “my Lord”, pointing to One who is more than a human king.',
-      'After David’s victory in the Valley of Rephaim the Philistines went from conquerors to subjects.','Words: Ark of the Covenant, Jerusalem, messianic hope.'],
-    story:'Two scouts argue after returning from Canaan: faith against fear of walled cities.', type:'Dialogue', words:'350–450', rule:'Punctuation of dialogue (Harvey ch. 12–14)',
-    young:'Write 3 or 4 sentences about King David.', little:'Draw King David’s crown. Copy: David loved God.' },
-  { n:6, ch:'Chapter 5', title:'The Divided Kingdom', years:[-930,-721], when:'about 922–721 BC (Carroll)',
-    note:'Carroll dates the division 922 BC. The CLAA list prints 930 BC.',
-    facts:['After King Solomon died, the kingdom split in two: Israel in the north and Judah in the south.','Some kings, such as Ahab with Queen Jezebel, turned to false gods.',
-      'God sent prophets to call the people back.','The prophet Elijah prayed on Mount Carmel and God sent fire from heaven, showing that he is the true God.','At last the Assyrians conquered the northern kingdom.'],
-    more:['Solomon’s sins and heavy taxes, and Rehoboam’s harshness, led the ten northern tribes to follow Jeroboam.',
-      'The Black Obelisk of the Assyrian king Shalmaneser III shows King Jehu paying tribute.','Carroll sees a repeated pattern: idolatry, disaster, a prophet, partial repentance, rescue.','Words: schism, Elijah, Jezebel, Assyria.'],
-    story:'A Levite priest writes to his cousin, grieving over the golden calf at Bethel and urging him to flee.', type:'Letter', words:'350–450', rule:'Adjectives, modifiers and agreement (Harvey ch. 15–16)',
-    young:'Write 3 or 4 sentences about the prophet Elijah.', little:'Draw fire coming from heaven. Copy: The Lord is God.' },
-  { n:7, ch:'Chapter 6', title:'The Holy City', years:[-721,-582], when:'about 721–582 BC',
-    facts:['The Assyrians came against Jerusalem when Hezekiah was king.','God saved the city: a sudden disaster struck the enemy army in the night and it went home.','The prophet Isaiah warned that the people would one day be taken to Babylon.',
-      'Isaiah also wrote about a Servant who would suffer to save others. This is Jesus.','Later the Babylonians took Jerusalem and led many people away.'],
-    more:['Carroll suggests a pestilence struck the Assyrian army.','Isaiah 53 foreshadows the scourging, the death, the rich man’s tomb and the Resurrection.',
-      'Isaiah foretold the desolation of Babylon when it was a great city.','Words: Hezekiah, Isaiah, Babylon, Suffering Servant.'],
-    story:'A scribe hides the sacred scrolls and writes a last prayer the night before Nebuchadnezzar arrives.', type:'Journal or prayer', words:'400–500', rule:'Subordinate clauses and complex sentences (Harvey ch. 17–18)',
-    young:'Write a short prayer King Hezekiah might have said.', little:'Draw the city of Jerusalem. Copy: God protects his people.' },
-  { n:8, ch:'Chapter 7', title:'The Quest and the Chosen', years:[-582,-499], keys:['King Cyrus sets the Jews free','Second Temple completed'], when:'about 582–499 BC',
-    facts:['While God’s people were in Babylon, the prophet Daniel stayed faithful to God.','Long before, Isaiah had named Cyrus as the man who would set them free.',
-      'Cyrus, king of the Persians, conquered Babylon and let the Jews go home.','They built the Temple again.'],
-    more:['Carroll holds that Daniel’s prophecies are true foresight, while noting the scholarly debate.',
-      'True prophecy is neither so detailed that it denies free will nor so vague that it denies God’s foreknowledge.','The Second Temple was finished about 516–515 BC.','Words: Cyrus the Great, remnant, Daniel, Second Temple.'],
-    story:'A Jewish exile writes: Cyrus has issued his decree. Return to ruined Jerusalem or stay in Babylon?', type:'Letter', words:'400–500', rule:'Semicolons and colons (Harvey ch. 19–20)',
-    young:'Write 3 or 4 sentences about going home to Jerusalem.', little:'Draw people walking home. Copy: God brought them home.' },
-  { n:9, ch:'Chapter 8', title:'Two Hopes', years:[-499,-404], when:'499–404 BC',
-    facts:['In Greece the city of Athens made beautiful buildings, such as the Parthenon, and had wise thinkers such as Socrates.','In Jerusalem, Nehemiah led the people to rebuild the city wall.',
-      'The priest Ezra read God’s Law to the people.','Greek wisdom could not take away sin or death. Israel had the promise of the living God.'],
-    more:['Pericles built for beauty and human glory; Nehemiah built to guard the people through whom the Messiah would come.',
-      'Neighbors opposed the wall because it secured the returned Jews in their land.','The wall was finished in 52 days because the fallen stones were still at hand.',
-      'With David’s royal line in obscurity, the high priest led the people for about 300 years.','Words: Nehemiah, Ezra, Socrates, Pericles.'],
-    story:'A Greek soldier dictates his testament, marveling at Marathon, and tells how the gods felt hollow afterward.', type:'Third-person narrative', words:'400–500', rule:'Active and passive voice (Harvey ch. 21–22)',
-    young:'Write 3 or 4 sentences about Nehemiah’s wall.', little:'Draw a strong wall. Copy: They worked together.' },
-  { n:10, ch:'Chapter 9', title:'The March Across the World', years:[-336,-323], when:'336–323 BC',
-    facts:['Alexander the Great was a young king from Macedonia.','He conquered the Persian Empire and marched all the way to India.','He died when he was only 32.',
-      'Because of him many lands learned the Greek language. Later the Gospel was written and preached in Greek.'],
-    more:['His great battles include the Granicus, Issus and Gaugamela, against Darius III.','He crossed the Hindu Kush in winter in pursuit of Bessus.',
-      'He hoped to join Greeks and Persians as equals.','Persepolis, the Persian capital, was burned; Carroll sees in its ashes the end of that empire.','Words: Hellenization, Gaugamela, Darius III.'],
-    story:'A Roman soldier’s wife tells how Rome was brought to the edge of ruin and did not break.', type:'First-person narrative', words:'450–550', rule:'Review of all rules so far (study plan: chapters 9–10)',
-    young:'Write 3 or 4 sentences about Alexander’s long journey.', little:'Draw Alexander on his horse. Copy: Alexander traveled far.' },
-  { n:11, ch:'Chapter 10', title:'The Fortitude of Rome', years:[-390,-146], keys:['Punic Wars'], when:'up to 146 BC',
-    facts:['Rome grew from one city into a strong power.','The Romans were brave and did not give up. This virtue is called fortitude.','Rome fought long wars against Carthage, called the Punic Wars.',
-      'Hannibal of Carthage crossed the mountains called the Alps.','At last Rome won. God was preparing the world for the coming of Jesus.'],
-    more:['Carroll compares Rome’s recovery after defeats with Israel’s pattern of fall and rescue.','He sees the war as more than political: Carthage inherited the Canaanite practice of child sacrifice.',
-      'He quotes Chesterton on the totality of the fall of Carthage.','Words: fortitude, Carthage, Hannibal, Punic Wars.'],
-    story:'A Roman soldier’s wife tells how Rome was brought to the edge of ruin and did not break.', type:'First-person narrative', words:'450–550', rule:'Review of all rules so far (study plan: chapters 9–10)',
-    young:'Write 3 or 4 sentences about a time you did not give up, like the Romans.', little:'Draw a mountain. Copy: Be brave.' },
-  { n:12, ch:'Chapter 11', title:'Rome Ascendant, the Temple Regained', years:[-201,-135], keys:['Maccabees in Israel'], when:'about 201–135 BC',
-    facts:['A wicked king, Antiochus, put an idol in God’s Temple and forbade the Jews to keep God’s Law.','An old priest, Mattathias, and his five sons bravely resisted. They are called the Maccabees.',
-      'Judas Maccabeus took back the Temple and made it holy again in 165 BC.'],
-    more:['The revolt began at Modein, when Mattathias struck down a man about to sacrifice to Zeus, and the officer who demanded it.',
-      'Mattathias ruled that self-defense on the Sabbath was lawful in that crisis.','His last charge to his sons: be zealous for the Law and trust God.','None of the five brothers broke faith.','Words: Antiochus IV Epiphanes, Maccabees, Mattathias, Hanukkah.'],
-    story:'A Jewish elder describes the Maccabean revolt and Pompey’s entry into the Holy of Holies.', type:'Journal and essay paragraph', words:'450–550', rule:'Reliable and unreliable narrator; the essay paragraph',
-    young:'Write 3 or 4 sentences about the brave Maccabees.', little:'Draw a lamp in the Temple. Copy: They were faithful.' },
-  { n:13, ch:'Chapter 12', title:'Rome and Caesar', years:[-135,-44], when:'up to 44 BC',
-    facts:['The Roman general Pompey took Jerusalem in 63 BC.','Romans fought one another for power.','Julius Caesar became the ruler of Rome and was later killed.',
-      'God was guiding history toward a time of peace, when Jesus would be born.'],
-    more:['Pompey entered the Holy of Holies and found it empty.','The quarrel of the brothers Hyrcanus II and Aristobulus II gave Rome its opening in Judea.',
-      'Sulla saw in the young Caesar “many Mariuses”: the same gifts and ambition.','Words: Pompey, Holy of Holies, Julius Caesar, Sanhedrin.'],
-    story:'A Jewish elder describes the Maccabean revolt and Pompey’s entry into the Holy of Holies.', type:'Journal and essay paragraph', words:'450–550', rule:'Reliable and unreliable narrator; the essay paragraph',
-    young:'Write 3 or 4 sentences about Julius Caesar.', little:'Draw a Roman helmet. Copy: God guides history.' },
-  { n:14, ch:'Chapter 13', title:'The Winning of the Roman Peace', years:[-44,-5], keys:['Reign of Augustus Caesar'], when:'44 BC to the birth of Christ',
-    facts:['Octavian won the battle of Actium in 31 BC.','He became Augustus, the first Roman emperor.','He brought a long time of peace, called the Roman Peace.','Soon the Prince of Peace, Jesus, would be born.'],
-    more:['Augustus closed the doors of the Temple of Janus, a sign of peace.','In 27 BC he “restored the Republic”: he gave up his powers and the Senate returned them, so one man still ruled.',
-      'He confirmed the privileges of the Jews in Rome.','Carroll contrasts him with his four successors, who were ruined by absolute power.','Words: Augustus, Actium, Pax Romana, Janus.'],
-    story:'A Roman centurion writes to a friend in Rome: he cannot explain why the night in Bethlehem felt different.', type:'Short story', words:'500–600', rule:'All rules together',
-    young:'Write 3 or 4 sentences about why peace is good.', little:'Draw a dove. Copy: Jesus is the Prince of Peace.' },
-  { n:15, ch:'Chapter 14', title:'The Incarnation of the Lord', years:[-5,1], keys:['Life of Jesus Christ'], when:'about 5–4 BC',
-    facts:['The angel Gabriel told the priest Zachary that he would have a son, John the Baptist.','The same angel came to the Virgin Mary in Nazareth.','Mary freely said yes to God, and the Son of God became man.',
-      'Jesus was born in Bethlehem.','King Herod wished to harm the Child, so the Holy Family fled to Egypt.'],
-    more:['The history as we can see it begins with Zachary’s prayer in the sanctuary.','On Mary’s free consent depended the salvation of countless souls: God does not force the will.',
-      'Herod was a great builder of the Temple and also a murderer, even of his own family and of the Holy Innocents.','Words: Annunciation, Incarnation, Zachary, Herod the Great.'],
-    story:'A Roman centurion writes to a friend in Rome: he cannot explain why the night in Bethlehem felt different.', type:'Short story', words:'500–600', rule:'All rules together',
-    young:'Write 3 or 4 sentences about the Annunciation.', little:'Draw the manger. Copy: Jesus is born.' },
-  { n:16, ch:'Chapter 15', title:'God in Galilee', years:[28,29], keys:['Life of Jesus Christ'], when:'about AD 28–29',
-    facts:['Jesus called his Apostles.','He preached the Sermon on the Mount and worked miracles, such as feeding thousands with a few loaves.','He taught that he is the Bread of Life.',
-      'Peter said that Jesus is the Christ, the Son of God, and Jesus gave Peter the keys of the kingdom.','At the Transfiguration three Apostles saw his glory.'],
-    more:['Carroll builds a chronology to show that the Gospels are history, with real dates and places.','After the Bread of Life discourse many left; Christ did not soften his teaching to keep them.',
-      'Words: Transfiguration, Caesarea Philippi, Capharnaum.'],
-    story:'An old fisherman tells his apprentice how a stranger called him one morning by the shore.', type:'Short story', words:'500–600', rule:'All rules together',
-    young:'Write 3 or 4 sentences about one miracle of Jesus.', little:'Draw loaves and fishes. Copy: Jesus fed the people.' },
-  { n:17, ch:'Chapter 16', title:'I Am the Resurrection and the Life', years:[29,30], keys:['Life of Jesus Christ'], when:'about AD 30 (Carroll)',
-    note:'Carroll dates the Crucifixion AD 30. The CLAA list prints AD 33.',
-    facts:['Jesus rode into Jerusalem on Palm Sunday.','At the Last Supper he gave us the Holy Eucharist.','He suffered and died on the Cross to save us.','On the third day he rose from the dead.'],
-    more:['Christ condemned the pride of those Scribes and Pharisees who closed their hearts to the truth.','He foretold the destruction of Jerusalem and the Temple.',
-      'Carroll argues for the bodily Resurrection from the empty tomb, the many witnesses and the changed Apostles who died for their testimony.','The Last Supper fulfills the promise of the Bread of Life.'],
-    story:'An old fisherman tells his apprentice how a stranger called him one morning by the shore.', type:'Short story', words:'500–600', rule:'All rules together',
-    young:'Write 3 or 4 sentences about Easter morning.', little:'Draw the empty tomb. Copy: He is risen.' },
-  { n:18, ch:'Chapter 17', title:'He Chose Twelve, and Paul', years:[30,67], when:'from about AD 30 to 67',
-    facts:['At Pentecost the Holy Ghost came upon the Apostles.','Peter led the Church.','Saul was converted and became the Apostle Paul, who traveled to preach.','Saint Stephen was the first martyr.',
-      'An old tradition says the Apostle Thomas preached in India.'],
-    more:['Peter’s baptism of the centurion Cornelius opened the Church to the Gentiles.','For Thomas in India, Carroll points to King Gundofarr, known from coins and an inscription, Syriac tradition and the Thomas Christians.',
-      'Carroll presents his account of the Shroud of Turin’s journey to King Abgar of Edessa, folded so that only the face showed.','Paul spent time in retreat before his missions.','Words: Pentecost, Apostle, martyr.'],
-    story:'A Roman official’s daughter explains to her mother why she will not give up her faith at the tribunal.', type:'Letter and essay', words:'550–650', rule:'All rules and the essay paragraph',
-    young:'Write 3 or 4 sentences about Saint Peter or Saint Paul.', little:'Draw a flame for Pentecost. Copy: Come, Holy Ghost.' },
-  { n:19, ch:'Chapter 18', title:'The Seed in the Earth', years:[64,250], when:'the first to the third century',
-    facts:['The Church grew even though Christians were often persecuted.','A martyr is someone who dies rather than give up faith in Christ.','Saint Blandina was a young slave girl who stayed faithful in Lyons in the year 177.',
-      'Great teachers, such as Saint Polycarp and Saint Irenaeus, defended the true faith.'],
-    more:['At Lyons the beasts would not touch Blandina.','The persecutors threw the martyrs’ ashes into the Rhône, hoping to destroy hope in the resurrection.',
-      'Montanism preached an imminent end and extreme austerity, and set private prophecy against Church authority.','Fathers and writers: Polycarp, Irenaeus, Tertullian, Origen, Cyprian.'],
-    story:'A Roman official’s daughter explains to her mother why she will not give up her faith at the tribunal.', type:'Letter and essay', words:'550–650', rule:'All rules and the essay paragraph',
-    young:'Write 3 or 4 sentences about Saint Blandina’s courage.', little:'Draw a seed growing. Copy: The Church grew.' },
-  { n:20, ch:'Chapter 19', title:'Blood of the Martyrs', years:[250,313], keys:['Life of St. Constantine','Edict of Milan'], when:'about AD 250–313',
-    facts:['Some emperors, such as Diocletian, persecuted Christians very harshly.','Many Christians stayed faithful.','In 312 Constantine saw a sign of the Cross and won the battle of the Milvian Bridge.',
-      'In 313 the Edict of Milan let Christians worship freely.'],
-    more:['Persecutions under Decius, Valerian and Diocletian were the worst yet.','The official Philoromus defended Bishop Phileas and died with him.','Constantine was proclaimed by the army at York in 306.',
-      'Galerius issued an edict of toleration in 311: persecution had failed.','Constantine was plunged into affairs of state with no time of retreat after his conversion.'],
-    story:'A Roman official’s daughter explains to her mother why she will not give up her faith at the tribunal.', type:'Letter and essay', words:'550–650', rule:'All rules and the essay paragraph',
-    young:'Write 3 or 4 sentences about Constantine and the Cross.', little:'Draw a cross in the sky. Copy: The Cross wins.' },
-  { n:21, ch:'Chapter 20', title:'Triumph of the Cross', years:[311,325], when:'about AD 311–325',
-    facts:['The emperor Constantine protected the Church.','A group called the Donatists broke away and would not obey the Pope.','Pope Miltiades and councils of bishops judged the question.',
-      'Christendom had been founded. Soon the great Council of Nicaea would meet.'],
-    more:['The Council of Rome (313) and the Council of Arles (314) judged against the Donatists, who refused to submit.','Constantine was at first naive, expecting bishops and priests always to act like Christians.',
-      'Violence and pride lay behind the Donatists’ claim to strictness.','Volume 1 closes with religious freedom won, a crisis unsettled and Nicaea (325) ahead.','Words: Donatism, schism, council.'],
-    story:'Three generations of a Roman Christian family: the grandmother (Diocletian), the father (Milvian Bridge) and the daughter (Edict of Milan).', type:'Capstone story', words:'700–900', rule:'All Harvey rules together',
-    young:'Write 4 sentences about your favorite part of this whole story.', little:'Draw a church. Copy: Christ is King.' }
-];
+// LESSON BANK — History of Christendom, Volume 1 (Nov 27 2026)
+// Source: Warren H. Carroll, The Founding of Christendom (the teacher's copy). Everything here is a short
+// summary in our own words; no book text is copied. The tutor teaches, then asks multiple-choice questions.
+// There is no writing activity. A lesson lasts at most 15 minutes; long chapters take several days.
+// Left out on purpose: Carroll's discussion of evolution and his dates earlier than 4000 B.C.
+// Question wording is a DRAFT until Maria reviews it.
+// In every question the FIRST option is the correct one; the app shuffles them.
+// Lessons ready: 1 Introduction, 2 Prologue, 3-5 Chapter 1.
+// tl = what the CLAA timeline shows for the lesson (names must match timeline.js).
+(function(){
+window.LESSON_BANKS = window.LESSON_BANKS || {};
 
-// Which unit comes next, from the "last lesson" record: "Christendom Unit 3 — Title (in progress|completed)".
-// The teacher can type e.g. "Christendom Unit 3 completed" on the Dashboard to jump ahead.
-function chrPick(){
-  if(!curSubject || !curSubject.isChristendom) return null;
-  const last = getSession(curStudent, curSubject.id).lastLesson || '';
-  const m = last.match(/Christendom Unit\s*(\d+)/i);
-  let n = 1;
-  if(m) n = /in progress/i.test(last) ? Number(m[1]) : Number(m[1]) + 1;
-  return window.CHRISTENDOM_UNITS.find(function(u){ return u.n === n; }) || null;
+const TL = {
+  1:{ names:['Life of Jesus Christ','Christian Church founded','Edict of Milan'], when:'from the time of Christ', note:'Volume 1 of this history begins before Christ and ends in A.D. 324.' },
+  2:{ names:[], when:'the very beginning', note:'Creation and the Fall come before the first date on this timeline.' },
+  3:{ names:['Ancient Sumeria begins','Life of Noah'], when:'the earliest ages' },
+  4:{ names:['Ancient Sumeria begins','Life of Abraham'], when:'about 2700–2000 BC' },
+  5:{ names:['Ancient Egypt begins','Life of Abraham'], when:'about 3100–1500 BC', note:'Carroll dates the union of Egypt about 3100 BC. The CLAA list begins Ancient Egypt at 2900 BC.' }
+};
+function q(part, question, options, hint, reteach, concept){
+  const o = { part:part, q:question, options:options, hint:hint, reteach:reteach };
+  if(concept) o.concept = concept;
+  return o;
 }
-function chrLabel(u, status){ return 'Christendom Unit ' + u.n + ' — ' + u.title + ' (' + status + ')'; }
-// The only content the tutor may teach for this unit.
-function chrBlock(u){
-  const older = curStudent === 'AL';
-  return '\n\nTODAY\'S UNIT — ' + u.ch + ': "' + u.title + '" (Warren H. Carroll, The Founding of Christendom). Period: ' + u.when + '.\n'
-    + 'TEACH ONLY THESE FACTS, in your own words at the student\'s level. Add no other dates, names, quotations or events, and never claim to quote the book:\n- '
-    + u.facts.concat(older ? u.more : []).join('\n- ')
-    + '\nAsk questions only about these facts.';
+function bank(student, grader, extra, lessons){
+  lessons.forEach(function(l){ l.tl = TL[l.n]; });
+  return Object.assign({
+    marker:'Christendom Lesson', student:student, unit:'Lesson', noWriting:true, minutes:15, sayBlank:true, grader:grader,
+    sections:[['','story'],['','more'],['Words','words'],['Faith','faith']],
+    cite:'Warren H. Carroll, The Founding of Christendom (summary in our own words)',
+    lessons:lessons
+  }, extra);
 }
-// The writing activity for this unit (used instead of "write 3 examples").
-function chrTask(u){
-  if(curStudent === 'AL') return 'Work on your story for ' + u.ch + ': ' + u.story + ' Type: ' + u.type + ', ' + u.words + ' words. Practice: ' + u.rule + '.';
-  return curStudent === 'LJ' ? u.little : u.young;
-}
+
+// ───────── HIGH SCHOOL ─────────
+window.LESSON_BANKS['AL-writing-history'] = bank('A.L.', 'a high school student studying the history of Christendom', {}, [
+{ n:1, title:'What Is Christendom? (Introduction)',
+  story:'Christendom is the reign of Christ, the reign of God as men recognize it. Much of that reign is invisible, because His kingdom is not of this world, and much of it is personal. But part of it is public and historical. Where men with courage and missionary spirit acknowledge Christ as Lord and proclaim Him, Christendom appears as a social, cultural and political presence. It grows through that courage, and above all through prayer and example. It fades through timidity, indifference, apostasy and lack of holiness.\n\nFor fifteen centuries Christendom shaped Western civilization. Yet in the spring of A.D. 30, between Passover and Pentecost, all of it could meet in one upper room in Jerusalem: a few men headed by a fisherman, and a few women from Galilee. From that room came the greatest force in history.\n\nA history of Christendom differs from a history of the Church alone. It includes the lay and temporal order as far as Christianity penetrates it, so it joins Church history with political history.',
+  more:'Carroll states his viewpoint openly. He writes as a Catholic, convinced that Jesus Christ founded a visible Church, the Roman Catholic Church, which continues through the succession of Popes and always will be His Church. He holds that every historian must choose what matters, and so every historian has a view of the world. Unbelief is as much a position as belief. Objectivity does not mean having no point of view; it means honesty and respect for truth. He also sees history as the story of persons and their free choices, not mainly of nameless forces. And he believes that a good history should be a good story.\n\nThe work was planned in six volumes: Founding (to A.D. 324), Building (324 to 1100), Glory (1100 to 1517), Cleaving (1517 to 1774), Revolution Against (1774 to 1914) and Martyrdom (since 1914).',
+  words:'Christendom: the reign of Christ recognized by men, especially in public life. Apostasy: abandoning the faith. Temporal: belonging to the life of this world. Historian: one who studies and tells the past.',
+  questions:[
+    q('Meaning', 'What is Christendom, as Carroll defines it?', ['The reign of Christ recognized by men', 'The lands that belonged to the Pope', 'Every building used for Christian worship', 'The history of the clergy alone'], 'Think of whose reign it is.', 'Christendom is the reign of Christ, the reign of God recognized by men.'),
+    q('Meaning', 'When does Christendom appear as a social, cultural and political presence?', ['When men courageously recognize and proclaim Christ as Lord', 'When governments grow rich and powerful', 'When all disagreements among people end', 'When history is written by scholars'], 'It depends on what believers do.', 'It appears where courageous men recognize Christ as Lord and proclaim Him.'),
+    q('Meaning', 'What makes Christendom fade?', ['Timidity, indifference, apostasy and lack of holiness', 'Prayer, example and courage', 'The study of history', 'The building of cities'], 'These are the opposites of courage and holiness.', 'Christendom fades with timidity, indifference, apostasy and lack of holiness.'),
+    q('When', 'Where was all of Christendom in the spring of A.D. 30?', ['In one upper room in Jerusalem', 'In the palace of the emperor in Rome', 'In a monastery in Egypt', 'In the Temple courts of Babylon'], 'It was a very small place.', 'All of Christendom met in one upper room in Jerusalem.'),
+    q('Method', 'How does this history differ from a history of the Church alone?', ['It also tells how Christianity shaped lay and political life', 'It leaves out the Popes', 'It studies only economics', 'It stops at the death of the Apostles'], 'Think of the lay and temporal order.', 'It blends Church history with the lay and political order that Christianity penetrated.'),
+    q('Method', 'What does Carroll say objectivity requires?', ['Honesty and respect for truth', 'Having no point of view at all', 'Writing only about unbelievers', 'Leaving out every difficult fact'], 'Every historian has a viewpoint, so it cannot mean having none.', 'Objectivity requires honesty and respect for truth; history cannot be written without a point of view.'),
+    q('Method', 'What mainly drives the drama of history, in Carroll’s view?', ['The thoughts, actions and free will of persons', 'Nameless economic forces', 'Chance alone', 'The climate'], 'Christians see persons as God’s creatures.', 'History is chiefly the story of persons and the working of the will.'),
+    q('Plan', 'Which years does the first volume, the Founding, reach?', ['To A.D. 324', 'To A.D. 1517', 'To A.D. 1914', 'To A.D. 30'], 'The next volume, Building, begins in that year.', 'The Founding reaches to A.D. 324.')
+  ] },
+{ n:2, title:'In the Beginning (Prologue)',
+  story:'God is, and God is love. He alone must exist; only He can truly bear the name I AM. Because He exists, He can give being; because He is love, He did create the material universe and spiritual creatures. Nothing else exists of necessity or can keep itself in being. All creatures are contingent: they depend on God.\n\nTime began with creation, and history began when man appeared. For the Christian, history has a center that gives it meaning and direction: Jesus Christ. The Word who was with God and was God, through whom all things were made, was born a child in Bethlehem and crucified in Jerusalem. Because this happened on earth, our earth is, in the order of Heaven, the center of the universe.\n\nThe Church teaches that God directly creates man’s immortal soul, and that all human beings descend from one first man and woman. Their souls were uncorrupted, and their bodies shared the immortality of their souls.',
+  more:'Yet we now live with a contradiction: an immortal soul joined to a body that dies. People have found death strange and fearful. The earliest men buried their dead, feared them, and still left food beside them. To an animal death is simply the end; man feels that it ought not to be.\n\nMaterialism ignores this problem. Agnostic existentialism is defeated by it. Reincarnation only multiplies it. Carroll holds that one account explains it: the third chapter of Genesis. The first man and woman wished to know evil by experience, believing it would make them like God, and they did so against God’s clear command and warning. They lost their innocence and failed in the purpose of their creation: to know, love and serve God. They tried to hide and to excuse themselves. God passed a just sentence: toil, thorns, and a return to dust. From that day man was an exile on the earth; in time he would also become a pilgrim.',
+  words:'Contingent: depending on another for existence. Necessary being: one who must exist, God alone. Original sin: the sin of our first parents and its consequences, passed to their descendants.',
+  faith:'“In the beginning was the Word” (John 1:1). The Church gives us the remedy for original sin in holy Baptism.',
+  questions:[
+    q('God', 'Which being alone must necessarily exist?', ['God', 'The universe', 'The human race', 'The stars'], 'His Name is I AM.', 'Only God must necessarily be; all else depends on Him.'),
+    q('Words', 'What does it mean to say that creatures are contingent?', ['They depend on God for their existence', 'They can never be destroyed', 'They created themselves', 'They are equal to God'], 'Can the hardest mountain keep itself in being?', 'Contingent creatures cannot explain or preserve their own being.'),
+    q('History', 'Who is the center of history for the Christian?', ['Jesus Christ', 'The first great conqueror', 'The wisest philosopher', 'The Roman emperor'], 'He is the Word through whom all things were made.', 'Jesus Christ is the center of history and gives it meaning and direction.'),
+    q('Man', 'What does the Church teach about the human soul?', ['God creates it directly, and it is immortal', 'It comes from the soul of an animal', 'It dies with the body', 'It is born again in many bodies'], 'Souls do not die.', 'God directly creates each immortal soul.'),
+    q('Man', 'From whom do all human beings descend?', ['One first man and woman', 'Several unrelated first families', 'The angels', 'The kings of Mesopotamia'], 'Genesis speaks of our first parents.', 'All human beings descend from one original pair.'),
+    q('Death', 'What do ancient burials show about the way people see death?', ['People sense that death is strange and ought not to be', 'People thought nothing about death', 'People saw death just as animals do', 'People left their dead without burial'], 'Remember the contradiction of an immortal soul in a mortal body.', 'People have found death strange and fearful.'),
+    q('The Fall', 'What gives the one adequate explanation of human death?', ['The third chapter of Genesis', 'The doctrine of reincarnation', 'Materialist philosophy', 'Agnostic existentialism'], 'It tells of the first sin.', 'Genesis chapter 3 explains it: death came through the sin of our first parents.'),
+    q('Purpose', 'For what purpose was man given being?', ['To know, love and serve God', 'To rule without any law', 'To gather riches', 'To build great cities'], 'Think of your catechism.', 'Man was made to know, love and serve God.')
+  ] },
+{ n:3, title:'After Eden: Flood, Farms and the First Cities (Chapter 1, part 1)',
+  story:'Outside the Garden, the first people faced a dangerous world with simple stone tools. Original sin had taken away immortality, harmony within human nature and easy mastery over creation. Man could neither merit salvation nor reach it alone. God did not destroy him. His answer would come in a way human reason could not foresee, and it waited for writing, civilization and disciplined thought, which could receive it and carry it to the world.\n\nPeople fell into magic and idols. Yet in nearly every ancient mythology there remained a faint memory of a pure Sky God who made and ruled the world. He seemed far away, with no bridge from heaven to earth. Still God called men to worship Him.\n\nThen came the Flood. Memories of a great deluge are found among so many peoples that Carroll holds they recall a real event. Genesis tells how God warned Noah, who built the ark and was saved.',
+  more:'Afterward the Middle East grew drier. Men gathered wild grain and tamed sheep and goats, and farming began there before anywhere else. Civilization differs from barbarism above all by cities and writing. The ancient city was three things: a shrine, which drew people together; a market, where they traded; and a wall, which guarded both.\n\nJericho, beside a great spring near the river Jordan, is the earliest walled city Carroll knew of. Its huge stone wall shows how greed already threatened men who had grown prosperous.\n\nThat land was Palestine. It stands near the place where Europe, Asia and Africa meet, so from it the Word of God could travel quickly to the world. Being a crossroads, it was often fought over, a hard place for a long preparation. Yet something endured there through every storm, for it was the Promised Land.',
+  words:'Deluge: a great flood. Idol: a false god or its image. Shrine: a holy place. Civilization: settled life marked by cities and writing.',
+  questions:[
+    q('The Fall', 'Could fallen man earn salvation by his own power?', ['No, he could neither merit it nor reach it alone', 'Yes, by building large cities', 'Yes, by practicing magic', 'Yes, by inventing writing'], 'This is why God had to act.', 'Man could neither merit salvation nor attain it by himself.'),
+    q('Religion', 'What faint memory remained in nearly every ancient mythology?', ['A pure Sky God who made and ruled the world', 'A clear account of the Mass', 'A king who never made war', 'A law against all trade'], 'Look up.', 'There remained the idea of a Sky God, creator and ruler, who seemed far away.'),
+    q('The Flood', 'Why does Carroll hold that the Flood recalls a real event?', ['Its memory is found among very many ancient peoples', 'Only one late story mentions it', 'The Pharaohs built a monument to it', 'Gilgamesh saw it begin'], 'Think about how widespread the story is.', 'The tradition is too widespread and deep to be explained by borrowing alone.'),
+    q('Civilization', 'Which two things above all distinguish civilization from barbarism?', ['Cities and writing', 'Hunting and fishing', 'Stone tools and fire', 'Armies and slaves'], 'One is a place; the other records words.', 'Civilization is marked by cities and writing.'),
+    q('Cities', 'Which three things made up the ancient city?', ['A shrine, a market and a wall', 'A palace, a prison and a port', 'A school, a farm and a road', 'A tower, a theatre and a bridge'], 'Worship, trade and defense.', 'The ancient city was a shrine, a market and a wall.'),
+    q('Jericho', 'What made the site of Jericho so valuable?', ['A great, ever-flowing spring', 'Rich mines of gold', 'A harbor on the ocean', 'Snow from high mountains'], 'In a hot dry valley, people need it.', 'Jericho had a great life-giving spring.'),
+    q('Palestine', 'Why was Palestine a fitting place for the Incarnation?', ['It stands near the meeting of three continents', 'It was the most isolated land on earth', 'It was never attacked', 'It was the largest empire'], 'Think of how news travels.', 'At the meeting of Europe, Asia and Africa, the Word could spread quickly.'),
+    q('Palestine', 'What difficulty did Palestine have as a crossroads?', ['It was fought over again and again', 'No traveller ever passed through it', 'It had no memory of the past', 'It was cut off by endless ice'], 'Armies use crossroads too.', 'It was repeatedly fought over, which made a long preparation difficult.')
+  ] },
+{ n:4, title:'Sumer and the Cry of Gilgamesh (Chapter 1, part 2)',
+  story:'On the flat plain of southern Mesopotamia the Sumerians built Eridu and other cities, among them Kish, Uruk and Ur, where Abraham would be born. Genesis tells how men settled in the plain of Shinar, baked bricks, used tar for mortar and began a city with a high tower. This matches Sumer, which had much clay and almost no stone. The Sumerians raised stepped temple towers called ziggurats, like the Tower of Babel.\n\nFrom this point Bible history can often be checked against other records, and Carroll shows that research has repeatedly upheld it.\n\nAbout 2700 B.C. Gilgamesh was king of Uruk. History tells that he defended his city against the king of Kish and built its first wall. Legend made him a great hero. The Epic of Gilgamesh, written in wedge-shaped cuneiform letters on clay tablets, is the oldest work of its kind. Much of it was found in the library of the Assyrian king Ashurbanipal.',
+  more:'In the story Gilgamesh slays a monster with a brave companion. Then his dear friend Enkidu dies. Gilgamesh grieves and goes to seek Utnapishtim, the one survivor of the Flood, to whom the gods had given endless life. He crosses every barrier, even the waters of death, only to learn that this gift cannot be shared and that nothing on earth lasts. Death waits everywhere.\n\nCarroll calls this despair the clearest proof of original sin and its effects from people who did not know the story of Eden. Great conquerors followed, such as Sargon of Agade about 2350 B.C., but death took kings and common men alike.\n\nThe greatness of early Mesopotamia was its honesty about death. It was no mere chance that Abraham came from there, because there can be no hope or promise for man unless he is first willing to face the truth.',
+  words:'Sumer: the land of the first cities in southern Mesopotamia. Cuneiform: wedge-shaped writing on clay. Ziggurat: a stepped temple tower. Epic: a long poem about a hero.',
+  questions:[
+    q('Where', 'In which land did the Sumerians build their cities?', ['Southern Mesopotamia', 'The Nile Delta', 'The Indus Valley', 'The hills of Greece'], 'It lies between great rivers.', 'Sumer was in southern Mesopotamia.'),
+    q('Building', 'Why did the Sumerians build with baked and mud bricks?', ['They had much clay and almost no stone', 'Stone was forbidden by law', 'Bricks floated in floods', 'They had no tools of any kind'], 'What lay under their feet?', 'The plain had plenty of clay but very little stone.'),
+    q('Bible', 'Which Biblical building is like the Sumerian ziggurat?', ['The Tower of Babel', 'The Ark of Noah', 'The Temple of Solomon', 'The walls of Jericho'], 'It was meant to reach to heaven.', 'The ziggurats resemble the Tower of Babel.'),
+    q('Gilgamesh', 'Of which city was Gilgamesh king?', ['Uruk', 'Jericho', 'Memphis', 'Mohenjo-daro'], 'Its name begins with U.', 'Gilgamesh was king of Uruk.'),
+    q('Writing', 'What is cuneiform?', ['Wedge-shaped writing pressed on clay', 'Picture writing carved on pyramids', 'Writing on rolls of parchment', 'A knotted cord for counting'], 'Think of wedges.', 'Cuneiform is wedge-shaped writing on clay tablets.'),
+    q('Gilgamesh', 'What sends Gilgamesh on his greatest search?', ['The death of his friend Enkidu', 'A command to conquer Egypt', 'The loss of his city wall', 'A wish to find new farmland'], 'It is a great sorrow.', 'Enkidu’s death drives him to seek a way past death.'),
+    q('Gilgamesh', 'What does Gilgamesh learn at the end of his search?', ['He cannot gain the endless life he seeks', 'He will rule forever', 'His friend will return next spring', 'Death comes only to the poor'], 'The story ends without hope.', 'The gift cannot be shared; nothing on earth is permanent.'),
+    q('Meaning', 'Why was it no mere chance that Abraham came from Mesopotamia?', ['Hope can begin only where people are willing to face the truth', 'It was the strongest empire', 'Its people already knew the whole Gospel', 'It was the only land with farms'], 'Think of its honesty about death.', 'There can be no hope or promise unless man first faces the truth.')
+  ] },
+{ n:5, title:'Egypt and the Indus Valley (Chapter 1, part 3)',
+  story:'Two other civilizations arose before 2000 B.C., and neither faced death as honestly as Mesopotamia. In Egypt, about 3100 B.C., King Menes, also called Narmer, united the long valley of the Nile and its delta, with his capital at the city of the White Wall, later called Memphis. Egyptian writing probably received its first inspiration from Mesopotamia.\n\nThe Pharaoh was treated as a god. Vast pyramids rose to guard his body and secure a happy eternity. The yearly flood of the Nile gave rich harvests, yet life was locked into one pattern that changed little in centuries. King Akhenaten tried to change it and failed. Desert and sea surrounded the valley, so it was a land of bondage that was hard to leave.',
+  more:'The third civilization grew in the Indus River valley, around the cities of Harappa and Mohenjo-daro. Its writing has not been read. For about a thousand years, roughly 2500 to 1500 B.C., it scarcely changed. Its streets were rigidly planned, with blank brick walls and no monuments. Great granaries stored the food. It seems to have had no kings and only weak weapons, but each city had one great temple mound, and some historians think that priests controlled all life. Invaders called Aryans destroyed it. Carroll suggests that later Indian ideas, such as reincarnation and the unreality of the world, may have begun there; this cannot yet be proved.\n\nSo these great works ended in the despair of Gilgamesh, the weight of the pyramids or the endless wheel of rebirth. Human labor in stone, clay and bronze held no answer. To human eyes man stood in darkness. God’s answer would begin with Abraham.',
+  words:'Pharaoh: the king of Egypt. Monolith: here, a society locked in one unchanging pattern. Granary: a storehouse for grain. Reincarnation: the false belief that a soul is born again in other bodies.',
+  faith:'Scripture teaches that “it is appointed unto men once to die, and after this the judgment” (Hebrews 9:27, Douay-Rheims). We do not live many lives; Christ redeems us.',
+  questions:[
+    q('Egypt', 'Who united Egypt about 3100 B.C.?', ['King Menes, also called Narmer', 'King Gilgamesh', 'King Akhenaten', 'Sargon of Agade'], 'His capital was the city of the White Wall.', 'Menes, or Narmer, united Egypt.'),
+    q('Egypt', 'How was the Pharaoh regarded?', ['As a god', 'As an ordinary farmer', 'As a servant of the priests of India', 'As an elected judge'], 'Think of why his tomb was so huge.', 'The Pharaoh was treated as a god.'),
+    q('Egypt', 'Why were the great pyramids built?', ['To guard the Pharaoh’s body and secure his eternity', 'To store the grain of the poor', 'To watch for enemy ships', 'To teach children to write'], 'They were tombs.', 'The pyramids were royal tombs meant to secure a happy eternity.'),
+    q('Egypt', 'Why was Egypt hard to leave?', ['Desert and sea surrounded the Nile valley', 'A great wall circled the whole country', 'The Nile flowed in a circle', 'Snowy mountains closed every side'], 'Think of what lies beside the valley.', 'The fertile valley was enclosed by desert and sea.'),
+    q('Indus', 'Which two cities belong to the Indus valley civilization?', ['Harappa and Mohenjo-daro', 'Kish and Uruk', 'Thebes and Memphis', 'Eridu and Ur'], 'One gave the civilization its name.', 'Harappa and Mohenjo-daro were its two chief cities.'),
+    q('Indus', 'What was most unusual about the Harappa civilization?', ['It remained almost unchanged for about a thousand years', 'It changed its laws every year', 'It filled its streets with statues', 'It conquered all of Mesopotamia'], 'Think of its rigid plan.', 'It stayed almost the same for about a thousand years.'),
+    q('Faith', 'What does Catholic teaching say about reincarnation?', ['It is false: we die once and then are judged', 'It is true for every person', 'It is true only for kings', 'It replaces the Resurrection'], 'Remember Hebrews 9:27.', 'We die once and then are judged.'),
+    q('Meaning', 'What conclusion closes the chapter?', ['Human works alone held no answer to man’s darkness', 'Egypt had solved the problem of death', 'Cities made redemption unnecessary', 'The Indus people received the promise first'], 'Who would have to act?', 'No work of human hands held the answer; it had to come from God.')
+  ] }
+]);
+
+// ───────── ELEMENTARY (F.A.; F.C. uses the same lessons) ─────────
+const FA = bank('F.A.', 'an elementary student studying the history of Christendom', {}, [
+{ n:1, title:'What Is Christendom?',
+  story:'Christendom is the reign of Christ. It means that people know Jesus is their King and live that way. Much of His reign is hidden in our hearts. But some of it can be seen: when brave people follow Jesus and tell others about Him, it shapes families, towns, art, laws and whole countries. It grows through prayer, courage and good example. It grows weak when people are afraid, do not care, or leave the faith.\n\nIn the spring of the year A.D. 30, all of Christendom could fit in one upstairs room in Jerusalem. There was a small group of men led by a fisherman, and a few women from Galilee. From that little room the faith went out to the world.',
+  more:'The man who wrote our book was Warren Carroll. He tells us openly that he is a Catholic. He believes that Jesus founded the Catholic Church, led by the Popes. He says a historian must always be honest and love the truth. He also says that a good history should be a good story.',
+  words:'Christendom: the reign of Christ among people. Historian: a person who studies and tells the past. Pope: the visible head of the Church on earth.',
+  questions:[
+    q('Meaning', 'What is Christendom?', ['The reign of Christ', 'A kind of castle', 'The name of one city', 'A book of maps'], 'Think of who is King.', 'Christendom is the reign of Christ.'),
+    q('Meaning', 'What helps Christendom grow?', ['Prayer, courage and good example', 'Fear and silence', 'Not caring about God', 'Quarrelling and pride'], 'Choose the good things.', 'It grows through prayer, courage and good example.'),
+    q('When', 'Where could all of Christendom fit in the year A.D. 30?', ['In one upstairs room in Jerusalem', 'In a huge stadium in Rome', 'In a ship on the Nile', 'In a pyramid in Egypt'], 'It was a small place.', 'They were in one upper room in Jerusalem.'),
+    q('Who', 'Who led the small group in that room?', ['A fisherman', 'A Roman soldier', 'A king of Egypt', 'A merchant'], 'He used nets in his work.', 'A fisherman, Saint Peter, led them.'),
+    q('Church', 'Who leads the Church that Jesus founded?', ['The Pope', 'The mayor', 'The oldest historian', 'The emperor'], 'He is the successor of Saint Peter.', 'The Pope leads the Church.'),
+    q('History', 'What must a good historian always do?', ['Be honest and love the truth', 'Make up exciting facts', 'Hide what he believes', 'Tell only about money'], 'God loves truth.', 'A historian must be honest and respect the truth.')
+  ] },
+{ n:2, title:'In the Beginning',
+  story:'God has always existed. His Name is I AM. Because God is love, He created the whole universe, the angels and mankind. Everything else needs God in order to exist.\n\nTime began when God created. Jesus Christ is the center of history. He is the Son of God, through whom all things were made, and He was born a baby in Bethlehem.\n\nGod made the first man and woman. He gave each of them a soul that never dies. All people come from these first parents. In the beginning their bodies were not going to die.',
+  more:'God gave them a command and warned them. They disobeyed Him, wanting to be like God. Then they tried to hide, and they made excuses. Because of this first sin, called original sin, suffering, hard work and death came into the world. But God still loved them. People were made to know, love and serve God.',
+  words:'Create: to make from nothing, as only God can. Soul: the spiritual part of a person that never dies. Original sin: the first sin and what came from it.',
+  faith:'Holy Baptism washes away original sin.',
+  questions:[
+    q('God', 'Why did God create the world?', ['Because He is love', 'Because He was forced to', 'Because someone asked Him', 'Because He needed a house'], 'God is . . . what?', 'God is love, and so He created.'),
+    q('History', 'Who is the center of history?', ['Jesus Christ', 'A great soldier', 'A clever king', 'The first farmer'], 'He was born in Bethlehem.', 'Jesus Christ is the center of history.'),
+    q('Man', 'What part of a person never dies?', ['The soul', 'The hair', 'The shadow', 'The voice'], 'God gives it to each person.', 'The soul never dies.'),
+    q('Man', 'From whom do all people come?', ['One first man and woman', 'Many different first families', 'The angels', 'The first kings'], 'Think of the Garden.', 'All people come from our first parents.'),
+    q('The Fall', 'What came into the world because of the first sin?', ['Suffering and death', 'The sun and moon', 'Rivers and seas', 'Love and joy'], 'It is something sad.', 'Original sin brought suffering and death.'),
+    q('Purpose', 'Why did God make people?', ['To know, love and serve Him', 'To become very rich', 'To live without rules', 'To build the tallest towers'], 'Remember your catechism.', 'We are made to know, love and serve God.')
+  ] },
+{ n:3, title:'After Eden: The Flood and the First Cities',
+  story:'After they left the Garden, people lived in a hard and dangerous world. They could not save themselves, but God did not give up on them. Many people began to worship idols. Still, many peoples remembered a great God in the sky who made the world.\n\nThen came the great Flood. Very many peoples have stories about it. The Bible tells us that God warned Noah. Noah built the ark, and he and his family were saved.',
+  more:'Later people learned to farm and to keep sheep and goats. They built cities. An old city had a shrine for worship, a market for trading and a wall for safety. Jericho, near the Jordan River, was one of the first walled cities. It had a great spring of water.\n\nJericho was in the land later called the Promised Land. This land is near the place where Europe, Asia and Africa meet. From there the good news about Jesus could travel to many places.',
+  words:'Idol: a false god. Ark: Noah’s great boat. Shrine: a holy place. Market: a place to buy and sell.',
+  questions:[
+    q('The Fall', 'Could people save themselves after the first sin?', ['No, they needed God', 'Yes, with stone tools', 'Yes, by building walls', 'Yes, by farming'], 'Only God can save.', 'People needed God to save them.'),
+    q('The Flood', 'Whom did God warn about the Flood?', ['Noah', 'Gilgamesh', 'Pharaoh', 'Peter'], 'He built the ark.', 'God warned Noah.'),
+    q('The Flood', 'What did Noah build?', ['The ark', 'A pyramid', 'A tower', 'A market'], 'It could float.', 'Noah built the ark.'),
+    q('Cities', 'Why did an old city have a wall?', ['For safety', 'For worship', 'For farming', 'For writing'], 'It kept enemies out.', 'The wall protected the city.'),
+    q('Jericho', 'What gave water to Jericho?', ['A great spring', 'A snowy mountain top', 'A salty ocean', 'A water truck'], 'Water came up from the ground.', 'Jericho had a great spring.'),
+    q('Where', 'Which three continents meet near the Promised Land?', ['Europe, Asia and Africa', 'Europe, America and Africa', 'Asia, Australia and America', 'Africa, America and Australia'], 'They are the old world.', 'Europe, Asia and Africa meet there.')
+  ] },
+{ n:4, title:'Sumer and King Gilgamesh',
+  story:'The Sumerians lived in southern Mesopotamia. They built cities such as Eridu, Uruk and Ur. Abraham would later be born at Ur. The land had lots of clay but almost no stone, so they built with bricks. They built tall temple towers with steps, called ziggurats. The Bible tells of the Tower of Babel, built with bricks on such a plain.',
+  more:'The Sumerians wrote on clay with wedge-shaped marks. This is called cuneiform. Their most famous story is about Gilgamesh, king of Uruk. When his dear friend Enkidu died, Gilgamesh was very sad. He traveled far to find a way to live forever, but he could not find it.\n\nPeople needed hope that only God could give. God later chose Abraham, who came from this land.',
+  words:'Ziggurat: a temple tower with steps. Cuneiform: wedge-shaped writing. Mesopotamia: the land between two great rivers.',
+  questions:[
+    q('Building', 'What did the Sumerians use to build?', ['Bricks made from clay', 'Blocks of ice', 'Iron beams', 'Huge logs'], 'They had lots of clay.', 'They built with clay bricks.'),
+    q('Words', 'What is a ziggurat?', ['A temple tower with steps', 'A kind of boat', 'A writing stick', 'A wild animal'], 'It is very tall.', 'A ziggurat is a stepped temple tower.'),
+    q('Writing', 'What is the wedge-shaped writing called?', ['Cuneiform', 'Alphabet soup', 'Hieroglyphics', 'Cursive'], 'It begins with C.', 'It is called cuneiform.'),
+    q('Gilgamesh', 'Who was Gilgamesh?', ['The king of Uruk', 'The builder of the ark', 'The king of Rome', 'A fisherman from Galilee'], 'He ruled a city.', 'Gilgamesh was king of Uruk.'),
+    q('Gilgamesh', 'What was Gilgamesh looking for?', ['A way to live forever', 'A bag of gold', 'A new horse', 'A better farm'], 'His friend had died.', 'He wanted to live forever.'),
+    q('Abraham', 'Whom did God later choose from this land?', ['Abraham', 'Noah', 'Moses', 'David'], 'He was born at Ur.', 'God chose Abraham.')
+  ] },
+{ n:5, title:'Egypt and the Indus Valley',
+  story:'Egypt lies along the Nile River. About 3100 B.C. a king named Menes joined Egypt into one kingdom. Egypt’s kings were called Pharaohs, and people treated them as gods. Huge pyramids were built as their tombs. Every year the Nile flooded and left rich soil for crops. Desert and sea were all around.',
+  more:'Another civilization grew far away in the Indus River valley. Two of its cities were Harappa and Mohenjo-daro. Their streets were laid out in straight lines, and they had big storehouses for grain. We still cannot read their writing.\n\nThese people built great things, but their works could not save anyone. Only God could bring light to the world.',
+  words:'Pharaoh: a king of Egypt. Pyramid: a great tomb. Granary: a storehouse for grain.',
+  faith:'We live only one life on earth, and then comes God’s judgment.',
+  questions:[
+    q('Egypt', 'Which river runs through Egypt?', ['The Nile', 'The Jordan', 'The Indus', 'The Ottawa'], 'It begins with N.', 'The Nile runs through Egypt.'),
+    q('Egypt', 'What were the kings of Egypt called?', ['Pharaohs', 'Popes', 'Emperors', 'Judges'], 'It begins with Ph.', 'They were called Pharaohs.'),
+    q('Egypt', 'What were the pyramids?', ['Tombs for the kings', 'Barns for animals', 'Schools for scribes', 'Homes for farmers'], 'Kings were buried there.', 'Pyramids were royal tombs.'),
+    q('Egypt', 'What did the Nile flood leave behind?', ['Rich soil for crops', 'Piles of snow', 'Salt and sand only', 'Gold coins'], 'Farmers were glad of it.', 'The flood left rich soil.'),
+    q('Indus', 'Which city was in the Indus River valley?', ['Harappa', 'Jericho', 'Uruk', 'Memphis'], 'It begins with H.', 'Harappa was in the Indus valley.'),
+    q('Faith', 'Who alone could bring light to the world?', ['God', 'The Pharaoh', 'The grain keepers', 'The tower builders'], 'People could not save themselves.', 'Only God could bring that light.')
+  ] }
+]);
+window.LESSON_BANKS['FA-writing-history'] = FA;
+window.LESSON_BANKS['FC-writing-history'] = Object.assign({}, FA, { student:'F.C.', marker:'Christendom Lesson' });
+
+// ───────── KINDERGARTEN ─────────
+window.LESSON_BANKS['LJ-writing-history'] = bank('L.J.', 'a kindergarten student', { readOptions:true }, [
+{ n:1, title:'Jesus Is King',
+  story:'Jesus is our King. When people love Him and follow Him, we call it Christendom. At first His friends were few. They met in one room in Jerusalem. Then they told the whole world about Jesus.',
+  questions:[
+    q('Listen', 'Who is our King?', ['Jesus', 'A giant', 'A robot'], 'We pray to Him.', 'Jesus is our King.', 'Jesus is our King.'),
+    q('Listen', 'Where did His friends meet?', ['In a room', 'On the moon', 'In a cave of bears'], 'It was inside a house.', 'They met in one room.', 'His friends met in one room in Jerusalem.'),
+    q('Listen', 'Whom did they tell about Jesus?', ['The whole world', 'Nobody', 'Only the fish'], 'Think of many, many people.', 'They told the whole world.', 'His friends told the whole world about Jesus.')
+  ] },
+{ n:2, title:'God Made the World',
+  story:'God made the sun, the stars, the earth and all living things. He made the first man and woman. He gave them souls that never die. They disobeyed God. That was the first sin. God still loved them.',
+  questions:[
+    q('Listen', 'Who made the world?', ['God', 'A farmer', 'A king'], 'He made the sun and stars.', 'God made the world.', 'God made the world.'),
+    q('Listen', 'What did the first man and woman do?', ['They disobeyed God', 'They flew to the stars', 'They built a car'], 'It was the first sin.', 'They disobeyed God.', 'The first man and woman disobeyed God.'),
+    q('Listen', 'Did God still love them?', ['Yes', 'No', 'Only one day'], 'God is love.', 'Yes, God still loved them.', 'God still loved them.')
+  ] },
+{ n:3, title:'Noah and the First Cities',
+  story:'A great flood came. God told Noah to build a big boat called the ark. God kept Noah and his family safe. Later people built cities. A city had a wall to keep people safe.',
+  questions:[
+    q('Listen', 'Who built the ark?', ['Noah', 'Jonah', 'A Pharaoh'], 'God told him to build it.', 'Noah built the ark.', 'Noah built the ark.'),
+    q('Listen', 'What is the ark?', ['A big boat', 'A tall tree', 'A little hat'], 'It floats.', 'The ark is a big boat.', 'The ark is a big boat.'),
+    q('Listen', 'What kept a city safe?', ['A wall', 'A flower', 'A spoon'], 'It goes around the city.', 'A wall kept the city safe.', 'A city had a wall to keep people safe.')
+  ] },
+{ n:4, title:'Bricks and Towers',
+  story:'In a flat land people made bricks from clay. They built tall towers. A king named Gilgamesh was sad when his friend died. He could not find a way to live forever. Only God can give life forever.',
+  questions:[
+    q('Listen', 'What did the people make from clay?', ['Bricks', 'Bread', 'Shoes'], 'We build with them.', 'They made bricks.', 'People made bricks from clay.'),
+    q('Listen', 'Why was the king sad?', ['His friend died', 'He lost a sock', 'It was sunny'], 'He missed someone.', 'His friend died.', 'The king was sad when his friend died.'),
+    q('Listen', 'Who can give life forever?', ['God', 'A tower', 'A brick'], 'He made us.', 'Only God can give life forever.', 'Only God can give life forever.')
+  ] },
+{ n:5, title:'Egypt and the Pyramids',
+  story:'Egypt has a long river called the Nile. The king of Egypt was called Pharaoh. People built big pyramids for the kings. There is only one true God, and Pharaoh was not God.',
+  questions:[
+    q('Listen', 'What is the river in Egypt?', ['The Nile', 'The Moon', 'The Mountain'], 'It begins with N.', 'The river is the Nile.', 'Egypt has a river called the Nile.'),
+    q('Listen', 'What was the king of Egypt called?', ['Pharaoh', 'Captain', 'Doctor'], 'It starts with an F sound.', 'He was called Pharaoh.', 'The king of Egypt was called Pharaoh.'),
+    q('Listen', 'How many true Gods are there?', ['One', 'Ten', 'None'], 'Hold up that many fingers.', 'There is only one true God.', 'There is only one true God.')
+  ] }
+]);
+})();

@@ -802,9 +802,9 @@ const SUBJECTS = {
     {id:'AL-history',  icon:'🌍', name:'World History',          tag:'Hillyer — High School',  color:'#854F0B', bg:'#FBF2EC', freq:'weekly', day:'Tuesday',
      prompt:`You are a High School History and Geography tutor using 'A Child's History of the World' by V.M. Hillyer. Student: A.L., Grade 9–12. Reads independently. Guide deep historical analysis: cause and effect, civilizations, geography, Providence in history. READING ORDER: Sequential, one chapter per session. Ask which chapter they studied last time. CONTENT RESTRICTIONS: No evolution, no ideological framing of history. SOURCE LOCK: Uploaded PDF only. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
      book:"A Child's History of the World — Hillyer",bookUrl:'https://www.dropbox.com/scl/fi/1a54r800vr42n3czrn339/BOOK-Historia-del-Mundo-NOBIS-PACEM.pdf?rlkey=7rxu0iae7kmxi5famx1g9lhd9&dl=0',cite:"A Child's History of the World, V.M. Hillyer"},
-    {id:'AL-writing-history', icon:'✍️', name:'History of Christendom', tag:'Writing History — High School', color:'#6B3A2A', bg:'#FDF5EE', freq:'daily', day:'Daily', isChristendom:true,
-     prompt:`You are the History of Christendom and Writing History tutor for A.L. (Grade 9–12). Use a mature, thoughtful tone and connect events to God\'s providence; help A.L. write good historical fiction faithful to the facts. You do NOT have the book itself: teach only the facts listed under TODAY'S UNIT below. If the student asks for something that is not listed, say: "Please look for that in your book, or ask your mother." Teach history from a traditional Catholic point of view. The app shows a timeline above the lesson: tell the student to look at it and say when these events happened. CONTENT RESTRICTIONS: No evolution, gender ideology, sex education or secular humanist frameworks. Nothing contrary to traditional Catholic teaching.`,
-     book:'The Founding of Christendom — Warren H. Carroll (Vol. 1)', bookUrl:'', cite:'Carroll, The Founding of Christendom — outline from the teacher’s worksheets'},
+    {id:'AL-writing-history', icon:'👑', name:'History of Christendom', tag:'Christendom — High School', color:'#6B3A2A', bg:'#FDF5EE', freq:'daily', day:'Daily', isChristendom:true,
+     prompt:`You are the History of Christendom tutor for A.L. (Grade 9–12). Teach only the prepared lesson, then ask its multiple-choice questions. There is no writing activity. Teach history from a traditional Catholic point of view. CONTENT RESTRICTIONS: No evolution, gender ideology, sex education or secular humanist frameworks. Nothing contrary to traditional Catholic teaching.`,
+     book:'The Founding of Christendom — Warren H. Carroll (Vol. 1)', bookUrl:'', cite:'Warren H. Carroll, The Founding of Christendom (summary in our own words)'},
     {id:'AL-grammar',  icon:'📝', name:'Grammar Review',         tag:"Harvey's — Grade 9 Mastery",color:'#534AB7', bg:'#F5F0FF', freq:'daily', day:'Daily',
      prompt:`You are a Grammar review and mastery tutor for a 9th-grader using Harvey's 'Elementary Grammar and Composition' (1880). Student: A.L. Has studied grammar before but has gaps. Begin with a short diagnostic, then target specific weak sections. Once gaps are filled, proceed through Part II. READING ORDER: After diagnostic, go to specific gap sections. Ask which section they worked on last time. SOURCE LOCK: Uploaded PDF only. CONTENT RESTRICTIONS: Classical Catholic educational tone. No modernist grammatical theories. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
      book:"Elementary Grammar & Composition — Harvey",bookUrl:'https://www.dropbox.com/scl/fi/o1kly606cr3jvgdj0hry1/BOOK-GRAMMAR-TRV-101-Elementary-Grammar-HARVEY_ENGLISH_GRAMMAR_I.pdf?rlkey=vxhc3pl9z0hohvdeeeh40zqg6&dl=0',cite:"Elementary Grammar and Composition, Harvey (1880)",games:GRAMMAR_GAMES,gamesLabel:'Grammar Games'},
@@ -837,9 +837,9 @@ const SUBJECTS = {
     {id:'FA-history',  icon:'🌍', name:'World History',          tag:"Hillyer — Gr. 1–2",      color:'#854F0B', bg:'#FBF2EC', freq:'weekly', day:'Tuesday',
      prompt:`You are a History and Geography tutor for F.A. (Grade 1–4) using 'A Child's History of the World' by V.M. Hillyer. Read aloud at moderate pace. Guide comprehension: key figures, events, geography. READING ORDER: Sequential, one chapter per session. Ask which chapter was read last time. TONE: Warm, storytelling style. Make history come alive. CONTENT RESTRICTIONS: No evolution, no ideological framing. SOURCE LOCK: Uploaded PDF only. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
      book:"A Child's History of the World — Hillyer",bookUrl:'https://www.dropbox.com/scl/fi/1a54r800vr42n3czrn339/BOOK-Historia-del-Mundo-NOBIS-PACEM.pdf?rlkey=7rxu0iae7kmxi5famx1g9lhd9&dl=0',cite:"A Child's History of the World, V.M. Hillyer"},
-    {id:'FA-writing-history', icon:'✍️', name:'History of Christendom', tag:'Writing History — Gr. 1–2', color:'#6B3A2A', bg:'#FDF5EE', freq:'daily', day:'Daily', isChristendom:true,
-     prompt:`You are a warm History of Christendom tutor for F.A. (Grade 1–4). Use simple words, short sentences and a story voice. Leave out violent details. You do NOT have the book itself: teach only the facts listed under TODAY'S UNIT below. If the student asks for something that is not listed, say: "Please look for that in your book, or ask your mother." Teach history from a traditional Catholic point of view. The app shows a timeline above the lesson: tell the student to look at it and say when these events happened. CONTENT RESTRICTIONS: No evolution, gender ideology, sex education or secular humanist frameworks. Nothing contrary to traditional Catholic teaching.`,
-     book:'The Founding of Christendom — Warren H. Carroll (Vol. 1)', bookUrl:'', cite:'Carroll, The Founding of Christendom — outline from the teacher’s worksheets'},
+    {id:'FA-writing-history', icon:'👑', name:'History of Christendom', tag:'Christendom — Gr. 1–2', color:'#6B3A2A', bg:'#FDF5EE', freq:'daily', day:'Daily', isChristendom:true,
+     prompt:`You are a warm History of Christendom tutor for F.A. (Grade 1–4). Teach only the prepared lesson, then ask its multiple-choice questions. There is no writing activity. Teach history from a traditional Catholic point of view. CONTENT RESTRICTIONS: No evolution, gender ideology, sex education or secular humanist frameworks. Nothing contrary to traditional Catholic teaching.`,
+     book:'The Founding of Christendom — Warren H. Carroll (Vol. 1)', bookUrl:'', cite:'Warren H. Carroll, The Founding of Christendom (summary in our own words)'},
     {id:'FA-math',     icon:'🔢', name:'Math — Speed & Mastery',   tag:'Supplementary Topics (Daily)',color:'#0F6E56', bg:'#EAF7F0', freq:'daily', day:'Daily', isMath:true,
      prompt:`You are a Math tutor focused on speed and fluency for F.A. (Grade 1–4). IMAGES: Whenever you introduce a concept that has a strong visual component (clock face, coins, ruler, calendar, shapes, number line, etc.), add this exact tag at the END of your response: [SHOW_IMAGE: brief description] so the app can display a helpful picture for the student. Example: [SHOW_IMAGE: analog clock showing 3 oclock] or [SHOW_IMAGE: Canadian coins penny nickel dime quarter]. TOPICS (priority order): 1. Addition/subtraction speed drills (EVERY session — 5-second standard, 3-second mental target) 2. Telling time (exact: "The short hand is on 3, long hand on 12. What time is it?") 3. Calendar 4. Tally marks 5. Temperature (C/F) 6. Roman numerals 7. Measurements (Imperial & Metric) 8. Coins and Money. PACING: Month 1: easy, digits only. Month 2+: increase difficulty, add word problems. Do NOT move to next topic until MASTERED. DUAL SYSTEM: Ottawa, Canada — both Metric (C, km, kg, L) and Imperial (F, miles, lbs, gallons). Be very specific and concrete in every question. IMAGES: Always describe visual aids (clock faces, thermometers, rulers, coins) so the app can show them. PRACTICE LINKS: https://mrnussbaum.com/games | https://www.softschools.com/math/games/ | https://www.turtlediary.com/games/math.html.`,
      book:'Math Speed & Mastery',bookUrl:'',cite:'Math Speed & Mastery — Supplementary Topics'},
@@ -886,9 +886,9 @@ SUBJECTS.LJ = [
   {id:'LJ-history', icon:'🌍', name:'World History',         tag:'Hillyer — Kindergarten',  color:'#854F0B', bg:'#FBF2EC', freq:'weekly', day:'Tuesday',
    prompt:`You are a Kindergarten History tutor for L.J. (Kindergarten, logic of Grade 3) using Hillyer. Read aloud slowly. Make it a story. Simple questions. READING ORDER: Sequential. Ask which chapter they covered last time. CONTENT RESTRICTIONS: No evolution, no ideology. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
    book:"A Child's History of the World — Hillyer",bookUrl:'https://www.dropbox.com/scl/fi/1a54r800vr42n3czrn339/BOOK-Historia-del-Mundo-NOBIS-PACEM.pdf?rlkey=7rxu0iae7kmxi5famx1g9lhd9&dl=0',cite:"A Child's History of the World, V.M. Hillyer"},
-  {id:'LJ-writing-history', icon:'✍️', name:'History of Christendom', tag:'Writing History — Kindergarten', color:'#6B3A2A', bg:'#FDF5EE', freq:'daily', day:'Daily', isChristendom:true,
-   prompt:`You are a gentle History of Christendom tutor for L.J. (Kindergarten, logic Grade 3). Tell the lesson as a very short story in tiny sentences, using at most five of the listed facts, then ask very easy questions. Leave out violent details. You do NOT have the book itself: teach only the facts listed under TODAY'S UNIT below. If the student asks for something that is not listed, say: "Please look for that in your book, or ask your mother." Teach history from a traditional Catholic point of view. The app shows a timeline above the lesson: tell the student to look at it and say when these events happened. CONTENT RESTRICTIONS: No evolution, gender ideology, sex education or secular humanist frameworks. Nothing contrary to traditional Catholic teaching.`,
-   book:'The Founding of Christendom — Warren H. Carroll (Vol. 1)', bookUrl:'', cite:'Carroll, The Founding of Christendom — outline from the teacher’s worksheets'},
+  {id:'LJ-writing-history', icon:'👑', name:'History of Christendom', tag:'Christendom — Kindergarten', color:'#6B3A2A', bg:'#FDF5EE', freq:'daily', day:'Daily', isChristendom:true,
+   prompt:`You are a gentle History of Christendom tutor for L.J. (Kindergarten). Teach only the prepared lesson, then ask its multiple-choice questions. There is no writing activity. Teach history from a traditional Catholic point of view. CONTENT RESTRICTIONS: No evolution, gender ideology, sex education or secular humanist frameworks. Nothing contrary to traditional Catholic teaching.`,
+   book:'The Founding of Christendom — Warren H. Carroll (Vol. 1)', bookUrl:'', cite:'Warren H. Carroll, The Founding of Christendom (summary in our own words)'},
   {id:'LJ-grammar', icon:'📝', name:'Grammar Introduction',  tag:"Harvey's — Kindergarten", color:'#534AB7', bg:'#F5F0FF', freq:'daily', day:'Daily',
    prompt:`You are a Kindergarten Grammar tutor for L.J. (Kindergarten, logic of Grade 3) using Harvey (1880). ONLY cover: The Senses (naming objects), Definition of Object, Definition of Word. Spend MULTIPLE sessions per concept. Do NOT go beyond The Sentence until very comfortable. Use games, pointing at objects in the room, simple repetition. TONE: Extremely playful and patient. PAGE DISPLAY RULE: Each time you move to a new page, chapter illustration, or key visual moment, end your message with [SHOW_PAGE: N] (N = the page number) so the app displays that book page inline for the student.`,
    book:"Elementary Grammar & Composition — Harvey",bookUrl:'https://www.dropbox.com/scl/fi/o1kly606cr3jvgdj0hry1/BOOK-GRAMMAR-TRV-101-Elementary-Grammar-HARVEY_ENGLISH_GRAMMAR_I.pdf?rlkey=vxhc3pl9z0hohvdeeeh40zqg6&dl=0',cite:"Elementary Grammar and Composition, Harvey (1880)",games:GRAMMAR_GAMES,gamesLabel:'Grammar Games'},
@@ -1369,13 +1369,13 @@ async function endSessionByTimer(){
     const data = await res.json();
     let msg = data.content?.find(b=>b.type==='text')?.text || `Time is up for today's session! Great work. See you next time!`;
     if(isMath) msg += ' ' + MATH_END_REMINDER;
-    else if(keyShow()) msg += ' ' + LESSON_END_REMINDER;
+    else if(keyShow() && keyReminder()) msg += ' ' + keyReminder();
     if(fbArea) fbArea.innerHTML = `<div class="feedback" style="background:rgba(40,120,60,0.12);color:#042C53;border:1px solid rgba(40,120,80,0.4);font-size:15px;line-height:1.8"><strong>⏰ Class time is up!</strong><br><br>${msg}</div>`;
     safeReadAloud(msg);
   } catch(e){
     if(fbArea) fbArea.innerHTML = `<div class="feedback" style="background:rgba(40,120,60,0.12);color:#042C53;border:1px solid rgba(40,120,80,0.4);font-size:15px;line-height:1.8"><strong>⏰ Class time is up!</strong><br><br>${isMath ? 'Great work today! ' + MATH_END_REMINDER : "Great work today! Time to take a break. We'll continue next time."}</div>`;
     if(isMath) safeReadAloud('Great work today! ' + MATH_END_REMINDER);
-    else if(keyShow()) safeReadAloud(LESSON_END_REMINDER);
+    else if(keyShow() && keyReminder()) safeReadAloud(keyReminder());
   }
 }
 function resetClassTimer(){
@@ -1824,7 +1824,6 @@ function openSubject(subjectId){
   notebookStage = 0;
   keyReset();
   if(typeof bankReset === 'function') bankReset();
-  chrAttach();
   if(typeof tlLesson === 'function') tlLesson(); // CLAA timeline for the coming lesson
   lessonImageGen++;
   stopRead();
@@ -2002,10 +2001,15 @@ async function beginSession(){
   if(window._cloudSyncPromise){ try{ await window._cloudSyncPromise; } catch(e){} }
 
   keyReset();
-  chrAttach();
-  if(curSubject && curSubject.isChristendom && !curSubject.unit){
-    document.getElementById('ai-response').textContent = 'You have finished Volume 1 of History of Christendom. Ask your mother which lesson to review.';
-    return;
+  // History of Christendom uses only the prepared lessons — never an AI-invented one.
+  if(curSubject && curSubject.isChristendom){
+    if(typeof bankReset === 'function') bankReset();
+    if(typeof bankPick !== 'function' || !bankPick()){
+      if(typeof tlClear === 'function') tlClear();
+      document.getElementById('ai-response').textContent = CHRISTENDOM_NOT_READY;
+      safeReadAloud(CHRISTENDOM_NOT_READY);
+      return;
+    }
   }
   if(typeof tlLesson === 'function') tlLesson();
 
@@ -2060,9 +2064,7 @@ async function beginSession(){
   const isAesop = curSubject && curSubject.isAesop;
   const isBible = curSubject && curSubject.isBible;
 
-  const lessonInstruction = curSubject.unit
-    ? `4. TEACH today's unit in your own words as a clear, interesting history lesson that stays strictly within the facts listed under TODAY'S UNIT. This is not a reading of the book, so do not say you are reading it. The exact words you write ARE what will be read aloud AND shown on screen.`
-    : isNarnia
+  const lessonInstruction = isNarnia
     ? `4. RETELL the chapter in your own words, as a warm storyteller — vivid, engaging, age-appropriate, covering all key events, characters, and details. The student is listening and has no other way to follow the story. IMPORTANT: The exact words you write ARE what will be read aloud AND displayed on screen — do not paraphrase separately.`
     : isArt
     ? `4. Present the lesson content using the exact words you want read aloud and displayed. Do NOT write one thing and narrate something different. The text you generate IS the lesson text AND the audio script — they must be identical.`
@@ -2185,8 +2187,8 @@ Respond in plain, natural tutor voice — no markdown, no bullet symbols.`;
     notebookStage = 0;
     const sess = getSession(curStudent, curSubject.id);
     if(!sessionCountedThisOpen){ sess.sessionCount++; sessionCountedThisOpen = true; }
-    sess.lastLesson = curSubject.unit ? chrLabel(curSubject.unit, 'in progress') : lessonTitle.trim().substring(0, 120);
-    if(!curSubject.unit && typeof tlLesson === 'function') tlLesson(cleanText + ' ' + lessonTitle);
+    sess.lastLesson = lessonTitle.trim().substring(0, 120);
+    if(typeof tlLesson === 'function') tlLesson(cleanText + ' ' + lessonTitle);
     saveSession(curStudent, curSubject.id, sess);
     const t = `Session ${sess.sessionCount} · Last: ${sess.lastLesson}`;
     document.getElementById('tracker-text') && (document.getElementById('tracker-text').textContent = t);
@@ -2203,7 +2205,7 @@ Respond in plain, natural tutor voice — no markdown, no bullet symbols.`;
     document.getElementById('ai-question-box').innerHTML = questions.length
       ? questions.map(q=>`<div style="background:rgba(60,120,240,0.12);border:1px solid rgba(80,140,240,0.25);border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:13px;color:#1A1A1A;line-height:1.7;font-family:'Lato',sans-serif;font-weight:400;">${q.trim()}</div>`).join('')
       : `<div style="font-size:13px;color:#1A1A1A;line-height:1.8;font-weight:400;">${cleanText.substring(0,300)}...</div>`;
-    document.getElementById('ai-cite').textContent = 'Source: ' + curSubject.cite + (curSubject.unit ? ', ' + curSubject.unit.ch : '');
+    document.getElementById('ai-cite').textContent = 'Source: ' + curSubject.cite;
     ['btn-correct','btn-partial','btn-wrong','btn-hint','btn-next'].forEach(id=>{
       document.getElementById(id).disabled = false;
     });
@@ -3006,16 +3008,6 @@ async function giveHint(){
   btn.textContent='Hint';
 }
 
-// History of Christendom (Nov 27 2026): give a copy of the subject today's unit, so every
-// tutor call (lesson, next question, grading, hint) sees the same approved facts.
-function chrAttach(){
-  if(!curSubject || !curSubject.isChristendom || typeof chrPick !== 'function') return;
-  const base = SUBJECTS[curStudent].find(function(s){ return s.id === curSubject.id; });
-  curSubject = base;
-  const u = chrPick();
-  if(u) curSubject = Object.assign({}, base, { unit:u, prompt:base.prompt + chrBlock(u) });
-}
-
 // ══════════════════════════════════════════════
 // LESSON ENDING: ANSWER KEY + REMINDER (Nov 27 2026) — every subject except Math
 // After the questions (writing/notebook step, or when class time ends) the student sees
@@ -3031,6 +3023,8 @@ function keyReset(){
   const box = document.getElementById('answer-key'); if(box) box.innerHTML = '';
 }
 function keyApplies(){ return !!curSubject && !curSubject.isMath; }
+// History of Christendom shows the answer key without the cursive-copy reminder (teacher, Nov 27 2026)
+function keyReminder(){ return (curSubject && curSubject.isChristendom) ? '' : LESSON_END_REMINDER; }
 function keyNoteAnswered(question){
   const q = (question || '').trim();
   if(!q || q === NOTEBOOK_CONFIRM_Q) return;
@@ -3060,12 +3054,14 @@ function keyShow(){
       add(row, 'key-a', it.a ? '✓ ' + it.a : 'Ask your mother to check this answer.');
     });
   }
-  add(box, 'key-reminder', LESSON_END_REMINDER);
+  if(keyReminder()) add(box, 'key-reminder', keyReminder());
   return true;
 }
 function keyWrapUp(){
-  if(typeof bankState !== 'undefined' && bankState.active) return 'Today you finished ' + bankUnit() + ' ' + bankState.lesson.n + ': ' + bankState.lesson.title + '.';
-  if(curSubject.unit) return 'Today you finished ' + curSubject.name + ', ' + curSubject.unit.ch + ': ' + curSubject.unit.title + '.';
+  if(typeof bankState !== 'undefined' && bankState.active){
+    const title = bankState.lesson.title;
+    return 'Today you finished ' + bankUnit() + ' ' + bankState.lesson.n + ': ' + title + (/[.?!]$/.test(title) ? '' : '.');
+  }
   return 'Today you finished your ' + curSubject.name + ' lesson.';
 }
 
@@ -3077,6 +3073,8 @@ function keyWrapUp(){
 // confirm that the mother has checked it.
 // ══════════════════════════════════════════════
 const NOTEBOOK_CONFIRM_Q = 'Has your mother checked your notebook?';
+// Shown when History of Christendom has no prepared lesson left (Nov 27 2026)
+const CHRISTENDOM_NOT_READY = 'The next History of Christendom lessons are not ready yet. Please tell your mother.';
 // Said at the end of every Math lesson (Nov 27 2026)
 const MATH_END_REMINDER = 'Now continue with your other subjects until your mother calls you to do Math with your book and workbook.';
 function notebookQuestionLimit(){
@@ -3088,7 +3086,6 @@ function notebookBudgetReached(){
 }
 function notebookTimeLeft(){ return !sessionEndedByTimer && classTimerSeconds > 60; }
 function notebookInstructions(){
-  if(curSubject && curSubject.unit) return `NOTEBOOK ACTIVITY: tell the student to open their notebook and do today's writing task, word for word: "${chrTask(curSubject.unit)}" Tell the student to show the notebook to their mother so she can correct it. End with exactly this question: "${NOTEBOOK_CONFIRM_Q}" Then add the tag [NOTEBOOK] at the very end.`;
   const drawOk = curStudent === 'LJ' ? ' (L.J. may write single words or draw a small picture for each example)' : '';
   return `NOTEBOOK ACTIVITY: tell the student to open their notebook and write down 3 examples of today's topic${drawOk} — name the topic clearly. Give 1 or 2 short, clear examples first so the student understands what to write (these do not count as their 3). Tell the student to show the notebook to their mother so she can correct it. End with exactly this question: "${NOTEBOOK_CONFIRM_Q}" Then add the tag [NOTEBOOK] at the very end.`;
 }
@@ -3137,11 +3134,6 @@ function handleNotebookReply(answer){
   if(YES.test(a) && !STARTS_NO.test(a)){
     notebookStage = 2;
     if(typeof bankState !== 'undefined' && bankState.active) bankComplete();
-    if(curSubject && curSubject.unit){
-      const sess = getSession(curStudent, curSubject.id);
-      sess.lastLesson = chrLabel(curSubject.unit, 'completed');
-      saveSession(curStudent, curSubject.id, sess);
-    }
     msg = 'Wonderful! Thank you for showing your notebook to your mother. You worked very hard today — well done!';
     if(curSubject && curSubject.isMath) msg += ' ' + MATH_END_REMINDER;
     else if(keyShow()) msg += ' ' + keyWrapUp() + ' ' + LESSON_END_REMINDER;
@@ -3153,7 +3145,6 @@ function handleNotebookReply(answer){
   } else {
     msg = `That's okay! Finish writing your 3 examples, then show your notebook to your mother so she can check it. ${NOTEBOOK_CONFIRM_Q} Tell me yes when she has.`;
     if(typeof bankState !== 'undefined' && bankState.active) msg = bankNotYetText() + ' ' + NOTEBOOK_CONFIRM_Q;
-    else if(curSubject && curSubject.unit) msg = `That's okay! Finish your writing, then show your notebook to your mother so she can check it. ${NOTEBOOK_CONFIRM_Q}`;
     showNotebookMessage(msg);
   }
   enableAnswerButtons();
