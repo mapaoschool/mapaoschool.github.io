@@ -1808,7 +1808,10 @@ function renderSubjects(studentId){
   const list = SUBJECTS[studentId] || [];
   const WEEKDAYS = new Set(['Monday','Tuesday','Wednesday','Thursday','Friday']);
   const daily  = list.filter(s => !WEEKDAYS.has(s.day));
-  const weekly = list.filter(s =>  WEEKDAYS.has(s.day));
+  // Once-a-week subjects are listed Monday to Friday (teacher, Nov 27 2026)
+  const DAY_ORDER = [...WEEKDAYS];
+  const weekly = list.filter(s =>  WEEKDAYS.has(s.day))
+    .sort((a, b) => DAY_ORDER.indexOf(a.day) - DAY_ORDER.indexOf(b.day));
   const container = document.getElementById('subject-list');
   container.innerHTML = `
     <div class="subj-two-col">
