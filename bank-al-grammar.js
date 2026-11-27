@@ -28,7 +28,7 @@ window.LESSON_BANKS['AL-grammar'] = {
   ]
  ],
  "cite": "Harvey, Elementary Grammar — Teacher's Manual and A.L. Workbook",
- "minutes": 20,
+ "minutes": 15,
  "grader": "a high school student studying English grammar",
  "writingStart": "Now open your grammar workbook to Unit {n}.",
  "notYet": "That's okay! Finish your written work, then show your workbook to your mother so she can check it.",
